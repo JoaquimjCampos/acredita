@@ -1,4 +1,3 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
@@ -7,34 +6,39 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        'angola-red': '#FF0000',
-        'angola-black': '#000000',
-        'angola-yellow': '#FFCC00',
-        'acredita-primary': '#FF6B35',
-        'acredita-secondary': '#004E89',
-        'acredita-accent': '#FFD23F'
+        'acredita-primary': {
+          DEFAULT: '#ff6600',
+          dark: '#d35400',
+          light: '#ff944d',
+        },
+        'acredita-secondary': {
+          DEFAULT: '#0057b8',
+          dark: '#003974',
+          light: '#4d8cff',
+        },
+        'acredita-accent': '#00c48c',
+        'acredita-bg': '#f9fafb',
+        'acredita-muted': '#f3f4f6',
       },
       fontFamily: {
-        'sans': ['Inter', 'system-ui', 'sans-serif'],
+        sans: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Fira Sans',
+          'Droid Sans',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
       },
-      animation: {
-        'fadeIn': 'fadeIn 0.5s ease-in-out',
-        'slideIn': 'slideIn 0.3s ease-out',
-      },
-      keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0' },
-          '100%': { opacity: '1' },
-        },
-        slideIn: {
-          '0%': { transform: 'translateY(-10px)', opacity: '0' },
-          '100%': { transform: 'translateY(0)', opacity: '1' },
-        }
-      }
     },
   },
-  plugins: [
-    require('@tailwindcss/forms'),
-    require('@tailwindcss/typography'),
-  ],
-}
+  plugins: [],
+};

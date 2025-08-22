@@ -1,30 +1,30 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import { LoadingSpinner } from '../common';
+import { LoadingSpinner } from '../common/LoadingSpinner';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
-  const location = useLocation();
+	const { isAuthenticated, isLoading } = useAuth();
+	const location = useLocation();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <LoadingSpinner size="lg" text="A verificar autenticação..." />
-      </div>
-    );
-  }
+	if (isLoading) {
+		return (
+			<div className="min-h-screen flex items-center justify-center bg-gray-50">
+				<LoadingSpinner size="lg" text="A verificar autenticação..." />
+			</div>
+		);
+	}
 
-  if (!isAuthenticated) {
-    // Guardar a localização tentada para redirecionar após login
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+	if (!isAuthenticated) {
+		// Guardar a localização tentada para redirecionar após login
+		return <Navigate to="/login" state={{ from: location }} replace />;
+	}
 
-  return <>{children}</>;
+	return <>{children}</>;
 };
 
 export default ProtectedRoute;

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="400" height="500" viewBox="0 0 400 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="500" fill="#F3F4F6"/>
+  <path d="M120 100 Q140 80 180 90 Q220 100 240 130 Q260 160 250 200 Q240 240 200 250 Q160 260 140 300 Q120 340 150 370 Q180 400 220 390 Q260 380 270 340 Q280 300 320 280 Q360 260 350 220 Q340 180 300 170 Q260 160 250 120 Q240 80 200 70 Q160 60 140 90 Q120 120 120 100 Z" fill="#FFD600" stroke="#B8860B" stroke-width="4"/>
+  <text x="50%" y="95%" text-anchor="middle" fill="#B8860B" font-size="32" font-family="Arial" font-weight="bold">Angola</text>
+</svg>

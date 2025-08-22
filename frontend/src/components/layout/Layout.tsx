@@ -1,21 +1,10 @@
+import { Newspaper } from 'lucide-react';
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../common';
-import { cn } from '../../utils';
-import {
-  Home,
-  Users,
-  Trophy,
-  Calendar,
-  Vote,
-  User,
-  LogOut,
-  Menu,
-  X,
-  Heart,
-  Settings
-} from 'lucide-react';
+import { cn } from '../../utils/index.original';
+import { Home, Users, Trophy, Calendar, Vote, User, LogOut, Menu, X, Heart, Settings, ArrowRight, BookOpen } from 'lucide-react';
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -32,85 +21,56 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo e título */}
-          <div className="flex items-center">
-            <button
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-acredita-primary lg:hidden"
-              onClick={onMobileMenuToggle}
-            >
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-            <Link to="/" className="flex items-center ml-4 lg:ml-0">
-              <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-acredita-primary to-acredita-secondary rounded-lg flex items-center justify-center">
-                  <Heart className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">Acredita</h1>
-                  <p className="text-xs text-gray-600 -mt-1">em Ti, em Angola</p>
-                </div>
+    <header className="bg-white shadow-sm border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
+        <div className="flex items-center">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-acredita-primary lg:hidden"
+            onClick={onMobileMenuToggle}
+            aria-label="Abrir menu"
+          >
+            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
+          <Link to="/" className="flex items-center ml-4 lg:ml-0">
+            <div className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-r from-acredita-primary to-acredita-secondary rounded-lg flex items-center justify-center">
+                <Heart className="h-5 w-5 text-white" />
               </div>
-            </Link>
-          </div>
-
-          {/* Menu desktop */}
-          <nav className="hidden lg:flex space-x-8">
-            <NavLink to="/" icon={Home} text="Início" />
-            <NavLink to="/participantes" icon={Users} text="Participantes" />
-            <NavLink to="/classificacao" icon={Trophy} text="Classificação" />
-            <NavLink to="/temporadas" icon={Calendar} text="Temporadas" />
-            <NavLink to="/votar" icon={Vote} text="Votar" />
-          </nav>
-
-          {/* Menu de utilizador */}
-          <div className="flex items-center space-x-4">
-            {isAuthenticated && user ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-sm text-gray-700">
-                  Olá, <span className="font-medium">{user.first_name}</span>
-                </span>
-                <div className="flex items-center space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => navigate('/perfil')}
-                    className="p-2"
-                  >
-                    <User className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="p-2"
-                  >
-                    <LogOut className="h-4 w-4" />
-                  </Button>
-                </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 tracking-tight">Acredita</h1>
+                <p className="text-xs text-gray-500 -mt-1">em Ti, em Angola</p>
               </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/login')}
-                >
-                  Entrar
-                </Button>
-                <Button
-                  variant="primary"
-                  size="sm"
-                  onClick={() => navigate('/registo')}
-                >
-                  Registar
-                </Button>
-              </div>
-            )}
-          </div>
+            </div>
+          </Link>
+        </div>
+        <nav className="hidden lg:flex space-x-6">
+          <NavLink to="/" icon={Home} text="Início" />
+          <NavLink to="/temporadas" icon={Calendar} text="Temporadas" />
+          <NavLink to="/jogos" icon={Trophy} text="Jogos" />
+          <NavLink to="/simuladores" icon={Settings} text="Simuladores" />
+          <NavLink to="/participantes" icon={Users} text="Participantes" />
+          <NavLink to="/ranking" icon={Trophy} text="Ranking" />
+          <NavLink to="/voting" icon={Vote} text="Votar" />
+          <NavLink to="/conteudos" icon={BookOpen} text="Conteúdos" />
+          <NavLink to="/blog" icon={Newspaper} text="Blog" />
+        </nav>
+        <div className="flex items-center space-x-2">
+          {isAuthenticated && user ? (
+            <>
+              <span className="text-sm text-gray-700 hidden md:inline">Olá, <span className="font-medium">{user.first_name}</span></span>
+              <Button variant="ghost" size="sm" onClick={() => navigate('/perfil')} className="p-2"><User className="h-4 w-4" /></Button>
+              <Button variant="ghost" size="sm" onClick={handleLogout} className="p-2"><LogOut className="h-4 w-4" /></Button>
+            </>
+          ) : (
+            <>
+              <Button variant="primary" size="sm" onClick={() => navigate('/registo')} className="flex items-center space-x-1">
+                <span>Começar</span>
+                <ArrowRight className="h-4 w-4" />
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => navigate('/login')}>Entrar</Button>
+            </>
+          )}
         </div>
       </div>
     </header>
@@ -198,6 +158,8 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
                 <MobileNavLink to="/classificacao" icon={Trophy} text="Classificação" onClick={handleNavigation} />
                 <MobileNavLink to="/temporadas" icon={Calendar} text="Temporadas" onClick={handleNavigation} />
                 <MobileNavLink to="/votar" icon={Vote} text="Votar" onClick={handleNavigation} />
+                <MobileNavLink to="/conteudos" icon={BookOpen} text="Conteúdos" onClick={handleNavigation} />
+                  <MobileNavLink to="/blog" icon={Newspaper} text="Blog" onClick={handleNavigation} />
                 
                 {isAuthenticated && (
                   <>
@@ -270,63 +232,18 @@ const MobileNavLink: React.FC<MobileNavLinkProps> = ({ to, icon: Icon, text, onC
 };
 
 // Footer
-const Footer: React.FC = () => {
-  return (
-    <footer className="bg-gray-50 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="w-8 h-8 bg-gradient-to-r from-acredita-primary to-acredita-secondary rounded-lg flex items-center justify-center">
-                <Heart className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold text-gray-900">Acredita</h3>
-                <p className="text-sm text-gray-600 -mt-1">em Ti, em Angola</p>
-              </div>
-            </div>
-            <p className="text-sm text-gray-600">
-              Plataforma oficial do programa de televisão que apoia empreendedores angolanos 
-              a realizarem os seus sonhos e impactarem positivamente o país.
-            </p>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-4">Ligações Rápidas</h4>
-            <ul className="space-y-2 text-sm">
-              <li><Link to="/participantes" className="text-gray-600 hover:text-acredita-primary">Participantes</Link></li>
-              <li><Link to="/classificacao" className="text-gray-600 hover:text-acredita-primary">Classificação</Link></li>
-              <li><Link to="/temporadas" className="text-gray-600 hover:text-acredita-primary">Temporadas</Link></li>
-              <li><Link to="/votar" className="text-gray-600 hover:text-acredita-primary">Votar</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="text-sm font-semibold text-gray-900 mb-4">Contacto</h4>
-            <div className="space-y-2 text-sm text-gray-600">
-              <p>📧 info@acreditaemti.ao</p>
-              <p>📞 +244 900 000 000</p>
-              <p>📍 Luanda, Angola</p>
-            </div>
-          </div>
-        </div>
-        
-        <div className="border-t border-gray-200 mt-8 pt-6">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-sm text-gray-600">
-              © 2025 Acredita em Ti, Acredita em Angola. Todos os direitos reservados.
-            </p>
-            <div className="flex items-center space-x-4 mt-4 md:mt-0">
-              <span className="text-sm text-gray-600 flex items-center">
-                Feito com <Heart className="h-4 w-4 text-red-500 mx-1" /> em Angola
-              </span>
-            </div>
-          </div>
-        </div>
+const Footer: React.FC = () => (
+  <footer className="bg-white border-t border-gray-100">
+    <div className="max-w-7xl mx-auto py-6 px-4 flex flex-col md:flex-row justify-between items-center">
+      <div className="flex items-center space-x-2 mb-2 md:mb-0">
+        <Heart className="h-5 w-5 text-acredita-primary" />
+        <span className="font-semibold text-gray-700">Acredita em Ti</span>
       </div>
-    </footer>
-  );
-};
+      <span className="text-xs text-gray-400">© 2025 Acredita. Todos os direitos reservados.</span>
+      <span className="text-xs text-gray-400 flex items-center">Feito com <Heart className="h-4 w-4 text-red-500 mx-1" /> em Angola</span>
+    </div>
+  </footer>
+);
 
 // Layout principal
 interface LayoutProps {

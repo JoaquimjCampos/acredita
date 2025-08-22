@@ -1,0 +1,10 @@
+declare module './contexts/AuthContext';
+declare module './pages/HomePage';
+declare module './pages/LoginPage';
+declare module './pages/RegisterPage';
+declare module './pages/DashboardPage';
+declare module './pages/ParticipantsPage';
+declare module './pages/ParticipantProfilePage';
+declare module './pages/RankingPage';
+declare module './pages/VotingPage';
+declare module './pages/SeasonsPage';

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
-import { Card, Button } from '../components/common';
+import { Card, Button, LoadingSpinner } from '../components/common';
+import { ErrorMessage } from '../components/common/ErrorMessage';
 import { apiService } from '../services/api';
 import { ParticipantSimple } from '../types';
 import { 
@@ -24,6 +25,7 @@ const ParticipantProfilePage: React.FC = () => {
   const navigate = useNavigate();
   const [participant, setParticipant] = useState<ParticipantSimple | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [voting, setVoting] = useState(false);
 
@@ -36,30 +38,20 @@ const ParticipantProfilePage: React.FC = () => {
   const loadParticipant = async (participantId: string) => {
     try {
       setLoading(true);
-      
-      // Dados mock do participante (substitua pela chamada real da API)
-      const mockParticipant: ParticipantSimple = {
-        id: participantId,
-        nome: 'Maria Silva',
-        idade: 25,
-        provincia: 'Luanda',
-        historia: 'Maria Silva é uma empreendedora dedicada à educação infantil que transformou a sua comunidade através da criação de uma escola inovadora. Nascida e criada no bairro do Sambizanga, Maria sempre sonhou em proporcionar às crianças da sua região uma educação de qualidade. Com apenas 22 anos, decidiu fundar a sua própria escola comunitária, utilizando métodos pedagógicos modernos e adaptados à realidade angolana. O seu projeto educativo já beneficiou mais de 200 crianças e tornou-se um exemplo de sucesso para outras comunidades. Maria acredita que a educação é a chave para o desenvolvimento sustentável de Angola e dedica-se diariamente a formar as futuras gerações do país.',
-        foto_perfil: null,
-        total_votos: 1247,
-        data_inscricao: '2025-01-15',
-        status: 'ativo',
-        redes_sociais: {
-          instagram: '@maria_silva_ao',
-          facebook: 'Maria Silva'
-        }
-      };
-
-      setParticipant(mockParticipant);
-      
-      // Verificar se o utilizador já votou neste participante
-      setHasVoted(false); // Mock - implementar verificação real
-    } catch (error) {
-      console.error('Erro ao carregar participante:', error);
+      setError(null);
+  const response = await apiService.getParticipant(Number(participantId));
+      if (response.sucesso) {
+        setParticipant(response.dados);
+        // TODO: Verificar se o utilizador já votou neste participante (chamada real)
+        setHasVoted(false);
+      } else {
+        setError('Participante não encontrado.');
+        setParticipant(null);
+      }
+    } catch (err: any) {
+      setError('Erro ao carregar participante.');
+      setParticipant(null);
+      console.error('Erro ao carregar participante:', err);
     } finally {
       setLoading(false);
     }
@@ -109,24 +101,20 @@ const ParticipantProfilePage: React.FC = () => {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
+          <LoadingSpinner size="lg" text="Carregando participante..." />
         </div>
       </Layout>
     );
   }
 
-  if (!participant) {
+  if (error || !participant) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
+        <div className="min-h-screen flex items-center justify-center" role="alert" aria-live="assertive">
           <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">
-              Participante não encontrado
-            </h2>
-            <Button onClick={() => navigate('/participantes')}>
-              Voltar aos Participantes
-            </Button>
+            <ErrorMessage message={error || 'Participante não encontrado.'} />
+            <Button className="mt-6" onClick={() => navigate('/participantes')}>Voltar aos Participantes</Button>
           </div>
         </div>
       </Layout>
@@ -135,7 +123,7 @@ const ParticipantProfilePage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 py-6">
+  <div className="min-h-screen bg-gray-50 py-6" tabIndex={-1} aria-label="Conteúdo principal do perfil do participante">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
           {/* Botão Voltar */}
@@ -143,6 +131,7 @@ const ParticipantProfilePage: React.FC = () => {
             variant="outline"
             onClick={() => navigate('/participantes')}
             className="mb-6"
+            aria-label="Voltar aos Participantes"
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar aos Participantes

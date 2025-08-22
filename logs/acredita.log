@@ -1,0 +1,328 @@
+Watching for file changes with StatReloader
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\participants\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\seasons\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\participants\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+D:\apps\Acredita\acredita_backend\urls.py changed, reloading.
+Watching for file changes with StatReloader
+D:\apps\Acredita\acredita_backend\urls.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Requisição MCP recebida: GET /api/accounts/
+Unauthorized: /api/accounts/
+Requisição MCP recebida: GET /api/participants/api/participants/
+Unauthorized: /api/participants/api/participants/
+Requisição MCP recebida: GET /favicon.ico
+Not Found: /favicon.ico
+Requisição MCP recebida: GET /api/participants/api/participants/
+Unauthorized: /api/participants/api/participants/
+D:\apps\Acredita\participants\views.py changed, reloading.
+D:\apps\Acredita\participants\urls.py changed, reloading.
+D:\apps\Acredita\participants\serializers.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Requisição MCP recebida: POST /api/accounts/register/
+Bad Request: /api/accounts/register/
+Requisição MCP recebida: POST /api/auth/login/
+Unauthorized: /api/auth/login/
+Requisição MCP recebida: GET /api/accounts/dashboard/
+Not Found: /api/accounts/dashboard/
+Requisição MCP recebida: GET /api/seasons/api/seasons/
+Requisição MCP recebida: GET /api/seasons/api/seasons/current/
+Not Found: /api/seasons/api/seasons/current/
+Requisição MCP recebida: GET /api/participants/api/participants/
+Unauthorized: /api/participants/api/participants/
+Requisição MCP recebida: GET /api/participants/api/participants/leaderboard/
+Unauthorized: /api/participants/api/participants/leaderboard/
+Requisição MCP recebida: GET /api/voting/api/sessions/
+Requisição MCP recebida: GET /api/voting/api/sessions/active/
+Requisição MCP recebida: GET /api/seasons/api/episodes/
+Requisição MCP recebida: GET /api/seasons/api/episodes/upcoming/
+Requisição MCP recebida: GET /admin/
+Requisição MCP recebida: GET /admin/login/
+D:\apps\Acredita\accounts\views.py changed, reloading.
+D:\apps\Acredita\accounts\views.py changed, reloading.
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+D:\apps\Acredita\participants\views.py changed, reloading.
+D:\apps\Acredita\participants\views.py changed, reloading.
+D:\apps\Acredita\participants\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Requisição MCP recebida: POST /api/accounts/register/
+Requisição MCP recebida: POST /api/auth/login/
+Requisição MCP recebida: GET /api/accounts/dashboard/
+Not Found: /api/accounts/dashboard/
+Requisição MCP recebida: GET /api/seasons/api/seasons/
+Requisição MCP recebida: GET /api/seasons/api/seasons/current/
+Not Found: /api/seasons/api/seasons/current/
+Requisição MCP recebida: GET /api/participants/api/participants/
+Unauthorized: /api/participants/api/participants/
+Requisição MCP recebida: GET /api/participants/api/participants/leaderboard/
+Requisição MCP recebida: GET /api/voting/api/sessions/
+Requisição MCP recebida: GET /api/voting/api/sessions/active/
+Requisição MCP recebida: GET /api/seasons/api/episodes/
+Requisição MCP recebida: GET /api/seasons/api/episodes/upcoming/
+Requisição MCP recebida: GET /admin/
+Requisição MCP recebida: GET /admin/login/
+D:\apps\Acredita\accounts\views.py changed, reloading.
+D:\apps\Acredita\participants\views.py changed, reloading.
+D:\apps\Acredita\accounts\views.py changed, reloading.
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Watching for file changes with StatReloader
+Requisição MCP recebida: POST /api/auth/login/
+Requisição MCP recebida: GET /api/accounts/users/dashboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/seasons/
+Not Found: /api/seasons/current/
+Not Found: /api/participants/leaderboard/
+Requisição MCP recebida: GET /api/seasons/
+Requisição MCP recebida: GET /api/seasons/current/
+Requisição MCP recebida: GET /api/participants/leaderboard/
+Not Found: /api/participants/leaderboard/
+Not Found: /api/seasons/current/
+Not Found: /api/seasons/
+Requisição MCP recebida: POST /api/accounts/register/
+Bad Request: /api/accounts/register/

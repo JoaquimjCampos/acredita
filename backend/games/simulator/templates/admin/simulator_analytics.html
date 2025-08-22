@@ -1,0 +1,44 @@
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1 style="color:#2563eb;font-weight:bold;">{{ business_brand }}</h1>
+<h2>Simulator Analytics: {{ simulator.title }}</h2>
+<div style="display:flex;gap:2em;margin-bottom:2em;">
+  <div style="background:#e0f2fe;padding:1em;border-radius:8px;min-width:150px;text-align:center;">
+    <div style="font-size:2em;font-weight:bold;">{{ total_simulators }}</div>
+    <div>Total Simuladores</div>
+  </div>
+  <div style="background:#bbf7d0;padding:1em;border-radius:8px;min-width:150px;text-align:center;">
+    <div style="font-size:2em;font-weight:bold;">{{ active_simulators }}</div>
+    <div>Simuladores Ativos</div>
+  </div>
+  <div style="background:#fef9c3;padding:1em;border-radius:8px;min-width:150px;text-align:center;">
+    <div style="font-size:2em;font-weight:bold;">{{ total_sessions }}</div>
+    <div>Total Sessões</div>
+  </div>
+</div>
+<canvas id='sessionsChart' width='600' height='300'></canvas>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<script>
+const ctx = document.getElementById('sessionsChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            label: 'Sessions per Day',
+            data: {{ chart_values|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+<h2>Session Details</h2>
+<pre>{{ session_data }}</pre>
+{% endblock %}
