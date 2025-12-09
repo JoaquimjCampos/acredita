@@ -47,6 +47,10 @@ LOCAL_APPS = [
     'backend.content',
     'backend.games',
     'backend.ads',
+    'backend.core',
+    'backend.certifications',
+    'backend.marketplace',
+    'backend.kixikila',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -241,6 +245,15 @@ LOGGING = {
         'handlers': ['console', 'file'],
         'level': 'INFO',
     },
+}
+
+# Feature Flags Configuration
+# Controla ativação de novas funcionalidades em produção
+ACTIVE_FEATURES = {
+    'certifications': config('FEATURE_CERTIFICATIONS', default=False, cast=bool),
+    'marketplace': config('FEATURE_MARKETPLACE', default=False, cast=bool),
+    'kixikila': config('FEATURE_KIXIKILA', default=False, cast=bool),
+    'advanced_payments': config('FEATURE_ADVANCED_PAYMENTS', default=False, cast=bool),
 }
 
 # Custom User Model

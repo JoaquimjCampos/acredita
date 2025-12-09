@@ -39,6 +39,10 @@ urlpatterns = [
     path('api/content/', include('backend.content.urls')),
     path('api/games/', include('backend.games.urls')),
     path('api/ads/', include('backend.ads.urls')),
+    # New v2 APIs with new features
+    path('api/v2/certifications/', include('backend.certifications.urls')),
+    path('api/v2/marketplace/', include('backend.marketplace.urls')),
+    path('api/v2/kixikila/', include('backend.kixikila.urls')),
 ]
 
 # Static and media files
