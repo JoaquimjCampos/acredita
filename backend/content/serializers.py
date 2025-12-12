@@ -1,110 +1,155 @@
 from rest_framework import serializers
-from .models import Content
+from .models import Content, Video, Podcast, Course
+
 
 class ContentSerializer(serializers.ModelSerializer):
-    def validate(self, attrs):
-        # media_url required for certain categories
-        if attrs.get("category") in ["Education", "Entertainment"] and not attrs.get("media_url"):
-            raise serializers.ValidationError({"media_url": "Media URL is required for Education or Entertainment content."})
-
-        # feedback cannot contain banned words
-        banned_words = ["spam", "offensive", "banned"]
-        feedback = attrs.get("feedback", "")
-        for word in banned_words:
-            if word in feedback.lower():
-                raise serializers.ValidationError({"feedback": f"Feedback contains banned word: {word}"})
-
-        # author must be active user
-        author = attrs.get("author")
-        if author and hasattr(author, "is_active") and not author.is_active:
-            raise serializers.ValidationError({"author": "Author must be an active user."})
-
-        # prevent duplicate content titles per author
-        title = attrs.get("title")
-        if author and title:
-            from .models import Content
-            existing = Content.objects.filter(title=title, author=author)
-            if self.instance:
-                existing = existing.exclude(pk=self.instance.pk)
-            if existing.exists():
-                raise serializers.ValidationError({"title": "This author already has content with this title."})
-
-        # require feedback for inactive content
-        if attrs.get("is_active") is False and not feedback:
-            raise serializers.ValidationError({"feedback": "Feedback is required when content is inactive."})
-
-        # enforce minimum tag count for News category
-        if attrs.get("category") == "News":
-            tags = [tag.strip() for tag in attrs.get("tags", "").split(",") if tag.strip()]
-            if len(tags) < 2:
-                raise serializers.ValidationError({"tags": "At least 2 tags are required for News content."})
-
-        return attrs
-    def validate_title(self, value):
-        if not value:
-            raise serializers.ValidationError("Title is required.")
-        if len(value) > 100:
-            raise serializers.ValidationError("Title must be 100 characters or less.")
-        return value
-
-    def validate_description(self, value):
-        if not value:
-            raise serializers.ValidationError("Description is required.")
-        return value
-
-    def validate_category(self, value):
-        allowed_categories = ["Education", "Entertainment", "News", "Sports", "Other"]
-        if value and value not in allowed_categories:
-            raise serializers.ValidationError(f"Category must be one of: {', '.join(allowed_categories)}.")
-        return value
-
-    def validate_tags(self, value):
-        tags = [tag.strip() for tag in value.split(",") if tag.strip()]
-        if not tags:
-            raise serializers.ValidationError("At least one tag is required.")
-        if any("," in tag for tag in tags):
-            raise serializers.ValidationError("Tags must not contain commas.")
-        if len(set(tags)) != len(tags):
-            raise serializers.ValidationError("Tags must be unique.")
-        return value
-    def validate_media_url(self, value):
-        if value:
-            allowed_extensions = [".jpg", ".jpeg", ".png", ".gif", ".mp4", ".webm"]
-            if not any(value.lower().endswith(ext) for ext in allowed_extensions):
-                raise serializers.ValidationError("Media URL must be an image or video file.")
-        return value
-
-    def validate_feedback(self, value):
-        if value and len(value) > 500:
-            raise serializers.ValidationError("Feedback must be 500 characters or less.")
-        return value
-    def validate_tags(self, value):
-        # Ensure tags are comma-separated and not empty
-        tags = [tag.strip() for tag in value.split(",") if tag.strip()]
-        if not tags:
-            raise serializers.ValidationError("At least one tag is required.")
-        if any("," in tag for tag in tags):
-            raise serializers.ValidationError("Tags must not contain commas.")
-        return value
+    """Serializer para conteúdo editorial"""
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    
     class Meta:
         model = Content
         fields = [
-            "id",
-            "title",
-            "description",
-            "category",
-            "tags",
-            "author",
-            "media_url",
-            "media_file",
-            "feedback",
-            "is_active",
-            "created_at",
-            "updated_at",
+            'id',
+            'title',
+            'description',
+            'category',
+            'tags',
+            'author',
+            'author_name',
+            'media_url',
+            'media_file',
+            'feedback',
+            'is_active',
+            'created_at',
+            'updated_at',
         ]
-from rest_framework import serializers
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate_title(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("Título é obrigatório.")
+        if len(value) > 255:
+            raise serializers.ValidationError("Título não pode exceder 255 caracteres.")
+        return value
+
+    def validate_description(self, value):
+        if value and len(value.strip()) == 0:
+            raise serializers.ValidationError("Descrição não pode ser vazia.")
+        return value
+
+    def validate_category(self, value):
+        allowed_categories = ['Education', 'Entertainment', 'News', 'Sports', 'Other']
+        if value and value not in allowed_categories:
+            raise serializers.ValidationError(
+                f"Categoria deve ser uma de: {', '.join(allowed_categories)}"
+            )
+        return value
+
 
 class VideoSerializer(serializers.ModelSerializer):
+    """Serializer para vídeos educativos"""
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    video_type_display = serializers.CharField(source='get_video_type_display', read_only=True)
+
     class Meta:
-        model = None  # Placeholder, update with Video model when available
-        fields = '__all__'
+        model = Video
+        fields = [
+            'id',
+            'title',
+            'description',
+            'url',
+            'thumbnail',
+            'video_type',
+            'video_type_display',
+            'duration',
+            'author',
+            'author_name',
+            'views_count',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'views_count', 'created_at', 'updated_at']
+
+    def validate_title(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("Título do vídeo é obrigatório.")
+        if len(value) > 255:
+            raise serializers.ValidationError("Título não pode exceder 255 caracteres.")
+        return value
+
+    def validate_url(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("URL do vídeo é obrigatória.")
+        return value
+
+
+class PodcastSerializer(serializers.ModelSerializer):
+    """Serializer para podcasts"""
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+
+    class Meta:
+        model = Podcast
+        fields = [
+            'id',
+            'title',
+            'description',
+            'audio_url',
+            'thumbnail',
+            'duration',
+            'author',
+            'author_name',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate_title(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("Título do podcast é obrigatório.")
+        return value
+
+    def validate_audio_url(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("URL de áudio é obrigatória.")
+        return value
+
+
+class CourseSerializer(serializers.ModelSerializer):
+    """Serializer para cursos"""
+    instructor_name = serializers.CharField(source='instructor.get_full_name', read_only=True)
+    level_display = serializers.CharField(source='get_level_display', read_only=True)
+
+    class Meta:
+        model = Course
+        fields = [
+            'id',
+            'title',
+            'description',
+            'instructor',
+            'instructor_name',
+            'thumbnail',
+            'duration_hours',
+            'level',
+            'level_display',
+            'is_active',
+            'created_at',
+            'updated_at',
+        ]
+        read_only_fields = ['id', 'created_at', 'updated_at']
+
+    def validate_title(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("Título do curso é obrigatório.")
+        return value
+
+    def validate_description(self, value):
+        if not value or len(value.strip()) == 0:
+            raise serializers.ValidationError("Descrição do curso é obrigatória.")
+        return value
+
+    def validate_duration_hours(self, value):
+        if value is not None and value <= 0:
+            raise serializers.ValidationError("Duração deve ser maior que zero.")
+        return value

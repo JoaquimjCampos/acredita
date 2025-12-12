@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
 import { ErrorMessage } from '../components/common/ErrorMessage';
+import { User, Edit, Save, X, Mail, MapPin, Calendar } from 'lucide-react';
 
 const UserProfilePage: React.FC = () => {
   const { user, updateProfile, isLoading } = useAuth();
@@ -59,63 +60,129 @@ const UserProfilePage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <Card className="max-w-lg w-full p-8">
-          <h1 className="text-2xl font-bold mb-6 text-acredita-primary">Meu Perfil</h1>
-          {error && <ErrorMessage message={error} />}
-          <form className="space-y-4" onSubmit={e => { e.preventDefault(); handleSave(); }}>
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Nome</label>
-              <input
-                type="text"
-                name="nome"
-                value={form.nome}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-acredita-primary focus:border-acredita-primary"
-                disabled={!editMode}
-              />
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <User className="h-8 w-8" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                name="email"
-                value={form.email}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-acredita-primary focus:border-acredita-primary"
-                disabled
-              />
+              <h1 className="text-4xl font-bold">{user.nome}</h1>
+              <p className="text-blue-100 mt-1">Perfil do Utilizador</p>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto px-4 py-12">
+        <Card className="p-8">
+          {error && <ErrorMessage message={error} className="mb-6" />}
+
+          <form className="space-y-6" onSubmit={e => { e.preventDefault(); handleSave(); }}>
+            {/* Nome */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Província</label>
-              <input
-                type="text"
-                name="provincia"
-                value={form.provincia}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-acredita-primary focus:border-acredita-primary"
-                disabled={!editMode}
-              />
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Nome</label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  name="nome"
+                  value={form.nome}
+                  onChange={handleChange}
+                  disabled={!editMode}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600"
+                />
+              </div>
             </div>
+
+            {/* Email */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Idade</label>
-              <input
-                type="number"
-                name="idade"
-                value={form.idade}
-                onChange={handleChange}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-acredita-primary focus:border-acredita-primary"
-                disabled={!editMode}
-              />
+              <label className="block text-sm font-semibold text-gray-900 mb-2">Email</label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                <input
+                  type="email"
+                  name="email"
+                  value={form.email}
+                  onChange={handleChange}
+                  disabled
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600"
+                />
+              </div>
+              <p className="text-xs text-gray-500 mt-1">O email não pode ser alterado</p>
             </div>
-            <div className="flex justify-end gap-2 mt-6">
+
+            {/* Localização */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Província</label>
+                <div className="relative">
+                  <MapPin className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="text"
+                    name="provincia"
+                    value={form.provincia}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600"
+                    placeholder="Sua província"
+                  />
+                </div>
+              </div>
+
+              {/* Idade */}
+              <div>
+                <label className="block text-sm font-semibold text-gray-900 mb-2">Idade</label>
+                <div className="relative">
+                  <Calendar className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
+                  <input
+                    type="number"
+                    name="idade"
+                    value={form.idade}
+                    onChange={handleChange}
+                    disabled={!editMode}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-50 disabled:text-gray-600"
+                    placeholder="Sua idade"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-end gap-3 pt-6 border-t border-gray-200">
               {editMode ? (
                 <>
-                  <Button type="button" variant="outline" onClick={() => setEditMode(false)} disabled={saving}>Cancelar</Button>
-                  <Button type="submit" variant="primary" disabled={saving}>{saving ? 'Salvando...' : 'Salvar'}</Button>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setEditMode(false)} 
+                    disabled={saving}
+                    className="flex items-center gap-2"
+                  >
+                    <X className="h-4 w-4" />
+                    Cancelar
+                  </Button>
+                  <Button 
+                    type="submit" 
+                    variant="primary" 
+                    disabled={saving}
+                    className="flex items-center gap-2"
+                  >
+                    <Save className="h-4 w-4" />
+                    {saving ? 'Salvando...' : 'Salvar Alterações'}
+                  </Button>
                 </>
               ) : (
-                <Button type="button" variant="primary" onClick={() => setEditMode(true)}>Editar Perfil</Button>
+                <Button 
+                  type="button" 
+                  variant="primary" 
+                  onClick={() => setEditMode(true)}
+                  className="flex items-center gap-2"
+                >
+                  <Edit className="h-4 w-4" />
+                  Editar Perfil
+                </Button>
               )}
             </div>
           </form>

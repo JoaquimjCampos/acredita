@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAds } from '../hooks/useAds';
 import { Card, LoadingSpinner } from '../components/common';
+import { OptimizedImage } from './common/OptimizedImage';
 
 const AdsSection: React.FC = () => {
   const { ads, loading, error } = useAds();
@@ -84,7 +85,7 @@ const AdsSection: React.FC = () => {
                 <Card key={ad.id} className="flex flex-col min-w-[320px] max-w-xs shadow-lg hover:scale-105 transition-transform duration-300">
                   {ad.image_url && (
                     <a href={ad.link} target="_blank" rel="noopener noreferrer">
-                      <img src={ad.image_url} alt={ad.title} className="h-40 w-full object-cover rounded-t" />
+                      <OptimizedImage src={ad.image_url} alt={ad.title} width={400} height={160} className="h-40 w-full object-cover rounded-t" lazy={true} />
                     </a>
                   )}
                   <div className="p-4 flex-1 flex flex-col justify-between">

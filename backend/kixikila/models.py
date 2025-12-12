@@ -3,6 +3,7 @@
 from django.conf import settings
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 class KixikilaGroup(models.Model):
@@ -182,6 +183,83 @@ class KixikilaPayout(models.Model):
 
     def __str__(self) -> str:  # pragma: no cover
         return f"Payout {self.recipient.username} - {self.group.name} round {self.round}"
+
+    def clean(self):
+        """Validações do modelo."""
+        from django.core.exceptions import ValidationError
+        
+        # Validar que recipient é membro ativo do grupo
+        if not KixikilaMembership.objects.filter(
+            group=self.group, member=self.recipient, is_active=True
+        ).exists():
+            raise ValidationError("Recipient must be an active member of the group")
+        
+        # Validar que net_amount é calculado corretamente
+        expected_net = self.total_amount - self.platform_fee
+        if abs(self.net_amount - expected_net) > 0.01:  # tolerância para arredondamentos
+            raise ValidationError("Net amount must equal total_amount - platform_fee")
+
+    def save(self, *args, **kwargs):
+        """Override save para validações."""
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    @property
+    def is_eligible(self) -> bool:
+        """Verifica se o payout está elegível para processamento."""
+        return self.status == "scheduled" and self.scheduled_date <= timezone.now().date()
+
+    @property
+    def can_be_disbursed(self) -> bool:
+        """Verifica se todos os requisitos para desembolso estão atendidos."""
+        if self.status != "scheduled":
+            return False
+        
+        # Verificar se todas as contribuições da ronda estão confirmadas
+        memberships = KixikilaMembership.objects.filter(group=self.group, is_active=True)
+        required_contributions = memberships.count()
+        
+        confirmed_contributions = KixikilaContribution.objects.filter(
+            membership__group=self.group,
+            round=self.round,
+            status="confirmed"
+        ).count()
+        
+        return confirmed_contributions >= required_contributions
+
+    def mark_as_processing(self):
+        """Marca payout como em processamento."""
+        if self.status != "scheduled":
+            raise ValueError(f"Cannot process payout with status {self.status}")
+        self.status = "processing"
+        self.save(update_fields=["status"])
+
+    def mark_as_completed(self, payment_method: str = None):
+        """Marca payout como concluído."""
+        if self.status != "processing":
+            raise ValueError(f"Cannot complete payout with status {self.status}")
+        
+        self.status = "completed"
+        self.disbursed_at = timezone.now()
+        if payment_method:
+            self.payment_method = payment_method
+        
+        # Atualizar membership
+        membership = KixikilaMembership.objects.get(
+            group=self.group, member=self.recipient
+        )
+        membership.payout_received = True
+        membership.payout_date = self.disbursed_at
+        membership.save(update_fields=["payout_received", "payout_date"])
+        
+        self.save()
+
+    def mark_as_failed(self, reason: str = None):
+        """Marca payout como falhou."""
+        self.status = "failed"
+        if reason:
+            self.intended_use = f"Failed: {reason}"
+        self.save()
 
 
 class KixikilaRating(models.Model):

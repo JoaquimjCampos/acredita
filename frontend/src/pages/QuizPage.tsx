@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
-import { mcpFetch } from '../mcpClient';
 import { Question } from '../types/Question';
+import { apiService } from '../services/api';
+import QuizLeaderboard from '../components/QuizLeaderboard';
+import seasonConfig from '../config/season.json';
 
 const QuizPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -14,19 +16,30 @@ const QuizPage: React.FC = () => {
   const [answers, setAnswers] = useState<number[]>([]);
   const [score, setScore] = useState<number | null>(null);
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
+  const seasonNumber = seasonConfig.season_number;
+  const api = apiService;
 
+  // Move loadQuiz above useEffect
   useEffect(() => {
     if (id) loadQuiz(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const loadQuiz = async (quizId: string) => {
     try {
       setLoading(true);
       setError(null);
-      const { data } = await mcpFetch(`/api/games/quiz/${quizId}/questions/`);
-      setQuestions(data.results || data);
-    } catch (err) {
-      setError('Erro ao carregar quiz.');
+  // Fetch quizzes for the current season and filter by id
+  const quizzesRes = await api.getQuizzesBySeason(seasonNumber);
+  const quizzes = Array.isArray(quizzesRes) ? quizzesRes : quizzesRes.results;
+  const quiz = Array.isArray(quizzes) ? quizzes.find((q: any) => String(q.id) === String(quizId)) : undefined;
+      if (!quiz) throw new Error('Quiz não encontrado para esta temporada.');
+  // Fetch questions for the quiz
+  // Add a public method to ApiService for fetching quiz questions
+  const questionsRes = await apiService.getQuizQuestions(quizId);
+  setQuestions(Array.isArray(questionsRes) ? questionsRes : []);
+    } catch (err: any) {
+      setError('Erro ao carregar quiz: ' + (err.message || '')); 
     } finally {
       setLoading(false);
     }
@@ -45,14 +58,23 @@ const QuizPage: React.FC = () => {
           // Here, we just count correct answers by index 0
           const correct = answers.filter(a => a === 0).length;
           setScore(correct);
-          // Fetch leaderboard
-          const { data } = await mcpFetch(`/api/games/quiz/quizzes/${id}/leaderboard/`);
-          setLeaderboard(data.leaderboard || []);
+          // Fetch leaderboard for current season
+          const leaderboardRes = await api.getQuizLeaderboard(Number(id), seasonNumber);
+          if (Array.isArray(leaderboardRes)) {
+            setLeaderboard(leaderboardRes);
+          } else if (leaderboardRes.results) {
+            setLeaderboard(leaderboardRes.results);
+          } else if ('leaderboard' in leaderboardRes && Array.isArray(leaderboardRes.leaderboard)) {
+            setLeaderboard(leaderboardRes.leaderboard);
+          } else {
+            setLeaderboard([]);
+          }
         } catch {}
       };
       submitAndFetchLeaderboard();
     }
-  }, [current, questions.length, answers, id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, questions.length, answers, id, seasonNumber]);
 
   if (loading) {
     return <Layout><LoadingSpinner text="Carregando quiz..." /></Layout>;
@@ -63,21 +85,11 @@ const QuizPage: React.FC = () => {
   if (current >= questions.length) {
     return (
       <Layout>
-        <Card title="Quiz finalizado">
+        <Card title={`Quiz finalizado - Temporada ${seasonNumber}`}> 
           <div className="mb-4">Obrigado por participar!</div>
           {score !== null && <div className="mb-2 font-bold">Sua pontuação: {score}</div>}
-          <div className="mt-4">
-            <h4 className="font-semibold mb-2">Leaderboard</h4>
-            <ul className="pl-4">
-              {leaderboard.length === 0 && <li>Nenhum resultado ainda.</li>}
-              {leaderboard.map((entry, idx) => (
-                <li key={idx} className="mb-1">
-                  <span className="font-bold">{entry.user}</span>: {entry.score} pontos
-                </li>
-              ))}
-            </ul>
-          </div>
         </Card>
+        <QuizLeaderboard entries={leaderboard} seasonNumber={seasonNumber} />
       </Layout>
     );
   }

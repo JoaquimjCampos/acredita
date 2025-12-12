@@ -1,6 +1,7 @@
 import React from 'react';
 import { useSponsors } from '../hooks/useSponsors';
 import { Card, LoadingSpinner } from '../components/common';
+import { OptimizedImage } from './common/OptimizedImage';
 
 const SponsorsSection: React.FC = () => {
   const { sponsors, loading, error } = useSponsors();
@@ -34,7 +35,7 @@ const SponsorsSection: React.FC = () => {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
           {sponsors.map(sponsor => (
             <div key={sponsor.id} className="flex flex-col items-center">
-              <img src={sponsor.logo} alt={sponsor.name} className="h-16 w-16 mb-2 rounded-full shadow" />
+              <OptimizedImage src={sponsor.logo} alt={sponsor.name} width={64} height={64} className="h-16 w-16 mb-2 rounded-full shadow" lazy={true} />
               <span className="text-gray-700 font-semibold">{sponsor.name}</span>
               {sponsor.url && (
                 <a href={sponsor.url} target="_blank" rel="noopener noreferrer" className="text-xs text-acredita-primary underline mt-1">Visitar</a>

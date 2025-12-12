@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import './GameList.css';
+import { Layout } from "../components/layout/Layout";
+import { Card, LoadingSpinner } from "../components/common";
+import { Gamepad2, Filter, Search, Share2, MessageCircle } from "lucide-react";
 
 // Game type matches backend response
 export type Game = {
@@ -76,93 +78,164 @@ const GameList: React.FC = () => {
   };
 
   return (
-    <div className="game-list-container">
-      {/* Onboarding Modal */}
-      {showOnboarding && (
-        <div className="plg-modal-overlay">
-          <div className="plg-modal">
-            <h2>Welcome to Acredita Games!</h2>
-            <p>Discover, play, and share feedback. Filter games, try instantly, and help us grow with your ideas!</p>
-            <ul>
-              <li>🔍 Filter & search games</li>
-              <li>🚀 Play instantly</li>
-              <li>💬 Share feedback</li>
-              <li>📤 Share with friends</li>
-            </ul>
-            <button className="plg-modal-close" onClick={() => setShowOnboarding(false)}>Get Started</button>
-          </div>
-        </div>
-      )}
-
-      {/* Feedback Widget */}
-      <button className="plg-feedback-btn" onClick={() => setShowFeedback(true)} title="Send Feedback">💬</button>
-      {showFeedback && (
-        <div className="plg-modal-overlay">
-          <div className="plg-modal">
-            <h2>Send us your feedback!</h2>
-            <form onSubmit={handleFeedbackSubmit} className="plg-feedback-form">
-              <input type="text" placeholder="Name" value={feedback.name} onChange={e => setFeedback(f => ({ ...f, name: e.target.value }))} required />
-              <input type="email" placeholder="Email" value={feedback.email} onChange={e => setFeedback(f => ({ ...f, email: e.target.value }))} required />
-              <textarea placeholder="Your comments..." value={feedback.comments} onChange={e => setFeedback(f => ({ ...f, comments: e.target.value }))} required />
-              <button type="submit">Submit</button>
-              <button type="button" onClick={() => { setShowFeedback(false); setFeedbackSent(false); }}>Close</button>
-            </form>
-            {feedbackSent && <div className="plg-feedback-success">Thank you for your feedback!</div>}
-          </div>
-        </div>
-      )}
-
-      {/* Share Widget */}
-      <button className="plg-share-btn" onClick={handleShare} title="Share Games">📤</button>
-      {shareMsg && <div className="plg-share-msg">{shareMsg}</div>}
-
-      <header className="game-list-header">
-        <h1>🎮 Explore & Play</h1>
-        <p>Discover innovative games. Filter, search, and play instantly. Powered by PLG (Product-Led Growth) principles.</p>
-      </header>
-      <div className="game-list-controls">
-        <input
-          type="text"
-          placeholder="Search games..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="game-search-input"
-        />
-        <select onChange={(e) => setFilter((f) => ({ ...f, category: e.target.value || undefined }))} className="game-filter-select">
-          <option value="">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-        <select onChange={(e) => setFilter((f) => ({ ...f, difficulty: e.target.value || undefined }))} className="game-filter-select">
-          <option value="">All Difficulties</option>
-          {difficulties.map((diff) => (
-            <option key={diff} value={diff}>{diff}</option>
-          ))}
-        </select>
-      </div>
-      <div className="game-list-grid">
-        {filteredGames.map((game) => (
-          <div key={game.id} className="game-card">
-            {game.asset_url && <img src={game.asset_url} alt={game.title} className="game-card-image" />}
-            <div className="game-card-content">
-              <h2 className="game-card-title">{game.title}</h2>
-              <p className="game-card-description">{game.description}</p>
-              <div className="game-card-badges">
-                {game.type && <span className="badge badge-type">{game.type}</span>}
-                {game.category && <span className="badge badge-category">{game.category}</span>}
-                {game.difficulty && <span className="badge badge-difficulty">{game.difficulty}</span>}
-              </div>
-              <button className="game-card-play" onClick={() => window.location.href = `/games/${game.type}`}>Play Now</button>
+    <Layout>
+      <div className="bg-gradient-to-r from-purple-600 to-indigo-700 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <Gamepad2 className="h-8 w-8" />
             </div>
+            <div>
+              <h1 className="text-4xl font-bold">Explorar Jogos</h1>
+              <p className="text-purple-100 mt-1">Filtro, pesquisa e partilha de jogos integrados com o backend.</p>
+            </div>
+            <button
+              onClick={handleShare}
+              className="ml-auto inline-flex items-center gap-2 bg-white/20 hover:bg-white/30 px-4 py-2 rounded-lg"
+            >
+              <Share2 className="h-4 w-4" /> Partilhar
+            </button>
           </div>
-        ))}
-        {filteredGames.length === 0 && <div className="game-list-empty">No games found. Try adjusting your filters or search.</div>}
+        </div>
       </div>
-      <footer className="game-list-footer">
-        <small>🚀 Product-Led Growth: Try games instantly, share feedback, and help us improve!</small>
-      </footer>
-    </div>
+
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4 space-y-6">
+          <Card className="p-6">
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Pesquisar jogos..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              <div className="flex gap-3 md:w-80">
+                <div className="relative flex-1">
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select
+                    onChange={(e) => setFilter((f) => ({ ...f, category: e.target.value || undefined }))}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 appearance-none"
+                  >
+                    <option value="">Todas as categorias</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="relative flex-1">
+                  <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                  <select
+                    onChange={(e) => setFilter((f) => ({ ...f, difficulty: e.target.value || undefined }))}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 appearance-none"
+                  >
+                    <option value="">Todas as dificuldades</option>
+                    {difficulties.map((diff) => (
+                      <option key={diff} value={diff}>{diff}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowOnboarding(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-50"
+            >
+              <MessageCircle className="h-4 w-4" /> Dicas rápidas
+            </button>
+            {shareMsg && <span className="text-sm text-green-700">{shareMsg}</span>}
+          </div>
+
+          {showOnboarding && (
+            <Card className="p-6 border-l-4 border-purple-500">
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">Bem-vindo aos Jogos Acredita!</h3>
+                  <ul className="mt-3 text-gray-700 space-y-2 text-sm list-disc list-inside">
+                    <li>Filtre e pesquise jogos rapidamente</li>
+                    <li>Jogue instantaneamente</li>
+                    <li>Envie feedback para a equipa</li>
+                    <li>Partilhe com amigos</li>
+                  </ul>
+                </div>
+                <button onClick={() => setShowOnboarding(false)} className="text-sm text-gray-600 hover:text-gray-800">Fechar</button>
+              </div>
+            </Card>
+          )}
+
+          {showFeedback && (
+            <Card className="p-6 border-l-4 border-purple-500">
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-lg font-semibold text-gray-900">Envie o seu feedback</h3>
+                <button onClick={() => { setShowFeedback(false); setFeedbackSent(false); }} className="text-sm text-gray-600 hover:text-gray-800">Fechar</button>
+              </div>
+              <form onSubmit={handleFeedbackSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" placeholder="Nome" value={feedback.name} onChange={e => setFeedback(f => ({ ...f, name: e.target.value }))} required className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+                <input type="email" placeholder="Email" value={feedback.email} onChange={e => setFeedback(f => ({ ...f, email: e.target.value }))} required className="px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" />
+                <textarea placeholder="Comentários" value={feedback.comments} onChange={e => setFeedback(f => ({ ...f, comments: e.target.value }))} required className="md:col-span-2 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-purple-500" rows={3} />
+                <div className="flex items-center gap-3 md:col-span-2">
+                  <button type="submit" className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Enviar</button>
+                  <button type="button" onClick={() => { setShowFeedback(false); setFeedbackSent(false); }} className="px-4 py-2 border rounded-lg">Fechar</button>
+                  {feedbackSent && <span className="text-green-700 text-sm">Obrigado pelo feedback!</span>}
+                </div>
+              </form>
+            </Card>
+          )}
+
+          {!games.length ? (
+            <div className="flex justify-center py-12"><LoadingSpinner text="Carregando jogos..." /></div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredGames.map((game) => (
+                <Card key={game.id} className="p-6 border-l-4 border-purple-500 hover:shadow-md transition-shadow">
+                  {game.asset_url && <img src={game.asset_url} alt={game.title} className="w-full h-40 object-cover rounded mb-4" />}
+                  <div className="flex items-start justify-between mb-2">
+                    <div>
+                      <h2 className="text-lg font-semibold text-gray-900">{game.title}</h2>
+                      <p className="text-sm text-gray-600 capitalize">{game.type}</p>
+                    </div>
+                    <Gamepad2 className="h-5 w-5 text-purple-600" />
+                  </div>
+                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">{game.description}</p>
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
+                    {game.category && <span className="px-2 py-1 rounded-full bg-purple-50 text-purple-700">{game.category}</span>}
+                    {game.difficulty && <span className="px-2 py-1 rounded-full bg-gray-100">{game.difficulty}</span>}
+                  </div>
+                  <button
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded-lg"
+                    onClick={() => window.location.href = `/games/${game.type}`}
+                  >
+                    Jogar agora
+                  </button>
+                </Card>
+              ))}
+              {filteredGames.length === 0 && (
+                <Card className="p-8 text-center">
+                  <Gamepad2 className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-700">Nenhum jogo encontrado. Ajuste filtros ou pesquisa.</p>
+                </Card>
+              )}
+            </div>
+          )}
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowFeedback(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm border border-purple-200 text-purple-700 rounded-lg hover:bg-purple-50"
+            >
+              <MessageCircle className="h-4 w-4" /> Enviar Feedback
+            </button>
+            {shareMsg && <span className="text-sm text-green-700">{shareMsg}</span>}
+          </div>
+        </div>
+      </div>
+    </Layout>
   );
 };
 

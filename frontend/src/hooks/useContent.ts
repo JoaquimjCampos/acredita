@@ -13,7 +13,13 @@ export function useContent() {
         setLoading(true);
         setError(null);
         const { data } = await mcpFetch('/api/content/');
-        setContent(data.results || data);
+        if (Array.isArray(data)) {
+          setContent(data);
+        } else if (data && Array.isArray(data.results)) {
+          setContent(data.results);
+        } else {
+          setContent([]);
+        }
       } catch (err: any) {
         setError('Erro ao carregar conteúdos.');
       } finally {

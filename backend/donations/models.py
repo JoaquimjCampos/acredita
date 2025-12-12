@@ -36,11 +36,11 @@ class DonationCampaign(models.Model):
     end_date = models.DateTimeField(verbose_name='Data de Fim')
     
     # Media
-    image = models.ImageField(
-        upload_to='campaigns/', 
+    image = models.URLField(
         null=True, 
         blank=True,
-        verbose_name='Imagem da Campanha'
+        verbose_name='URL da Imagem da Campanha',
+        help_text='URL da imagem da campanha'
     )
     video_url = models.URLField(blank=True, verbose_name='Vídeo da Campanha')
     

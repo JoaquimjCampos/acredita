@@ -7,9 +7,12 @@ from .serializers import GameSerializer
 
 from rest_framework import status
 
+from rest_framework.permissions import IsAuthenticated
+
 class GameViewSet(viewsets.ModelViewSet):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
+    permission_classes = [IsAuthenticated]
 
 class FeaturedGameView(APIView):
     def get(self, request, *args, **kwargs):

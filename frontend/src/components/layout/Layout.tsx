@@ -1,5 +1,7 @@
-import { Newspaper } from 'lucide-react';
+import { Newspaper, Moon, Sun } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
+import Sidebar from '../Sidebar';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../common';
@@ -12,8 +14,20 @@ interface HeaderProps {
 }
 
 const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen }) => {
+  const { t, i18n } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const [darkMode, setDarkMode] = useState(false);
+
+  React.useEffect(() => {
+    if (darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [darkMode]);
 
   const handleLogout = () => {
     logout();
@@ -21,7 +35,8 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-100">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-800">
+      <a href="#main-content" className="skip-nav-link absolute left-2 top-2 z-50 bg-acredita-primary text-white px-3 py-2 rounded focus:translate-y-0 -translate-y-full focus:outline-none">Saltar para o conteúdo principal</a>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
         <div className="flex items-center">
           <button
@@ -38,8 +53,8 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
                 <Heart className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 tracking-tight">Acredita</h1>
-                <p className="text-xs text-gray-500 -mt-1">em Ti, em Angola</p>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Acredita</h1>
+                <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">em Ti, em Angola</p>
               </div>
             </div>
           </Link>
@@ -56,9 +71,26 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
           <NavLink to="/blog" icon={Newspaper} text="Blog" />
         </nav>
         <div className="flex items-center space-x-2">
+          <select
+            aria-label={t('Selecionar idioma')}
+            className="px-2 py-1 rounded bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-acredita-primary mr-2"
+            value={i18n.language}
+            onChange={e => i18n.changeLanguage(e.target.value)}
+          >
+            <option value="pt">PT</option>
+            <option value="en">EN</option>
+          </select>
+          <button
+            type="button"
+            className="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-yellow-400 hover:bg-gray-200 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-acredita-primary"
+            aria-label={darkMode ? 'Desativar modo escuro' : 'Ativar modo escuro'}
+            onClick={() => setDarkMode((dm: boolean) => !dm)}
+          >
+            {darkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+          </button>
           {isAuthenticated && user ? (
             <>
-              <span className="text-sm text-gray-700 hidden md:inline">Olá, <span className="font-medium">{user.first_name}</span></span>
+              <span className="text-sm text-gray-700 dark:text-gray-200 hidden md:inline">Olá, <span className="font-medium">{user.first_name}</span></span>
               <Button variant="ghost" size="sm" onClick={() => navigate('/perfil')} className="p-2"><User className="h-4 w-4" /></Button>
               <Button variant="ghost" size="sm" onClick={handleLogout} className="p-2"><LogOut className="h-4 w-4" /></Button>
             </>
@@ -253,23 +285,26 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, className }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const darkMode = false;
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className={cn('min-h-screen flex flex-col', darkMode ? 'bg-gray-900' : 'bg-gray-50')}>
       <Header 
         onMobileMenuToggle={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         isMobileMenuOpen={isMobileMenuOpen}
       />
-      
       <MobileMenu 
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      
-      <main className={cn('flex-1', className)}>
-        {children}
-      </main>
-      
+      <div className="flex flex-1">
+        <nav className="hidden md:block" aria-label="Sidebar navegação">
+          <Sidebar />
+        </nav>
+        <main className={cn('flex-1', className)}>
+          {children}
+        </main>
+      </div>
       <Footer />
     </div>
   );

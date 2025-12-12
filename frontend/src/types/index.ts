@@ -84,11 +84,13 @@ export interface AuthResponse {
 
 
 export interface ApiResponse<T> {
-  results: T[];
-  count: number;
-  sucesso: boolean;
-  dados: any;
-  mensagem: string;
+  results?: T[];
+  count?: number;
+  sucesso?: boolean;
+  dados?: any;
+  mensagem?: string;
+  leaderboard?: any[];
+  data?: any;
 }
 
 export interface Participant {

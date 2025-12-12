@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
+import { mcpFetch } from '../mcpClient';
 
 export interface Sponsor {
   id: number;
   name: string;
   logo: string;
   url?: string;
-  type?: string; // e.g., 'patrocinador', 'parceiro'
+  type?: string; // e.g., 'sponsor', 'partner', 'supporter'
+  description?: string;
 }
 
 export function useSponsors() {
@@ -14,21 +16,26 @@ export function useSponsors() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('/api/sponsors/')
-      .then(res => {
-        if (!res.ok) throw new Error('Erro ao carregar patrocinadores');
-        return res.json();
-      })
-      .then(data => {
-        setSponsors(data);
+    async function fetchSponsors() {
+      try {
+        setLoading(true);
         setError(null);
-      })
-      .catch(err => {
-        setError(err.message);
+        const { data } = await mcpFetch('/api/sponsors/');
+        if (Array.isArray(data)) {
+          setSponsors(data);
+        } else if (data && Array.isArray(data.results)) {
+          setSponsors(data.results);
+        } else {
+          setSponsors([]);
+        }
+      } catch (err: any) {
+        setError('Erro ao carregar patrocinadores');
         setSponsors([]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchSponsors();
   }, []);
 
   return { sponsors, loading, error };

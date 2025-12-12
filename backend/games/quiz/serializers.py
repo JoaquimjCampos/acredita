@@ -4,7 +4,7 @@ from .models import Quiz, Question, Answer, GameSession, UserAnswer
 class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = Quiz
-        fields = ['id', 'title', 'description', 'category', 'difficulty', 'author', 'time_limit', 'is_public', 'start_date', 'end_date', 'created_at']
+        fields = ['id', 'title', 'description', 'category', 'difficulty', 'author', 'time_limit', 'is_public', 'start_date', 'end_date', 'created_at', 'season_number']
 
 from rest_framework import serializers
 from .models import Question, Answer, GameSession, UserAnswer
@@ -29,7 +29,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 class GameSessionSerializer(serializers.ModelSerializer):
     class Meta:
         model = GameSession
-        fields = ['id', 'user', 'started_at', 'finished_at', 'score', 'feedback']
+        fields = ['id', 'user', 'started_at', 'finished_at', 'score', 'feedback', 'season_number']
 
 class UserAnswerSerializer(serializers.ModelSerializer):
     class Meta:

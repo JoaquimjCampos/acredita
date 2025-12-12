@@ -30,8 +30,9 @@ const Button: React.FC<ButtonProps> = ({
   ...props
 }) => (
   <button
-    className={`${base} ${variants[variant]} ${sizes[size]} ${className}`}
+    className={`${base} ${variants[variant]} ${sizes[size]} ${className} focus-visible:ring-2 focus-visible:ring-acredita-primary focus-visible:outline-none`}
     disabled={loading || disabled}
+    tabIndex={0}
     {...props}
   >
     {loading ? (

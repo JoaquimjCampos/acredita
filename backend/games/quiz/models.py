@@ -13,6 +13,7 @@ class Quiz(models.Model):
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    season_number = models.PositiveIntegerField(default=1, help_text="Season number for harmonization")
 
     def __str__(self):
         return self.title
@@ -48,6 +49,7 @@ class GameSession(models.Model):
     finished_at = models.DateTimeField(null=True, blank=True)
     score = models.IntegerField(default=0)
     feedback = models.TextField(blank=True, default="")
+    season_number = models.PositiveIntegerField(default=1, help_text="Season number for harmonization")
 
     def __str__(self):
         return f"Sessão de {self.user} em {self.started_at}"

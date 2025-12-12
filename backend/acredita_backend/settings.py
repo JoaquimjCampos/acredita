@@ -7,6 +7,7 @@ from decouple import config
 from datetime import timedelta
 import dj_database_url
 import os
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -47,6 +48,7 @@ LOCAL_APPS = [
     'backend.content',
     'backend.games',
     'backend.ads',
+    'backend.sponsors',
     'backend.core',
     'backend.certifications',
     'backend.marketplace',
@@ -190,6 +192,11 @@ CORS_ALLOWED_ORIGINS = config('CORS_ALLOWED_ORIGINS',
                               cast=lambda v: [s.strip() for s in v.split(',')])
 
 CORS_ALLOW_CREDENTIALS = True
+
+# Allow custom frontend headers (e.g., x-mcp-context) used by the web app
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'x-mcp-context',
+]
 
 # CSRF Configuration  
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS',

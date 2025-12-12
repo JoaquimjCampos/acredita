@@ -1,5 +1,6 @@
 
 import { useEffect, useState } from 'react';
+import { mcpFetch } from '../mcpClient';
 
 export interface Game {
   id: number;
@@ -16,27 +17,27 @@ export function useGames() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    const token = localStorage.getItem('access_token');
-    fetch('/api/games/', {
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
-      },
-    })
-      .then(res => {
-        if (!res.ok) throw new Error('Erro ao carregar jogos');
-        return res.json();
-      })
-      .then(data => {
-        setGames(data.results || data);
+    async function fetchGames() {
+      try {
+        setLoading(true);
         setError(null);
-      })
-      .catch(err => {
-        setError(err.message);
+        const { data } = await mcpFetch('/api/games/');
+        if (Array.isArray(data)) {
+          setGames(data);
+        } else if (data && Array.isArray(data.results)) {
+          setGames(data.results);
+        } else {
+          setGames([]);
+        }
+      } catch (err: any) {
+        setError(err.message || 'Erro ao carregar jogos');
         setGames([]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchGames();
   }, []);
 
   return { games, loading, error };

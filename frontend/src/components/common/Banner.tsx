@@ -26,6 +26,7 @@ const Banner: React.FC<BannerProps> = ({
         color === 'secondary' && 'bg-acredita-secondary text-white',
         color === 'gradient' && 'bg-gradient-to-r from-acredita-primary to-acredita-secondary text-white'
       )}
+      aria-label={title}
     >
       <h1 className="text-4xl md:text-6xl font-bold mb-2 drop-shadow-lg">{title}</h1>
       {subtitle && <h2 className="text-xl md:text-2xl font-light mb-6 opacity-90">{subtitle}</h2>}

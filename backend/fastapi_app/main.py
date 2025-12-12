@@ -43,6 +43,7 @@ class LoggingMiddleware:
 from fastapi import status
 from pydantic import BaseModel
 from typing import List, Optional, Any
+from django.db import transaction
 
 # --- OpenAPI tags for better docs organization ---
 tags_metadata = [
@@ -586,7 +587,7 @@ async def get_games(current_user: Any = Depends(get_current_user)):
     Returns a dynamic list of available games from the database, including richer metadata for frontend rendering.
     """
     Game = apps.get_model('games', 'Game')
-    games_qs = await run_in_threadpool(lambda: list(Game.objects.filter(is_active=True)))
+    games_qs = await run_in_threadpool(lambda: list(Game.objects.all()))
     games = [
         GameOut(
             id=g.id,
@@ -677,13 +678,31 @@ async def get_content(current_user: Any = Depends(get_current_user)):
     ]
     return ContentResponse(results=data, count=len(data))
 
-# --- Simuladores response model and endpoint ---
+
+# --- Simulador and Game linking, endpoints, and demo creation ---
+class SimulatorOut(BaseModel):
+    id: int
+    game_id: int
+    name: str
+    description: Optional[str]
+    config: Optional[Any]
+    is_active: bool
+
+class RunSimulatorRequest(BaseModel):
+    simulator_id: int
+    input_data: Optional[Any]
+
+class RunSimulatorResponse(BaseModel):
+    simulator_id: int
+    result: Any
+
 class SimuladorOut(BaseModel):
     id: int
     title: str
     description: str
     type: str
     is_active: bool
+    simulator_id: Optional[int]
 
 class SimuladoresResponse(BaseModel):
     results: List[SimuladorOut]
@@ -694,18 +713,70 @@ class SimuladoresResponse(BaseModel):
     status.HTTP_200_OK: {"description": "List of simuladores."}
 })
 async def get_simuladores(current_user: Any = Depends(get_current_user)):
-    Simulador = apps.get_model('games', 'Simulator')  # Ajuste o nome/modelo conforme seu projeto
-    simuladores_qs = await run_in_threadpool(lambda: list(Simulador.objects.filter(is_active=True)))
+    Game = apps.get_model('games', 'Game')
+    Simulator = apps.get_model('games', 'Simulator')
+    simuladores_qs = await run_in_threadpool(lambda: list(Game.objects.filter(type='simulador')))
+    # Link simulador to simulator if exists
+    def get_simulator_id(game_id):
+        sim = Simulator.objects.filter(game_id=game_id).first()
+        return sim.id if sim else None
     simuladores = [
         SimuladorOut(
             id=s.id,
             title=s.title,
             description=s.description,
             type=s.type,
-            is_active=s.is_active,
+            is_active=getattr(s, 'is_active', True),
+            simulator_id=get_simulator_id(s.id),
         )
         for s in simuladores_qs
     ]
     return SimuladoresResponse(results=simuladores, count=len(simuladores))
+
+# List all simulators
+@app.get("/simulators/", response_model=List[SimulatorOut], tags=["Games"])
+async def list_simulators(current_user: Any = Depends(get_current_user)):
+    Simulator = apps.get_model('games', 'Simulator')
+    sims = await run_in_threadpool(lambda: list(Simulator.objects.all()))
+    return [
+        SimulatorOut(
+            id=s.id,
+            game_id=s.game_id,
+            name=s.name,
+            description=getattr(s, 'description', None),
+            config=getattr(s, 'config', None),
+            is_active=getattr(s, 'is_active', True),
+        ) for s in sims
+    ]
+
+# Run/interact with a simulator
+@app.post("/simulators/run/", response_model=RunSimulatorResponse, tags=["Games"])
+async def run_simulator(payload: RunSimulatorRequest, current_user: Any = Depends(get_current_user)):
+    Simulator = apps.get_model('games', 'Simulator')
+    sim = await run_in_threadpool(lambda: Simulator.objects.filter(id=payload.simulator_id).first())
+    if not sim:
+        raise HTTPException(status_code=404, detail="Simulator not found")
+    # Demo: just echo input_data, in real use run simulation logic
+    result = {"echo": payload.input_data, "simulator": sim.name}
+    return RunSimulatorResponse(simulator_id=sim.id, result=result)
+
+# --- Demo simuladores creation endpoint ---
+@app.post("/simuladores/demo-create/", tags=["Games"])
+async def create_demo_simuladores(current_user: Any = Depends(get_current_user)):
+    Game = apps.get_model('games', 'Game')
+    Simulator = apps.get_model('games', 'Simulator')
+    created = []
+    with transaction.atomic():
+        # Create demo games if not exist
+        demo_games = [
+            {"title": "Simulador Financeiro", "description": "Simula finanças pessoais.", "type": "simulador", "is_active": True},
+            {"title": "Simulador de Mercado", "description": "Simula mercado de ações.", "type": "simulador", "is_active": True},
+        ]
+        for demo in demo_games:
+            game, _ = Game.objects.get_or_create(title=demo["title"], defaults=demo)
+            # Create linked simulator if not exist
+            sim, _ = Simulator.objects.get_or_create(game_id=game.id, defaults={"name": game.title, "description": game.description, "is_active": True})
+            created.append({"game_id": game.id, "simulator_id": sim.id, "title": game.title})
+    return {"created": created, "count": len(created)}
 
 

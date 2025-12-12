@@ -1,12 +1,15 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Simulator, SimulatorSession
+from backend.games.models import Simulator, SimulatorSession
 from .serializers import SimulatorSerializer, SimulatorSessionSerializer
+
+from rest_framework.permissions import IsAuthenticated
 
 class SimulatorViewSet(viewsets.ModelViewSet):
     queryset = Simulator.objects.filter(is_active=True)
     serializer_class = SimulatorSerializer
+    permission_classes = [IsAuthenticated]
 
     @action(detail=True, methods=['post'], url_path='run')
     def run_simulation(self, request, pk=None):

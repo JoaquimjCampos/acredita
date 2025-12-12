@@ -3,8 +3,8 @@ from django.urls import path
 from .views import AdViewSet, ActiveAdsView
 
 router = DefaultRouter()
-router.register(r'ads', AdViewSet)
+router.register(r'', AdViewSet, basename='ads')
 
-urlpatterns = router.urls + [
-    path('ads/active/', ActiveAdsView.as_view(), name='active-ads'),
-]
+urlpatterns = [
+    path('active/', ActiveAdsView.as_view(), name='active-ads'),
+] + router.urls

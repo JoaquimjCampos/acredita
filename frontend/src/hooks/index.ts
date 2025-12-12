@@ -9,3 +9,4 @@ export * from './useContent';
 export * from './useBlog';
 export { useParticipants } from './useParticipants';
 export { useVoting } from './useVoting';
+export { useAuth } from './useAuth';

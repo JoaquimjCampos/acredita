@@ -6,7 +6,7 @@ import { Card, Button, LoadingSpinner } from '../components/common';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { useVoting } from '../hooks';
 import { apiService } from '../services/api';
-import { Users, Heart, Star, MapPin } from 'lucide-react';
+import { Heart, Star, MapPin } from 'lucide-react';
 
 // Tipo importado do hook
 
@@ -52,14 +52,23 @@ const VotingPage: React.FC = () => {
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 py-6">
-        <h2 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-          <Users className="h-8 w-8 text-acredita-primary" /> Votação dos Participantes
-        </h2>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white py-16">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center mb-4">
+            <Heart className="h-12 w-12 mr-4" />
+            <h1 className="text-4xl md:text-5xl font-bold">
+              Votação dos Participantes
+            </h1>
+          </div>
+          <p className="text-xl opacity-95 max-w-3xl">
+            Vote nos seus participantes favoritos e ajude-os a conquistar os seus sonhos
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
-            <Heart className="w-8 h-8 text-red-500 mr-2" /> Votação dos Participantes
-          </h1>
           {voteError && <ErrorMessage message={voteError} className="mb-4" />}
           {voted && (
             <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded" role="status" aria-live="polite">

@@ -67,7 +67,10 @@ class QuizViewSet(viewsets.ModelViewSet):
         quiz = self.get_object()
         from .models import GameSession, UserAnswer
         question_ids = quiz.questions.values_list('id', flat=True)
+        season_number = request.query_params.get('season_number')
         sessions = GameSession.objects.filter(useranswer__question_id__in=question_ids).distinct()
+        if season_number:
+            sessions = sessions.filter(season_number=season_number)
         top_sessions = sessions.order_by('-score', '-started_at')[:10]
         data = []
         for s in top_sessions:
@@ -85,6 +88,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                 'time_taken': time_taken,
                 'correct_answers': correct_count,
                 'total_answers': total_count,
+                'season_number': s.season_number,
             })
         return Response({'leaderboard': data})
     @action(detail=True, methods=['post'], url_path='submit-answers')

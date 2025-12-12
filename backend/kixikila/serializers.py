@@ -85,12 +85,14 @@ class KixikilaMembershipSerializer(serializers.ModelSerializer):
 
 class KixikilaContributionSerializer(serializers.ModelSerializer):
     member_username = serializers.CharField(source="membership.member.username", read_only=True)
+    membership_id = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
         model = KixikilaContribution
         fields = [
             "id",
             "membership",
+            "membership_id",
             "member_username",
             "round",
             "amount",
@@ -98,11 +100,29 @@ class KixikilaContributionSerializer(serializers.ModelSerializer):
             "payment_method",
             "payment_date",
         ]
+        read_only_fields = ["id", "member_username", "round", "status", "payment_date"]
+        extra_kwargs = {
+            "membership": {"required": False},
+        }
+
+    def validate_amount(self, value):
+        if value <= 0:
+            raise serializers.ValidationError("Amount must be greater than 0")
+        return value
+
+    def validate_payment_method(self, value):
+        valid_methods = ['transfer', 'cash', 'card']
+        if value not in valid_methods:
+            raise serializers.ValidationError(f"Payment method must be one of: {', '.join(valid_methods)}")
+        return value
 
 
 class KixikilaPayoutSerializer(serializers.ModelSerializer):
     recipient_username = serializers.CharField(source="recipient.username", read_only=True)
+    recipient_email = serializers.CharField(source="recipient.email", read_only=True)
     group_name = serializers.CharField(source="group.name", read_only=True)
+    is_eligible = serializers.BooleanField(read_only=True)
+    can_be_disbursed = serializers.BooleanField(read_only=True)
 
     class Meta:
         model = KixikilaPayout
@@ -112,6 +132,7 @@ class KixikilaPayoutSerializer(serializers.ModelSerializer):
             "group_name",
             "recipient",
             "recipient_username",
+            "recipient_email",
             "round",
             "total_amount",
             "platform_fee",
@@ -119,8 +140,33 @@ class KixikilaPayoutSerializer(serializers.ModelSerializer):
             "status",
             "scheduled_date",
             "disbursed_at",
+            "payment_method",
             "intended_use",
+            "is_eligible",
+            "can_be_disbursed",
+            "created_at",
         ]
+        read_only_fields = ["created_at", "disbursed_at"]
+
+    def validate(self, attrs):
+        """Validações customizadas."""
+        # Se for criação, validar que total_amount > 0
+        if self.instance is None:  # Criação
+            total_amount = attrs.get("total_amount")
+            if total_amount and total_amount <= 0:
+                raise serializers.ValidationError("Total amount must be greater than zero")
+            
+            # Validar que net_amount está correto
+            platform_fee = attrs.get("platform_fee", 0)
+            net_amount = attrs.get("net_amount")
+            expected_net = total_amount - platform_fee
+            
+            if abs(net_amount - expected_net) > 0.01:
+                raise serializers.ValidationError(
+                    f"Net amount must equal total_amount - platform_fee"
+                )
+        
+        return attrs
 
 
 class KixikilaRatingSerializer(serializers.ModelSerializer):

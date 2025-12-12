@@ -2,9 +2,8 @@ import React from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Card, LoadingSpinner } from '../components/common';
 import { useSimuladores } from '../hooks/useSimuladores';
-import { Brain } from 'lucide-react';
+import { Brain, Zap } from 'lucide-react';
 
-// Adiciona interface manualmente para garantir tipagem correta
 interface Simulador {
   id: string;
   title: string;
@@ -25,47 +24,58 @@ const SimuladoresPage: React.FC = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-red-500">{error}</p>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 py-6">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
-            <Brain className="h-8 w-8 text-acredita-primary animate-pulse" aria-hidden="true" />
-            Simuladores
-          </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {simuladores.map((simulador: Simulador) => (
-              <Card
-                key={simulador.id}
-                title={simulador.title}
-                subtitle={simulador.type}
-                className="flex flex-col h-full transition-transform duration-200 hover:scale-105 hover:shadow-lg focus-within:scale-105 focus-within:shadow-lg border-2 border-transparent hover:border-acredita-primary"
-              >
-                <div className="flex flex-col items-center outline-none" tabIndex={0} aria-label={`Simulador: ${simulador.title}`}>
-                  <Brain className="h-8 w-8 text-acredita-primary mb-2 animate-pulse" aria-hidden="true" />
-                  <p className="mb-4 text-gray-700 flex-1 text-center">{simulador.description}</p>
-                  <span className="inline-block mt-2 px-2 py-1 rounded-full bg-blue-100 text-blue-800 text-xs font-semibold animate-fade-in">+100 XP</span>
-                </div>
-                <button
-                  className="w-full mt-auto bg-acredita-primary text-white hover:bg-acredita-secondary transition-colors duration-200 focus:ring-2 focus:ring-acredita-primary py-2 rounded"
-                  onClick={() => window.location.href = `/simuladores/${simulador.id}`}
-                  aria-label={`Aceder ao simulador ${simulador.title}`}
-                >
-                  Aceder
-                </button>
-              </Card>
-            ))}
+      <div className="bg-gradient-to-r from-cyan-600 to-cyan-700 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <Brain className="h-8 w-8" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold">Simuladores Interactivos</h1>
+              <p className="text-cyan-100 mt-1">Aprimore as suas competências empreendedoras e participe na experiência de Reality TV.</p>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          {error ? (
+            <div className="text-center text-red-600 font-semibold py-12">{error}</div>
+          ) : simuladores.length === 0 ? (
+            <Card className="text-center py-12">
+              <Brain className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Nenhum simulador disponível</h3>
+              <p className="text-gray-600">Volte mais tarde para novas experiências!</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {simuladores.map((simulador: Simulador) => (
+                <Card key={simulador.id} className="p-6 border-l-4 border-cyan-500 hover:shadow-lg transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-bold text-gray-900">{simulador.title}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{simulador.type}</p>
+                    </div>
+                    <Brain className="h-6 w-6 text-cyan-600 flex-shrink-0" />
+                  </div>
+                  <p className="text-gray-700 mb-6">{simulador.description}</p>
+                  <div className="flex items-center gap-2 mb-4 text-cyan-600 font-semibold text-sm">
+                    <Zap className="h-4 w-4" />
+                    +100 XP
+                  </div>
+                  <a
+                    href={`/jogos/simuladores/${simulador.id}`}
+                    className="w-full inline-block text-center bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-4 rounded-lg transition-colors"
+                  >
+                    Aceder ao Simulador
+                  </a>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

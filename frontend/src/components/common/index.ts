@@ -1,5 +1,13 @@
+export { UserProgressBar } from '../UserProgressBar';
 export * from './Button';
 export * from './Card';
 export * from './LoadingSpinner';
 export * from './Banner';
 export * from './Input';
+export { default as Confetti } from './Confetti';
+export { ErrorMessage } from './ErrorMessage';
+export { Badge } from './Badge';
+export { Toast } from './Toast';
+export { ErrorBoundary } from './ErrorBoundary';
+export * from './SkeletonLoaders';
+export { OptimizedImage } from './OptimizedImage';

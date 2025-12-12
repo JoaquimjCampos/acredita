@@ -19,52 +19,55 @@ interface InputProps extends BaseComponentProps {
   id?: string;
 }
 
-export const Input: React.FC<InputProps> = ({
-  label,
-  type = 'text',
-  placeholder,
-  error,
-  required = false,
-  disabled = false,
-  value,
-  onChange,
-  name,
-  id,
-  className,
-  ...props
-}) => {
-  const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
+export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({
+    label,
+    type = 'text',
+    placeholder,
+    error,
+    required = false,
+    disabled = false,
+    value,
+    onChange,
+    name,
+    id,
+    className,
+    ...props
+  }, ref) => {
+    const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
 
-  return (
-    <div className={className}>
-      {label && (
-        <label 
-          htmlFor={inputId}
-          className="block text-sm font-medium text-gray-700 mb-1"
-        >
-          {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
-        </label>
-      )}
-      <input
-        id={inputId}
-        name={name}
-        type={type}
-        placeholder={placeholder}
-        value={value}
-        onChange={onChange}
-        disabled={disabled}
-        required={required}
-        className={cn(
-          'input-field',
-          error && 'border-red-500 focus:ring-red-500',
-          disabled && 'bg-gray-100 cursor-not-allowed'
+    return (
+      <div className={className}>
+        {label && (
+          <label 
+            htmlFor={inputId}
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            {label}
+            {required && <span className="text-red-500 ml-1">*</span>}
+          </label>
         )}
-        {...props}
-      />
-      {error && (
-        <p className="mt-1 text-sm text-red-600">{error}</p>
-      )}
-    </div>
-  );
-};
+        <input
+          ref={ref}
+          id={inputId}
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          value={value}
+          onChange={onChange}
+          disabled={disabled}
+          required={required}
+          className={cn(
+            'input-field',
+            error && 'border-red-500 focus:ring-red-500',
+            disabled && 'bg-gray-100 cursor-not-allowed'
+          )}
+          {...props}
+        />
+        {error && (
+          <p className="mt-1 text-sm text-red-600">{error}</p>
+        )}
+      </div>
+    );
+  }
+);

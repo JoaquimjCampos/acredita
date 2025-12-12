@@ -4,6 +4,7 @@ from . import views
 
 router = DefaultRouter()
 router.register(r'donations', views.DonationViewSet)
+router.register(r'campaigns', views.DonationCampaignViewSet, basename='campaign')
 
 app_name = 'donations'
 

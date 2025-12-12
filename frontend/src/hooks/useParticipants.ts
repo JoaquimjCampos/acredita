@@ -11,7 +11,13 @@ export function useParticipants(context?: { user?: string; session?: string }) {
     setLoading(true);
     mcpFetch('/api/participants/', {}, context || {})
       .then(({ data }) => {
-        setParticipants(data.results || data);
+        if (Array.isArray(data)) {
+          setParticipants(data);
+        } else if (data && Array.isArray(data.results)) {
+          setParticipants(data.results);
+        } else {
+          setParticipants([]);
+        }
         setError(null);
       })
       .catch(err => {

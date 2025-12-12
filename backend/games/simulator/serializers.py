@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Simulator, SimulatorSession
+from backend.games.models import Simulator, SimulatorSession
 
 class SimulatorSerializer(serializers.ModelSerializer):
     class Meta:

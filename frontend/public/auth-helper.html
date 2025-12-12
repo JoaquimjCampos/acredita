@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Kixikila - Set Auth Token</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; max-width: 800px; margin: 0 auto; }
+        button { padding: 12px 24px; background: #6366f1; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #4f46e5; }
+        .success { color: #16a34a; font-weight: bold; margin-top: 20px; }
+        .code { background: #f3f4f6; padding: 12px; border-radius: 4px; font-family: monospace; font-size: 14px; margin: 10px 0; overflow-x: auto; }
+        h1 { color: #1f2937; }
+        p { color: #4b5563; line-height: 1.6; }
+    </style>
+</head>
+<body>
+    <h1>🔐 Kixikila Auth Helper</h1>
+    <p>Clique no botão abaixo para autenticar como <strong>admin_kixikila</strong> e acessar a interface de payouts.</p>
+    
+    <button onclick="setTokens()">Autenticar como Admin</button>
+    
+    <div id="result"></div>
+    
+    <h2>Próximos Passos:</h2>
+    <ol>
+        <li>Clique no botão acima</li>
+        <li>Acesse: <a href="http://localhost:3000/kixikila/3/manage" target="_blank">http://localhost:3000/kixikila/3/manage</a></li>
+        <li>Clique na aba "Desembolsos"</li>
+        <li>Verifique o payout completado</li>
+    </ol>
+    
+    <h2>Tokens Gerados:</h2>
+    <p><strong>Access Token:</strong></p>
+    <div class="code" id="accessToken"></div>
+    
+    <p><strong>Refresh Token:</strong></p>
+    <div class="code" id="refreshToken"></div>
+
+    <script>
+        const ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTA4ODkxLCJpYXQiOjE3NjU1MDUyOTEsImp0aSI6Ijk0YjNlNjBjMjU2NzQ2NTFiNGZmZDZlY2RjZGEzZGU0IiwidXNlcl9pZCI6IjUifQ.IlboIAUgJ6EUE-Y1LKf2gtgQRcbXVzJVMEdxGt6-e58';
+        const REFRESH_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjExMDA5MSwiaWF0IjoxNzY1NTA1MjkxLCJqdGkiOiJlOWJiMTYxZTBmNTQ0MzUzYjRlYzA5NDRmZmJlNGYxOSIsInVzZXJfaWQiOiI1In0.9wmXyIofUVUIZMJxXLV6fesuuLgLoEMcpmTZvtJd7q0';
+        
+        document.getElementById('accessToken').textContent = ACCESS_TOKEN;
+        document.getElementById('refreshToken').textContent = REFRESH_TOKEN;
+        
+        function setTokens() {
+            localStorage.setItem('access_token', ACCESS_TOKEN);
+            localStorage.setItem('refresh_token', REFRESH_TOKEN);
+            localStorage.setItem('user_info', JSON.stringify({
+                id: 5,
+                username: 'admin_kixikila',
+                email: 'admin@kixikila.test',
+                is_staff: true,
+                is_superuser: true
+            }));
+            
+            document.getElementById('result').innerHTML = '<p class="success">✅ Tokens salvos com sucesso! Agora você pode acessar a interface.</p>';
+            
+            setTimeout(() => {
+                window.location.href = 'http://localhost:3000/kixikila/3/manage';
+            }, 1500);
+        }
+    </script>
+</body>
+</html>

@@ -23,6 +23,21 @@
 
 This project integrates a Django REST backend with a React frontend. Each backend app exposes API endpoints, which are consumed in the frontend via custom React hooks and service classes. The main data flows (accounts, participants, seasons, voting, donations, games, ads, videos) are fully implemented and accessible in the UI. Store, content, and blog modules are planned for future integration.
 
+## Frontend Roadmap (PLG & Sustentabilidade)
+
+- **Homepage de conversão:** hero claro por segmento (Certifications, Marketplace, Kixikila), CTA primária, prova social, atalho “Ir para Dashboard” quando autenticado.
+- **Onboarding contínuo:** rotas protegidas com fallback suave, toasts de sessão expirada, auto-refresh do token, e quick actions em “My” páginas (enroll/order/join).
+- **Performance & UX:** skeletons acima da dobra, cache leve de listas (programas/listings/grupos), debounce de buscas/filtros, lazy load de seções pesadas.
+- **Observabilidade & feedback:** erros de rede com IDs, logging de eventos-chave (CTA hero, submit de inscrição/pedido/entrada em grupo), monitor de latência de API.
+- **Consistência visual:** paleta por módulo (laranja/azul/verde), botões e cards com espaçamento padrão, componentes comuns (cards/listas/forms) reutilizados.
+- **Acessibilidade:** corrigir roles redundantes, foco visível, rótulos/aria em inputs e botões principais, contraste mínimo.
+
+## Próximos Passos Recomendados
+
+- Limpar avisos de lint/acessibilidade remanescentes (roles redundantes, imports não usados).
+- Atualizar quickstarts por módulo (inscrição, pedido, adesão) com respostas e códigos de erro esperados.
+- Instrumentar eventos de produto (CTA hero, conversão por módulo, erros de API) para medir fit de mercado.
+
 ### How to Verify Integration
 - Check the relevant React hook (e.g., `useSeasons`, `useGames`) for API calls to `/api/{app}/` endpoints.
 - Confirm UI components (e.g., `GamesSection`, `FundraisingSection`) render data from these hooks.

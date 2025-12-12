@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import DonationSection from '../components/DonationSection';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
 import { Badge } from '../components/common/Badge';
@@ -261,6 +262,9 @@ const DashboardPage: React.FC = () => {
                     <Heart className="w-4 h-4 mr-2" />
                     Contribuir
                   </Button>
+                  <div className="mt-6">
+                    <DonationSection />
+                  </div>
                 </div>
               </Card>
               <Card className="p-6">

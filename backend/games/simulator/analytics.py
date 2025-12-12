@@ -1,6 +1,6 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .models import Simulator, SimulatorSession
+from backend.games.models import Simulator, SimulatorSession
 from .scenario import Scenario
 
 @api_view(['GET'])

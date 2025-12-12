@@ -8,7 +8,14 @@ export function useLeaderboard(context?: { user?: string; session?: string }) {
 
   useEffect(() => {
     mcpFetch('/api/participants/dashboard/', {}, context || {})
-      .then(({ data }) => setLeaderboard(data.leaderboard || []))
+      .then(({ data }) => {
+        const lb = data.leaderboard;
+        if (Array.isArray(lb)) {
+          setLeaderboard(lb);
+        } else {
+          setLeaderboard([]);
+        }
+      })
       .catch(() => setError('Erro ao carregar ranking.'))
       .finally(() => setLoading(false));
   }, [context]);

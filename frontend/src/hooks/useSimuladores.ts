@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { mcpFetch } from '../mcpClient';
 
 export interface Simulador {
   id: string;
@@ -17,12 +18,11 @@ export function useSimuladores() {
       setLoading(true);
       setError(null);
       try {
-        const response = await fetch('/api/simuladores');
-        if (!response.ok) throw new Error('Erro ao carregar simuladores');
-        const data = await response.json();
-        setSimuladores(data);
+        const { data } = await mcpFetch('/api/games/simulator/simulators/');
+        setSimuladores(Array.isArray(data) ? data : data?.results || []);
       } catch (err: any) {
-        setError(err.message || 'Erro desconhecido');
+        setError(err.message || 'Erro ao carregar simuladores');
+        setSimuladores([]);
       } finally {
         setLoading(false);
       }

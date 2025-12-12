@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mcpFetch } from '../mcpClient';
 
 export interface Video {
   id: number;
@@ -6,7 +7,10 @@ export interface Video {
   description: string;
   url: string;
   thumbnail?: string;
-  type?: string; // entrevista, pitch, aula, outro
+  video_type?: string; // entrevista, pitch, aula, tutorial, outro
+  duration?: number;
+  views_count?: number;
+  created_at?: string;
 }
 
 export function useVideos() {
@@ -15,21 +19,26 @@ export function useVideos() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('/api/videos/')
-      .then(res => {
-        if (!res.ok) throw new Error('Erro ao carregar vídeos');
-        return res.json();
-      })
-      .then(data => {
-        setVideos(data);
+    async function fetchVideos() {
+      try {
+        setLoading(true);
         setError(null);
-      })
-      .catch(err => {
-        setError(err.message);
+        const { data } = await mcpFetch('/api/content/videos/');
+        if (Array.isArray(data)) {
+          setVideos(data);
+        } else if (data && Array.isArray(data.results)) {
+          setVideos(data.results);
+        } else {
+          setVideos([]);
+        }
+      } catch (err: any) {
+        setError('Erro ao carregar vídeos');
         setVideos([]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchVideos();
   }, []);
 
   return { videos, loading, error };

@@ -9,7 +9,15 @@ export function useSeasons(context?: { user?: string; session?: string }) {
 
   useEffect(() => {
     mcpFetch('/api/seasons/', {}, context || {})
-      .then(({ data }) => setSeasons(data.results || data))
+      .then(({ data }) => {
+        if (Array.isArray(data)) {
+          setSeasons(data);
+        } else if (data && Array.isArray((data as any).results)) {
+          setSeasons((data as any).results);
+        } else {
+          setSeasons([]);
+        }
+      })
       .catch(() => setError('Erro ao carregar temporadas.'))
       .finally(() => setLoading(false));
   }, [context]);

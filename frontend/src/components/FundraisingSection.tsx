@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, Button, LoadingSpinner } from '../components/common';
+import { OptimizedImage } from './common/OptimizedImage';
 import { useDonationCampaigns } from '../hooks/useDonationCampaigns';
 
 const FundraisingSection: React.FC = () => {
@@ -33,7 +34,7 @@ const FundraisingSection: React.FC = () => {
           {campaigns.map(campaign => (
             <Card key={campaign.id} className="flex flex-col">
               {campaign.image && (
-                <img src={campaign.image} alt={campaign.title} className="h-40 w-full object-cover rounded-t" />
+                <OptimizedImage src={campaign.image} alt={campaign.title} width={400} height={160} className="h-40 w-full object-cover rounded-t" lazy={true} />
               )}
               <div className="p-4 flex-1 flex flex-col justify-between">
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{campaign.title}</h3>

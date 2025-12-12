@@ -1,23 +1,21 @@
 # Basic dashboard view
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.db import models
+from backend.seasons.models import Season, Episode
+from django.utils import timezone
 
 # --- Dashboard View ---
 
-from django.db import models
-
 class ParticipantDashboardView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]  # Métricas públicas para HomePage
 
     def get(self, request, *args, **kwargs):
-        user = request.user
+        user = request.user if request.user.is_authenticated else None
         # Example: get participant profile if exists
-        participant = getattr(user, 'participant_profile', None)
+        participant = getattr(user, 'participant_profile', None) if user else None
         # Example stats (replace with real queries as needed)
-        from seasons.models import Season, Episode
-        from django.utils import timezone
         from .models import Participant
 
         total_participants = Participant.objects.count()
@@ -28,8 +26,28 @@ class ParticipantDashboardView(APIView):
         # Next episode (mocked)
         next_episode = None
         if current_season:
-            next_ep = Episode.objects.filter(season=current_season, start_date__gte=timezone.now()).order_by('start_date').first()
-            next_episode = next_ep.start_date.isoformat() if next_ep else None
+            next_ep = Episode.objects.filter(season=current_season, air_date__gte=timezone.now()).order_by('air_date').first()
+            next_episode = next_ep.air_date.isoformat() if next_ep else None
+
+        # Build leaderboard for RankingPage
+        participants = Participant.objects.filter(
+            status__in=['active', 'approved']
+        ).select_related('user', 'season').order_by('-public_votes')
+
+        leaderboard = []
+        for idx, p in enumerate(participants, start=1):
+            leaderboard.append({
+                'id': p.id,
+                'posicao': idx,
+                'nome': p.user.full_name if hasattr(p.user, 'full_name') else p.user.username,
+                'provincia': getattr(p.user, 'province', 'N/A'),
+                'idade': getattr(p.user, 'age', 0),
+                'foto_perfil': p.user.profile_picture.url if hasattr(p.user, 'profile_picture') and p.user.profile_picture else None,
+                'total_votos': p.public_votes,
+                'votos_semana': 0,  # TODO: implement weekly votes tracking
+                'variacao_posicao': 0,  # TODO: implement position change tracking
+                'percentual_votos': round((p.public_votes / total_votes * 100), 2) if total_votes > 0 else 0,
+            })
 
         data = {
             "totalParticipants": total_participants,
@@ -38,6 +56,7 @@ class ParticipantDashboardView(APIView):
             "userVotes": user_votes,
             "favoriteParticipant": favorite_participant,
             "nextEpisode": next_episode,
+            "leaderboard": leaderboard,
         }
         return Response(data)
 
@@ -48,6 +67,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 import datetime
+from backend.seasons.models import Season, Episode
 
 class RecentActivityView(APIView):
     permission_classes = [IsAuthenticated]

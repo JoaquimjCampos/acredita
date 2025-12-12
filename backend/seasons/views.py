@@ -1,8 +1,9 @@
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from rest_framework import status
+from rest_framework import status, viewsets, filters
+from rest_framework.decorators import action
+from django_filters.rest_framework import DjangoFilterBackend
 from .models import Season, Episode, EpisodeParticipant
 from .serializers import SeasonSerializer, EpisodeSerializer
 
@@ -52,12 +53,52 @@ class GlobalVoteAPIView(APIView):
         return Response({'detail': 'Voto registrado com sucesso.'}, status=status.HTTP_200_OK)
 
 
+class SeasonViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    ViewSet para listar e visualizar temporadas.
+    - GET /api/seasons/ - Lista temporadas (públicas por padrão)
+    - GET /api/seasons/{id}/ - Detalhes de uma temporada
+    """
+    permission_classes = [AllowAny]
+    queryset = Season.objects.all()
+    serializer_class = SeasonSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['is_current', 'status']
+    search_fields = ['title', 'description']
+    ordering_fields = ['start_date', 'created_at']
+    ordering = ['-start_date']
 
-from rest_framework import viewsets, filters
-from django_filters.rest_framework import DjangoFilterBackend
+    def get_queryset(self):
+        """Retorna temporadas ordenadas por data, mostrando atuais primeiro"""
+        queryset = Season.objects.all()
+        # Pode filtrar apenas ativas/públicas se necessário
+        return queryset.order_by('-is_current', '-start_date')
 
 class EpisodeViewSet(viewsets.ModelViewSet):
-    from rest_framework.decorators import action
+    """
+    ViewSet para listar e gerenciar episódios.
+    - GET /api/episodes/ - Lista episódios (filtráveis por temporada)
+    - GET /api/episodes/{id}/ - Detalhes de um episódio
+    """
+    permission_classes = [AllowAny]
+    queryset = Episode.objects.select_related('season').filter(is_deleted=False)
+    serializer_class = EpisodeSerializer
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    filterset_fields = {
+        'season': ['exact'],
+        'status': ['exact'],
+        'voting_enabled': ['exact'],
+        'air_date': ['exact', 'gte', 'lte'],
+    }
+    ordering_fields = ['air_date', 'episode_number', 'view_count', 'like_count']
+    search_fields = ['title', 'description']
+    throttle_scope = 'episodes'
+
+    def get_permissions(self):
+        """Admins para criar/deletar, público para listar/visualizar"""
+        if self.action in ['create', 'update', 'partial_update', 'destroy', 'perform_bulk_create', 'bulk_soft_delete', 'bulk_restore']:
+            return [IsAdminUser()]
+        return [AllowAny()]
 
     @action(detail=True, methods=['get'], url_path='votes', permission_classes=[AllowAny])
     def votes(self, request, pk=None):
@@ -74,7 +115,6 @@ class EpisodeViewSet(viewsets.ModelViewSet):
             for ep_part in participants
         ]
         return Response({'votes': result}, status=status.HTTP_200_OK)
-    from rest_framework.decorators import action
 
     @action(detail=False, methods=['post'], url_path='bulk_soft_delete', permission_classes=[IsAdminUser])
     def bulk_soft_delete(self, request):
@@ -95,38 +135,6 @@ class EpisodeViewSet(viewsets.ModelViewSet):
         logger = logging.getLogger('django')
         logger.info(f"User {user} performed bulk restore on episodes: {ids}")
         return Response({'updated': updated}, status=status.HTTP_200_OK)
-    from django.utils.decorators import method_decorator
-    from django.views.decorators.cache import cache_page
-
-    @method_decorator(cache_page(60*5), name='list')
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    def bulk_soft_delete(self, request):
-        ids = request.data.get('ids', [])
-        updated = Episode.objects.filter(pk__in=ids).update(is_deleted=True)
-        return Response({'updated': updated}, status=status.HTTP_200_OK)
-
-    def bulk_restore(self, request):
-        ids = request.data.get('ids', [])
-        updated = Episode.objects.filter(pk__in=ids).update(is_deleted=False)
-        return Response({'updated': updated}, status=status.HTTP_200_OK)
-    def get_permissions(self):
-        if self.action in ['create', 'destroy', 'perform_bulk_create']:
-            return [IsAdminUser()]
-        return [IsAuthenticated()]
-    queryset = Episode.objects.select_related('season').filter(is_deleted=False)
-    serializer_class = EpisodeSerializer
-    filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    filterset_fields = {
-        'season': ['exact'],
-        'status': ['exact'],
-        'voting_enabled': ['exact'],
-        'air_date': ['exact', 'gte', 'lte'],
-    }
-    ordering_fields = ['air_date', 'episode_number', 'view_count', 'like_count']
-    search_fields = ['title', 'description']
-    throttle_scope = 'episodes'
 
     def create(self, request, *args, **kwargs):
         if isinstance(request.data, list):
@@ -139,7 +147,3 @@ class EpisodeViewSet(viewsets.ModelViewSet):
 
     def perform_bulk_create(self, serializer):
         serializer.save()
-
-class SeasonViewSet(viewsets.ModelViewSet):
-    queryset = Season.objects.all()
-    serializer_class = SeasonSerializer

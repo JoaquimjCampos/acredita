@@ -3,22 +3,18 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
-import { ErrorMessage } from '../components/common/ErrorMessage';
-
-import { ParticipantSimple } from '../types';
+import { OptimizedImage } from '../components/common/OptimizedImage';
 import { 
   Trophy, 
   Medal, 
   Award, 
-  Heart, 
+  Heart,
   TrendingUp, 
   TrendingDown,
   Minus,
   Crown,
-  Star,
   MapPin,
-  Users,
-  Calendar
+  Users
 } from 'lucide-react';
 
 import { useLeaderboard } from '../hooks';
@@ -27,8 +23,46 @@ const RankingPage: React.FC = () => {
   const [timeFilter, setTimeFilter] = useState<'geral' | 'semana' | 'mes'>('geral');
   const { leaderboard, loading, error } = useLeaderboard();
 
-  const participantes: ParticipantSimple[] = [];
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex justify-center items-center h-96">
+          <LoadingSpinner size="lg" />
+        </div>
+      </Layout>
+    );
+  }
 
+  if (error || !leaderboard || leaderboard.length === 0) {
+    return (
+      <Layout>
+        {/* Hero Section */}
+        <div className="bg-gradient-to-r from-yellow-600 to-amber-600 text-white py-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <div className="flex items-center gap-4">
+              <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+                <Trophy className="h-8 w-8" />
+              </div>
+              <div>
+                <h1 className="text-4xl font-bold">Classificação</h1>
+                <p className="text-yellow-100 mt-1">Acompanhe a evolução dos participantes</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gray-50 min-h-screen py-12">
+          <div className="max-w-6xl mx-auto px-4">
+            <Card className="p-12 text-center">
+              <Trophy className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum participante no ranking</h3>
+              <p className="text-gray-600">A classificação será actualizada assim que houver votos.</p>
+            </Card>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   const getPositionIcon = (position: number) => {
     switch (position) {
@@ -80,82 +114,54 @@ const RankingPage: React.FC = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center" role="status" aria-live="polite">
-          <LoadingSpinner size="lg" text="Carregando ranking..." />
-        </div>
-      </Layout>
-    );
-  }
-
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center" role="alert" aria-live="assertive">
-          <ErrorMessage message={error} />
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
-  <div className="min-h-screen bg-gray-50 py-6" tabIndex={-1} aria-label="Conteúdo principal da classificação">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3" tabIndex={0} aria-label="Título da página: Classificação dos Participantes">
-              <Star className="h-8 w-8 text-yellow-400" /> Classificação dos Participantes <Users className="h-7 w-7 text-acredita-primary ml-2" />
-            </h1>
-            <p className="text-gray-600" tabIndex={0}>
-              Acompanhe a evolução dos nossos participantes
-            </p>
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-yellow-600 to-amber-600 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <Trophy className="h-8 w-8" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold">Classificação</h1>
+              <p className="text-yellow-100 mt-1">Acompanhe a evolução dos participantes</p>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4">
 
           {/* Filtros */}
-          <Card className="p-6 mb-8" aria-label="Filtros de classificação">
-            <div className="flex items-center justify-between">
-              <div className="flex space-x-4" role="group" aria-label="Filtros de tempo da classificação">
-                <Button
-                  variant={timeFilter === 'geral' ? 'primary' : 'outline'}
-                  onClick={() => setTimeFilter('geral')}
-                  aria-pressed={timeFilter === 'geral'}
-                  tabIndex={0}
-                >
-                  Classificação Geral
-                </Button>
-                <Button
-                  variant={timeFilter === 'semana' ? 'primary' : 'outline'}
-                  onClick={() => setTimeFilter('semana')}
-                  aria-pressed={timeFilter === 'semana'}
-                  tabIndex={0}
-                >
-                  Esta Semana
-                </Button>
-                <Button
-                  variant={timeFilter === 'mes' ? 'primary' : 'outline'}
-                  onClick={() => setTimeFilter('mes')}
-                  aria-pressed={timeFilter === 'mes'}
-                  tabIndex={0}
-                >
-                  Este Mês
-                </Button>
-              </div>
-              <div className="text-right">
-                <p className="text-sm text-gray-500 flex items-center gap-2" aria-label="Última atualização">
-                  <Calendar className="h-5 w-5 text-acredita-primary" /> Última atualização: {new Date().toLocaleDateString('pt-AO')}
-                </p>
-              </div>
+          <Card className="p-6 mb-8">
+            <div className="flex items-center gap-4">
+              <Button
+                variant={timeFilter === 'geral' ? 'primary' : 'outline'}
+                onClick={() => setTimeFilter('geral')}
+              >
+                Geral
+              </Button>
+              <Button
+                variant={timeFilter === 'semana' ? 'primary' : 'outline'}
+                onClick={() => setTimeFilter('semana')}
+              >
+                Esta Semana
+              </Button>
+              <Button
+                variant={timeFilter === 'mes' ? 'primary' : 'outline'}
+                onClick={() => setTimeFilter('mes')}
+              >
+                Este Mês
+              </Button>
             </div>
           </Card>
 
           {/* Pódio - Top 3 */}
-          <div className="mb-12" aria-label="Pódio dos participantes">
-            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center" tabIndex={0}>
-              <Trophy className="w-8 h-8 inline mr-2 text-yellow-500" aria-hidden="true" />
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center flex items-center justify-center gap-2">
+              <Trophy className="w-8 h-8 text-yellow-500" />
               Pódio
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -165,66 +171,61 @@ const RankingPage: React.FC = () => {
                   className={cn(
                     "text-center p-6",
                     getPositionCardClass(participant.posicao),
-                    index === 0 ? "md:order-2 transform md:scale-110" : "",
+                    index === 0 ? "md:order-2 md:scale-110" : "",
                     index === 1 ? "md:order-1" : "",
                     index === 2 ? "md:order-3" : ""
                   )}
                 >
-                  <div
-                    tabIndex={0}
-                    aria-label={`Participante ${participant.nome}, posição ${participant.posicao}`}
-                  >
-                    <div className="mb-4">{getPositionIcon(participant.posicao)}</div>
-                    <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center">
-                      {participant.foto_perfil ? (
-                        <img 
-                          src={participant.foto_perfil} 
-                          alt={participant.nome}
-                          className="w-full h-full object-cover rounded-full"
-                        />
-                      ) : (
-                        <Users className="w-8 h-8 text-primary-500" aria-label="Sem foto de perfil" />
-                      )}
-                    </div>
-                    <h3 className="text-lg font-bold text-gray-900 mb-2">{participant.nome}</h3>
-                    <div className="flex items-center justify-center text-sm text-gray-600 mb-3">
-                      <MapPin className="w-4 h-4 mr-1" aria-hidden="true" />
-                      {participant.provincia}
-                    </div>
-                    <div className="flex items-center justify-center mb-4">
-                      <Heart className="w-5 h-5 text-red-500 mr-2" aria-hidden="true" />
-                      <span className="text-xl font-bold text-gray-900">
-                        {participant.total_votos.toLocaleString()}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-center text-sm">
-                      {getVariationIcon(participant.variacao_posicao)}
-                      <span className={cn(
-                        "ml-1 font-medium",
-                        participant.variacao_posicao > 0 ? "text-green-600" : 
-                        participant.variacao_posicao < 0 ? "text-red-600" : "text-gray-500"
-                      )}>
-                        {getVariationText(participant.variacao_posicao)}
-                      </span>
-                    </div>
-                    <Link to={`/participantes/${participant.id}`} tabIndex={0} aria-label={`Ver perfil de ${participant.nome}`}>
-                      <Button size="sm" className="mt-4 w-full">
-                        Ver Perfil
-                      </Button>
-                    </Link>
+                  <div className="mb-4">{getPositionIcon(participant.posicao)}</div>
+                  <div className="w-20 h-20 mx-auto mb-4 rounded-full flex items-center justify-center overflow-hidden bg-gradient-to-br from-yellow-100 to-amber-100">
+                    <OptimizedImage
+                      src={participant.foto_perfil}
+                      alt={participant.nome}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover rounded-full"
+                      fallbackIcon={<Users className="w-8 h-8 text-amber-500" />}
+                      lazy={false}
+                    />
                   </div>
+                  <h3 className="text-lg font-bold text-gray-900 mb-2">{participant.nome}</h3>
+                  <div className="flex items-center justify-center text-sm text-gray-600 mb-3">
+                    <MapPin className="w-4 h-4 mr-1" />
+                    {participant.provincia}
+                  </div>
+                  <div className="flex items-center justify-center mb-4">
+                    <Heart className="w-5 h-5 text-red-500 mr-2" />
+                    <span className="text-xl font-bold text-gray-900">
+                      {participant.total_votos.toLocaleString()}
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-center text-sm mb-4">
+                    {getVariationIcon(participant.variacao_posicao)}
+                    <span className={cn(
+                      "ml-1 font-medium",
+                      participant.variacao_posicao > 0 ? "text-green-600" : 
+                      participant.variacao_posicao < 0 ? "text-red-600" : "text-gray-500"
+                    )}>
+                      {getVariationText(participant.variacao_posicao)}
+                    </span>
+                  </div>
+                  <Link to={`/participantes/${participant.id}`}>
+                    <Button size="sm" className="mt-2 w-full">
+                      Ver Perfil
+                    </Button>
+                  </Link>
                 </Card>
               ))}
             </div>
           </div>
 
           {/* Classificação Completa */}
-          <Card className="overflow-hidden" aria-label="Tabela de classificação completa">
+          <Card className="overflow-hidden">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-xl font-bold text-gray-900" tabIndex={0}>Classificação Completa</h2>
+              <h2 className="text-xl font-bold text-gray-900">Classificação Completa</h2>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full" aria-label="Tabela de classificação dos participantes">
+              <table className="w-full">
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posição</th>
@@ -245,8 +246,6 @@ const RankingPage: React.FC = () => {
                         "hover:bg-gray-50 transition-colors",
                         participant.posicao <= 3 ? "bg-yellow-50" : ""
                       )}
-                      tabIndex={0}
-                      aria-label={`Linha da tabela: ${participant.nome}, posição ${participant.posicao}`}
                     >
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -258,16 +257,16 @@ const RankingPage: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 bg-gradient-to-br from-primary-100 to-primary-200 rounded-full flex items-center justify-center mr-3">
-                            {participant.foto_perfil ? (
-                              <img 
-                                src={participant.foto_perfil} 
-                                alt={participant.nome}
-                                className="w-full h-full object-cover rounded-full"
-                              />
-                            ) : (
-                              <Users className="w-5 h-5 text-primary-500" aria-label="Sem foto de perfil" />
-                            )}
+                          <div className="w-10 h-10 bg-gradient-to-br from-yellow-100 to-amber-100 rounded-full flex items-center justify-center mr-3 overflow-hidden">
+                            <OptimizedImage
+                              src={participant.foto_perfil}
+                              alt={participant.nome}
+                              width={40}
+                              height={40}
+                              className="w-full h-full object-cover rounded-full"
+                              fallbackIcon={<Users className="w-5 h-5 text-amber-500" />}
+                              lazy={true}
+                            />
                           </div>
                           <div>
                             <div className="text-sm font-medium text-gray-900">{participant.nome}</div>
@@ -278,7 +277,7 @@ const RankingPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{participant.provincia}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          <Heart className="w-4 h-4 text-red-500 mr-1" aria-hidden="true" />
+                          <Heart className="w-4 h-4 text-red-500 mr-1" />
                           <span className="text-sm font-medium text-gray-900">{participant.total_votos.toLocaleString()}</span>
                         </div>
                       </td>
@@ -299,9 +298,7 @@ const RankingPage: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <Link 
                           to={`/participantes/${participant.id}`}
-                          className="text-primary-600 hover:text-primary-900"
-                          tabIndex={0}
-                          aria-label={`Ver perfil de ${participant.nome}`}
+                          className="text-amber-600 hover:text-amber-900 transition-colors"
                         >
                           Ver Perfil
                         </Link>

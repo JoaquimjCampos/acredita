@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import { useAuth } from "../contexts/AuthContext";
-import "./ContentList.css";
+import { FileText, Filter, Plus, Search, Trash2, Upload, X, Edit } from "lucide-react";
 import toast from "react-hot-toast";
+import { useAuth } from "../contexts/AuthContext";
+import { Layout } from "../components/layout/Layout";
+import { Card, LoadingSpinner } from "../components/common";
 
 export type Content = {
   id: number;
@@ -11,18 +13,19 @@ export type Content = {
   category: string;
   tags: string;
   author: string | number;
-  media_url: string;
-  feedback: string;
+  media_url?: string;
+  feedback?: string;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 };
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 6;
 
 const ContentList: React.FC = () => {
   const modalRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated, user } = useAuth();
+
   const [contents, setContents] = useState<Content[]>([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("");
@@ -34,293 +37,358 @@ const ContentList: React.FC = () => {
   const [form, setForm] = useState<Partial<Content>>({});
   const [mediaFile, setMediaFile] = useState<File | null>(null);
   const [error, setError] = useState<string>("");
-  const [fieldErrors, setFieldErrors] = useState<{[key: string]: string}>({});
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+  const isAdmin = isAuthenticated && (user as any)?.is_staff;
 
   useEffect(() => {
     fetchContents();
-    // eslint-disable-next-line
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, category, page]);
 
   const fetchContents = async () => {
     setLoading(true);
     try {
-      const params: any = { page, page_size: PAGE_SIZE };
+      const params: Record<string, string | number> = { page, page_size: PAGE_SIZE };
       if (search) params.search = search;
       if (category) params.category = category;
+
       const res = await axios.get("/api/content/content/", { params });
-      setContents(res.data.results || res.data);
-      setCount(res.data.count || res.data.length || 0);
-    } catch {
+      const data = res.data;
+      const results: Content[] = data.results ?? data;
+      setContents(results);
+      setCount(data.count ?? results.length ?? 0);
+    } catch (e) {
+      toast.error("Não foi possível carregar conteúdos.");
       setContents([]);
       setCount(0);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
-  // Unique categories for filter dropdown
-  const categories = Array.from(new Set(contents.map((c) => c.category).filter(Boolean)));
+  const categories = useMemo(
+    () => Array.from(new Set(contents.map((c) => c.category).filter(Boolean))),
+    [contents]
+  );
 
-  // Check if user is admin
-  const isAdmin = user && (user.is_staff || user.user_type === "admin");
-
-  // Handlers for create/edit/delete
   const handleOpenCreate = () => {
-    setForm({});
     setShowCreate(true);
+    setShowEditId(null);
+    setForm({ is_active: true });
+    setMediaFile(null);
     setError("");
-    setTimeout(() => {
-      modalRef.current?.focus();
-    }, 100);
+    setFieldErrors({});
   };
+
   const handleOpenEdit = (content: Content) => {
-    setForm(content);
     setShowEditId(content.id);
+    setShowCreate(false);
+    setForm({ ...content });
+    setMediaFile(null);
     setError("");
-    setTimeout(() => {
-      modalRef.current?.focus();
-    }, 100);
+    setFieldErrors({});
   };
+
   const handleCloseForm = () => {
     setShowCreate(false);
     setShowEditId(null);
     setForm({});
+    setMediaFile(null);
     setError("");
+    setFieldErrors({});
   };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    if (e.target.type === "file") {
-      setMediaFile((e.target as HTMLInputElement).files?.[0] || null);
-    } else {
-      setForm(f => ({ ...f, [e.target.name]: e.target.value }));
+    const { name, value, files, type } = e.target as HTMLInputElement;
+    if (type === "file" && files && files[0]) {
+      setMediaFile(files[0]);
+      return;
     }
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setFieldErrors({});
     setLoading(true);
+    setError("");
+    setFieldErrors({});
+
     try {
-      let response;
       const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) formData.append(key, value as string);
-      });
+      formData.append("title", form.title || "");
+      formData.append("description", form.description || "");
+      formData.append("category", form.category || "");
+      formData.append("tags", form.tags || "");
+      formData.append("author", String(form.author || user?.nome || ""));
+      formData.append("feedback", form.feedback || "");
+      formData.append("is_active", String(form.is_active ?? true));
       if (mediaFile) formData.append("media_file", mediaFile);
-      if (showCreate) {
-        response = await axios.post("/api/content/content/", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Content created successfully!");
-      } else if (showEditId) {
-        response = await axios.patch(`/api/content/content/${showEditId}/`, formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        toast.success("Content updated successfully!");
+
+      const url = showEditId ? `/api/content/content/${showEditId}/` : "/api/content/content/";
+      const method = showEditId ? "put" : "post";
+
+      const res = await axios({ url, method, data: formData, headers: { "Content-Type": "multipart/form-data" } });
+      const saved = res.data as Content;
+
+      if (showEditId) {
+        setContents((prev) => prev.map((c) => (c.id === saved.id ? saved : c)));
+      } else {
+        setContents((prev) => [saved, ...prev]);
       }
+
+      toast.success(showEditId ? "Conteúdo atualizado" : "Conteúdo criado");
       handleCloseForm();
       fetchContents();
     } catch (err: any) {
-      setError(err?.response?.data?.detail || "Error saving content");
-      toast.error(err?.response?.data?.detail || "Error saving content");
-      // Field-level errors from DRF
-      if (err?.response?.data) {
-        setFieldErrors(err.response.data);
+      const response = err?.response?.data;
+      if (response && typeof response === "object") {
+        setFieldErrors(response as Record<string, string>);
       }
+      setError("Erro ao salvar conteúdo.");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
+
   const handleDelete = async (id: number) => {
-    if (!window.confirm("Are you sure you want to delete this content?")) return;
+    const confirmed = window.confirm("Tem certeza que deseja apagar este conteúdo?");
+    if (!confirmed) return;
+    setLoading(true);
     try {
       await axios.delete(`/api/content/content/${id}/`);
-      toast.success("Content deleted successfully!");
-      fetchContents();
-    } catch (err: any) {
-      setError(err?.response?.data?.detail || "Error deleting content");
-      toast.error(err?.response?.data?.detail || "Error deleting content");
+      setContents((prev) => prev.filter((c) => c.id !== id));
+      setCount((prev) => Math.max(0, prev - 1));
+      toast.success("Conteúdo apagado");
+    } catch {
+      toast.error("Não foi possível apagar o conteúdo.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="content-list-container">
-      <header>
-        <h1>📚 Content Library</h1>
-        <p>Browse, search, and filter rich content. Powered by Django backend.</p>
-        {isAuthenticated && (
-          <button className="content-crud-actions save-btn" onClick={handleOpenCreate}>Create Content</button>
-        )}
-      </header>
-      <div className="content-list-controls">
-        <input
-          type="text"
-          placeholder="Search content..."
-          value={search}
-          onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-          className="content-search-input"
-        />
-        <select onChange={(e) => { setCategory(e.target.value); setPage(1); }} className="content-filter-select">
-          <option value="">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
-      </div>
-      {loading ? <div>Loading...</div> : (
-        <div className="content-list-grid">
-          {contents.map((content) => (
-            <div key={content.id} className="content-card">
-              {/* Enhanced media display: supports images, videos, audio, PDFs, docs, and fallback */}
-              {content.media_url && (() => {
-                const url = content.media_url;
-                const ext = url.split('.').pop()?.toLowerCase() || '';
-                if (["jpg","jpeg","png","gif","webp","bmp","svg"].includes(ext)) {
-                  return (
-                    <figure className="content-card-media-container plg-darkmode" tabIndex={0} aria-label={`Image: ${content.title}`}
-                      style={{outline:'none',margin:'0 0 8px 0',borderRadius:12,boxShadow:'0 4px 16px #2a2a2a22',maxHeight:220,overflow:'hidden',background:'linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%)'}}>
-                      <img src={url} alt={content.title} className="content-card-image" style={{width:'100%',height:'auto',display:'block',transition:'box-shadow 0.2s',boxShadow:'0 1px 4px #0001'}} />
-                      <figcaption className="visually-hidden">Image: {content.title}</figcaption>
-                    </figure>
-                  );
-                }
-                if (["mp4","webm","ogg","mkv","mov","avi"].includes(ext)) {
-                  return (
-                    <figure className="content-card-media-container plg-darkmode" tabIndex={0} aria-label={`Video: ${content.title}`}
-                      style={{outline:'none',margin:'0 0 8px 0',borderRadius:12,boxShadow:'0 4px 16px #2a2a2a22',maxHeight:220,overflow:'hidden',background:'linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%)'}}>
-                      <video src={url} controls className="content-card-media" style={{width:'100%',height:'auto',display:'block',transition:'box-shadow 0.2s',boxShadow:'0 1px 4px #0001'}} aria-label={content.title} />
-                      <figcaption className="visually-hidden">Video: {content.title}</figcaption>
-                    </figure>
-                  );
-                }
-                if (["mp3","wav","aac","flac","m4a"].includes(ext)) {
-                  return (
-                    <figure className="content-card-media-container plg-darkmode" tabIndex={0} aria-label={`Audio: ${content.title}`}
-                      style={{outline:'none',margin:'8px 0',borderRadius:12,boxShadow:'0 4px 16px #2a2a2a22',padding:'4px 0',background:'linear-gradient(90deg,#f8fafc 60%,#e0e7ef 100%)'}}>
-                      <audio src={url} controls className="content-card-media" style={{width:'100%'}} aria-label={content.title} />
-                      <figcaption className="visually-hidden">Audio: {content.title}</figcaption>
-                    </figure>
-                  );
-                }
-                if (["pdf"].includes(ext)) {
-                  return (
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="content-card-media-link plg-darkmode" tabIndex={0} aria-label={`PDF: ${content.title}`}
-                      style={{display:'inline-block',margin:'8px 0',padding:'8px 16px',borderRadius:8,background:'#e0e7ef',boxShadow:'0 2px 8px #0002',fontWeight:600,color:'#1e293b',transition:'background 0.2s'}}
-                      onFocus={e => e.currentTarget.style.background = '#cbd5e1'}
-                      onBlur={e => e.currentTarget.style.background = '#e0e7ef'}
-                      onMouseOver={e => e.currentTarget.style.background = '#cbd5e1'}
-                      onMouseOut={e => e.currentTarget.style.background = '#e0e7ef'}>
-                      📄 View PDF
-                    </a>
-                  );
-                }
-                if (["doc","docx","ppt","pptx","xls","xlsx"].includes(ext)) {
-                  return (
-                    <a href={url} target="_blank" rel="noopener noreferrer" className="content-card-media-link plg-darkmode" tabIndex={0} aria-label={`Document: ${content.title}`}
-                      style={{display:'inline-block',margin:'8px 0',padding:'8px 16px',borderRadius:8,background:'#e0e7ef',boxShadow:'0 2px 8px #0002',fontWeight:600,color:'#1e293b',transition:'background 0.2s'}}
-                      onFocus={e => e.currentTarget.style.background = '#cbd5e1'}
-                      onBlur={e => e.currentTarget.style.background = '#e0e7ef'}
-                      onMouseOver={e => e.currentTarget.style.background = '#cbd5e1'}
-                      onMouseOut={e => e.currentTarget.style.background = '#e0e7ef'}>
-                      📑 Download Document
-                    </a>
-                  );
-                }
-                // Fallback for other files
-                return (
-                  <a href={url} target="_blank" rel="noopener noreferrer" className="content-card-media-link plg-darkmode" tabIndex={0} aria-label={`File: ${content.title}`}
-                    style={{display:'inline-block',margin:'8px 0',padding:'8px 16px',borderRadius:8,background:'#e0e7ef',boxShadow:'0 2px 8px #0002',fontWeight:600,color:'#1e293b',transition:'background 0.2s'}}
-                    onFocus={e => e.currentTarget.style.background = '#cbd5e1'}
-                    onBlur={e => e.currentTarget.style.background = '#e0e7ef'}
-                    onMouseOver={e => e.currentTarget.style.background = '#cbd5e1'}
-                    onMouseOut={e => e.currentTarget.style.background = '#e0e7ef'}>
-                    🔗 Download File
-                  </a>
-                );
-              })()}
-              <div className="content-card-content">
-                <h2>{content.title}</h2>
-                <p>{content.description}</p>
-                <div className="content-card-meta">
-                  <span className="badge badge-category">{content.category}</span>
-                  <span className="badge badge-tags">{content.tags}</span>
-                  <span className="badge badge-active">{content.is_active ? "Active" : "Inactive"}</span>
-                </div>
-                {content.feedback && <div className="content-card-feedback">💬 {content.feedback}</div>}
-                <small>Created: {new Date(content.created_at).toLocaleString()}</small>
-                {isAdmin && (
-                  <div className="content-crud-actions">
-                    <button className="edit-btn" onClick={() => handleOpenEdit(content)}>Edit</button>
-                    <button className="delete-btn" onClick={() => handleDelete(content.id)}>Delete</button>
-                  </div>
-                )}
-              </div>
+    <Layout>
+      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <FileText className="h-8 w-8" />
             </div>
-          ))}
-          {contents.length === 0 && <div className="content-list-empty">No content found. Try adjusting your filters or search.</div>}
+            <div>
+              <h1 className="text-4xl font-bold">Biblioteca de Conteúdos</h1>
+              <p className="text-indigo-100 mt-1">Gerencie artigos, media e recursos integrados ao backend Django.</p>
+            </div>
+            {isAdmin && (
+              <button
+                onClick={handleOpenCreate}
+                className="ml-auto flex items-center gap-2 bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg"
+              >
+                <Plus className="h-4 w-4" /> Criar Conteúdo
+              </button>
+            )}
+          </div>
         </div>
-      )}
-      {/* Pagination Controls */}
-      <div className="content-list-pagination">
-        <button disabled={page === 1} onClick={() => setPage(page - 1)}>Previous</button>
-        <span>Page {page}</span>
-        <button disabled={page * PAGE_SIZE >= count} onClick={() => setPage(page + 1)}>Next</button>
       </div>
 
-      {/* Create/Edit Modal */}
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4 space-y-6">
+          <Card className="p-6">
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <input
+                  type="text"
+                  placeholder="Pesquisar conteúdos..."
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div className="sm:w-60 relative">
+                <Filter className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                <select
+                  value={category}
+                  onChange={(e) => {
+                    setCategory(e.target.value);
+                    setPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 appearance-none"
+                >
+                  <option value="">Todas as categorias</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </Card>
+
+          {loading ? (
+            <div className="flex justify-center py-12"><LoadingSpinner text="Carregando conteúdos..." /></div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {contents.map((content) => (
+                <Card key={content.id} className="p-6 border-l-4 border-indigo-500 shadow-sm hover:shadow-md transition-shadow">
+                  <div className="flex items-start justify-between mb-4">
+                    <div>
+                      <h2 className="text-xl font-semibold text-gray-900">{content.title}</h2>
+                      <p className="text-sm text-gray-600">{content.category || "Sem categoria"}</p>
+                    </div>
+                    <FileText className="h-6 w-6 text-indigo-600" />
+                  </div>
+
+                  {content.media_url && (
+                    <div className="mb-4 rounded-lg overflow-hidden bg-gray-100">
+                      <img src={content.media_url} alt={content.title} className="w-full h-40 object-cover" />
+                    </div>
+                  )}
+
+                  <p className="text-gray-700 text-sm mb-4 line-clamp-3">{content.description}</p>
+
+                  <div className="flex flex-wrap gap-2 text-xs text-gray-600 mb-4">
+                    {content.tags && <span className="px-2 py-1 rounded-full bg-indigo-50 text-indigo-700">Tags: {content.tags}</span>}
+                    <span className="px-2 py-1 rounded-full bg-gray-100">Autor: {content.author}</span>
+                    <span className="px-2 py-1 rounded-full bg-gray-100">Atualizado: {new Date(content.updated_at).toLocaleDateString()}</span>
+                  </div>
+
+                  {content.feedback && (
+                    <blockquote className="text-sm text-gray-600 italic bg-gray-50 p-3 rounded">“{content.feedback}”</blockquote>
+                  )}
+
+                  {isAdmin && (
+                    <div className="flex gap-2 mt-4">
+                      <button
+                        onClick={() => handleOpenEdit(content)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 border border-indigo-200 text-indigo-700 rounded-lg hover:bg-indigo-50"
+                      >
+                        <Edit className="h-4 w-4" /> Editar
+                      </button>
+                      <button
+                        onClick={() => handleDelete(content.id)}
+                        className="flex-1 inline-flex items-center justify-center gap-2 px-3 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50"
+                      >
+                        <Trash2 className="h-4 w-4" /> Apagar
+                      </button>
+                    </div>
+                  )}
+                </Card>
+              ))}
+              {contents.length === 0 && (
+                <Card className="p-8 text-center">
+                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
+                  <p className="text-gray-700">Nenhum conteúdo encontrado.</p>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {count > PAGE_SIZE && (
+            <div className="flex items-center justify-between bg-white border rounded-lg px-4 py-3">
+              <button
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="px-3 py-2 rounded border border-gray-200 disabled:opacity-40"
+              >Anterior</button>
+              <span className="text-sm text-gray-700">Página {page} de {Math.ceil(count / PAGE_SIZE)}</span>
+              <button
+                disabled={page >= Math.ceil(count / PAGE_SIZE)}
+                onClick={() => setPage((p) => p + 1)}
+                className="px-3 py-2 rounded border border-gray-200 disabled:opacity-40"
+              >Próxima</button>
+            </div>
+          )}
+        </div>
+      </div>
+
       {(showCreate || showEditId) && (
-        <div
-          className="plg-modal-overlay"
-          tabIndex={-1}
-          aria-modal="true"
-          role="dialog"
-          ref={modalRef}
-          onKeyDown={e => {
-            if (e.key === "Escape") handleCloseForm();
-            // Focus trap: keep focus inside modal
-            const focusable = modalRef.current?.querySelectorAll('input, textarea, select, button');
-            if (focusable && e.key === "Tab") {
-              const first = focusable[0] as HTMLElement;
-              const last = focusable[focusable.length - 1] as HTMLElement;
-              if (!e.shiftKey && document.activeElement === last) {
-                e.preventDefault();
-                first.focus();
-              } else if (e.shiftKey && document.activeElement === first) {
-                e.preventDefault();
-                last.focus();
-              }
-            }
-          }}
-        >
-          <div className="plg-modal">
-            <h2>{showCreate ? "Create Content" : "Edit Content"}</h2>
-            <form onSubmit={handleSubmit} className="plg-feedback-form">
-              <input name="title" type="text" placeholder="Title" value={form.title || ""} onChange={handleChange} required autoFocus aria-label="Title" aria-invalid={!!fieldErrors.title} aria-describedby="title-error" />
-              {fieldErrors.title && <div id="title-error" className="field-error" role="alert">{fieldErrors.title}</div>}
-              <textarea name="description" placeholder="Description" value={form.description || ""} onChange={handleChange} required aria-label="Description" aria-invalid={!!fieldErrors.description} aria-describedby="description-error" />
-              {fieldErrors.description && <div id="description-error" className="field-error" role="alert">{fieldErrors.description}</div>}
-              <input name="category" type="text" placeholder="Category" value={form.category || ""} onChange={handleChange} required aria-label="Category" aria-invalid={!!fieldErrors.category} aria-describedby="category-error" />
-              {fieldErrors.category && <div id="category-error" className="field-error" role="alert">{fieldErrors.category}</div>}
-              <input name="tags" type="text" placeholder="Tags (comma separated)" value={form.tags || ""} onChange={handleChange} required aria-label="Tags" aria-invalid={!!fieldErrors.tags} aria-describedby="tags-error" />
-              {fieldErrors.tags && <div id="tags-error" className="field-error" role="alert">{fieldErrors.tags}</div>}
-              <input name="media_file" type="file" accept="image/*,video/*,audio/*" onChange={handleChange} aria-label="Media File" />
-              {fieldErrors.media_file && <div className="field-error" role="alert">{fieldErrors.media_file}</div>}
-              <textarea name="feedback" placeholder="Feedback" value={form.feedback || ""} onChange={handleChange} aria-label="Feedback" aria-invalid={!!fieldErrors.feedback} aria-describedby="feedback-error" />
-              {fieldErrors.feedback && <div id="feedback-error" className="field-error" role="alert">{fieldErrors.feedback}</div>}
-              <select name="is_active" value={form.is_active ? "true" : "false"} onChange={e => setForm(f => ({ ...f, is_active: e.target.value === "true" }))} aria-label="Active Status">
-                <option value="true">Active</option>
-                <option value="false">Inactive</option>
-              </select>
-              {error && <div style={{ color: "red" }}>{error}</div>}
-              <div className="content-crud-actions">
-                <button type="submit" className="save-btn" disabled={loading}>{loading ? "Saving..." : "Save"}</button>
-                <button type="button" className="cancel-btn" onClick={handleCloseForm}>Cancel</button>
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center px-4">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-2xl p-6 relative" ref={modalRef} tabIndex={-1}>
+            <button
+              onClick={handleCloseForm}
+              className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+              aria-label="Fechar"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="h-10 w-10 rounded-full bg-indigo-100 flex items-center justify-center">
+                <FileText className="h-5 w-5 text-indigo-700" />
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">{showCreate ? "Criar Conteúdo" : "Editar Conteúdo"}</h2>
+                <p className="text-sm text-gray-600">Integração direta com o backend Django.</p>
+              </div>
+            </div>
+            {error && <div className="mb-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded p-3">{error}</div>}
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-gray-700">Título</label>
+                  <input name="title" value={form.title || ""} onChange={handleChange} required className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-700">Categoria</label>
+                  <input name="category" value={form.category || ""} onChange={handleChange} className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-700">Descrição</label>
+                <textarea name="description" value={form.description || ""} onChange={handleChange} required className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" rows={3} />
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-sm text-gray-700">Tags</label>
+                  <input name="tags" value={form.tags || ""} onChange={handleChange} className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                </div>
+                <div>
+                  <label className="text-sm text-gray-700">Autor</label>
+                  <input name="author" value={(form.author as string) || ""} onChange={handleChange} className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" />
+                </div>
+              </div>
+              <div>
+                <label className="text-sm text-gray-700">Feedback</label>
+                <textarea name="feedback" value={form.feedback || ""} onChange={handleChange} className="w-full mt-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" rows={2} />
+              </div>
+              <div>
+                <label className="text-sm text-gray-700 flex items-center gap-2">
+                  <Upload className="h-4 w-4" /> Media (imagem, vídeo, áudio ou doc)
+                </label>
+                <input type="file" name="media_file" onChange={handleChange} className="mt-2" />
+              </div>
+
+              {Object.keys(fieldErrors).length > 0 && (
+                <div className="text-sm text-red-700 bg-red-50 border border-red-200 rounded p-3">
+                  {Object.entries(fieldErrors).map(([field, msg]) => (
+                    <div key={field}>{field}: {msg as string}</div>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 pt-2">
+                {showEditId && (
+                  <button
+                    type="button"
+                    onClick={() => handleDelete(showEditId)}
+                    className="inline-flex items-center gap-2 px-4 py-2 border border-red-200 text-red-700 rounded-lg hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" /> Apagar
+                  </button>
+                )}
+                <button type="button" onClick={handleCloseForm} className="px-4 py-2 border rounded-lg">Cancelar</button>
+                <button type="submit" disabled={loading} className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:opacity-60">
+                  {loading ? "Salvando..." : "Salvar"}
+                </button>
               </div>
             </form>
-            {loading && <div style={{ textAlign: "center", marginTop: "1rem" }}><span className="loader"></span> Loading...</div>}
           </div>
         </div>
       )}
-      <footer>
-        <small>🚀 Powered by Django REST Framework & React.</small>
-      </footer>
-    </div>
+    </Layout>
   );
 };
 

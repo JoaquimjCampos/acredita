@@ -1,75 +1,97 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
 import { useParticipants } from '../hooks';
-import { Users, MapPin, Star } from 'lucide-react';
-
-// Tipo importado do hook
+import { Users, MapPin, Star, Sparkles } from 'lucide-react';
 
 const ParticipantsPage: React.FC = () => {
   const { participants, loading, error } = useParticipants();
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState('');
 
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <LoadingSpinner text="Carregando participantes..." />
+        <div className="flex justify-center items-center h-96">
+          <LoadingSpinner size="lg" />
         </div>
       </Layout>
     );
   }
 
-  if (error) {
-    return (
-      <Layout>
-        <div className="min-h-screen flex items-center justify-center">
-          <p className="text-red-500 font-semibold" role="alert">{error}</p>
-        </div>
-      </Layout>
-    );
-  }
+  const filteredParticipants = participants?.filter((p) =>
+    p.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    p.provincia.toLowerCase().includes(searchTerm.toLowerCase())
+  ) || [];
 
   return (
     <Layout>
-      <div className="min-h-screen bg-gray-50 py-6">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8 flex items-center">
-            <Users className="w-8 h-8 text-primary-500 mr-2" /> Participantes
-          </h1>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {participants.map((p) => (
-              <Card key={p.id} className="p-4 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-lg focus-within:scale-105 focus-within:shadow-lg border-2 border-transparent hover:border-acredita-primary" >
-                <div
-                  className="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4 overflow-hidden outline-none"
-                  tabIndex={0}
-                  aria-label={`Participante: ${p.nome}`}
-                >
-                  {p.foto_perfil ? (
-                    <img src={p.foto_perfil} alt={p.nome} className="w-full h-full object-cover" />
-                  ) : (
-                    <Star className="w-10 h-10 text-primary-500" aria-hidden="true" />
-                  )}
-                </div>
-                <h2 className="text-lg font-semibold text-gray-900 mb-1">{p.nome}</h2>
-                <p className="text-sm text-gray-500 mb-1">{p.idade} anos</p>
-                <p className="text-sm text-gray-500 flex items-center mb-2">
-                  <MapPin className="w-4 h-4 mr-1" aria-hidden="true" /> {p.provincia}
-                </p>
-                {typeof p.total_votos === 'number' && (
-                  <p className="text-xs text-gray-400 mb-2">Votos: {p.total_votos}</p>
-                )}
-                <Button
-                  className="w-full mt-auto"
-                  size="sm"
-                  onClick={() => navigate(`/participantes/${p.id}`)}
-                >
-                  Ver Perfil
-                </Button>
-              </Card>
-            ))}
+      {/* Hero Section */}
+      <div className="bg-gradient-to-r from-red-600 to-pink-600 text-white py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="flex items-center gap-4">
+            <div className="h-16 w-16 rounded-full bg-white/20 flex items-center justify-center">
+              <Users className="h-8 w-8" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold">Participantes</h1>
+              <p className="text-red-100 mt-1">Conheça os empreendedores que estão a competir</p>
+            </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-gray-50 min-h-screen py-12">
+        <div className="max-w-6xl mx-auto px-4">
+          {/* Search Bar */}
+          <Card className="p-6 mb-8">
+            <div className="flex items-center gap-3">
+              <Sparkles className="h-5 w-5 text-red-600" />
+              <input
+                type="text"
+                placeholder="Pesquisar participante ou província..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              />
+            </div>
+          </Card>
+
+          {filteredParticipants.length === 0 ? (
+            <Card className="p-12 text-center">
+              <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhum participante encontrado</h3>
+              <p className="text-gray-600 mb-6">Não há participantes no momento. Volte mais tarde!</p>
+            </Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredParticipants.map((p) => (
+                <Card key={p.id} className="p-6 hover:shadow-lg transition-shadow border-l-4 border-red-500">
+                  <div className="flex items-start justify-between mb-4">
+                    <h3 className="text-lg font-bold text-gray-900 flex-1">{p.nome}</h3>
+                    <Star className="h-5 w-5 text-red-600 flex-shrink-0" />
+                  </div>
+                  <p className="text-sm text-gray-600 mb-3 flex items-center gap-2">
+                    <MapPin size={16} className="text-red-600" />
+                    {p.provincia}
+                  </p>
+                  <div className="flex items-center justify-between mb-4 py-3 border-y border-gray-200">
+                    <span className="text-sm text-gray-500">{p.idade} anos</span>
+                    <span className="text-sm font-semibold text-red-600">{p.total_votos || 0} votos</span>
+                  </div>
+                  <Button 
+                    size="sm"
+                    variant="outline" 
+                    onClick={() => navigate(`/participantes/${p.id}`)}
+                    className="w-full flex items-center justify-center gap-2"
+                  >
+                    Ver Perfil
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

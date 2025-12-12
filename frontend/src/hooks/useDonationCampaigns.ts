@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { mcpFetch } from '../mcpClient';
 
 export interface DonationCampaign {
   id: number;
@@ -22,21 +23,26 @@ export function useDonationCampaigns() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    fetch('/api/donations/campaigns/')
-      .then(res => {
-        if (!res.ok) throw new Error('Erro ao carregar campanhas de doação');
-        return res.json();
-      })
-      .then(data => {
-        setCampaigns(data);
+    async function fetchCampaigns() {
+      try {
+        setLoading(true);
         setError(null);
-      })
-      .catch(err => {
-        setError(err.message);
+        const { data } = await mcpFetch('/api/donations/campaigns/');
+        if (Array.isArray(data)) {
+          setCampaigns(data);
+        } else if (data && Array.isArray(data.results)) {
+          setCampaigns(data.results);
+        } else {
+          setCampaigns([]);
+        }
+      } catch (err: any) {
+        setError('Erro ao carregar campanhas de doação');
         setCampaigns([]);
-      })
-      .finally(() => setLoading(false));
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCampaigns();
   }, []);
 
   return { campaigns, loading, error };
