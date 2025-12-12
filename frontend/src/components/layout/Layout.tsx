@@ -1,4 +1,4 @@
-import { Newspaper, Moon, Sun } from 'lucide-react';
+import { Newspaper, Moon, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
 import Sidebar from '../Sidebar';
@@ -6,7 +6,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../common';
 import { cn } from '../../utils/index.original';
-import { Home, Users, Trophy, Calendar, Vote, User, LogOut, Menu, X, Heart, Settings, ArrowRight, BookOpen } from 'lucide-react';
+import { LogOut, Menu, X, Heart, ArrowRight } from 'lucide-react';
+import { getHeaderNavItems, getMobileMenuItems, type NavigationItem, type IconType } from '../../config/navigationConfig';
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -18,6 +19,9 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [darkMode, setDarkMode] = useState(false);
+  
+  // Get header nav items from config
+  const headerNavItems = getHeaderNavItems(isAuthenticated);
 
   React.useEffect(() => {
     if (darkMode) {
@@ -60,15 +64,9 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
           </Link>
         </div>
         <nav className="hidden lg:flex space-x-6">
-          <NavLink to="/" icon={Home} text="Início" />
-          <NavLink to="/temporadas" icon={Calendar} text="Temporadas" />
-          <NavLink to="/jogos" icon={Trophy} text="Jogos" />
-          <NavLink to="/simuladores" icon={Settings} text="Simuladores" />
-          <NavLink to="/participantes" icon={Users} text="Participantes" />
-          <NavLink to="/ranking" icon={Trophy} text="Ranking" />
-          <NavLink to="/voting" icon={Vote} text="Votar" />
-          <NavLink to="/conteudos" icon={BookOpen} text="Conteúdos" />
-          <NavLink to="/blog" icon={Newspaper} text="Blog" />
+          {headerNavItems.map(item => (
+            <NavLink key={item.id} to={item.path} icon={item.icon} text={item.label} title={item.title} />
+          ))}
         </nav>
         <div className="flex items-center space-x-2">
           <select
@@ -111,17 +109,19 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
 
 interface NavLinkProps {
   to: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconType;
   text: string;
+  title?: string;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text }) => {
+const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text, title }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
   return (
     <Link
       to={to}
+      title={title}
       className={cn(
         'flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors',
         isActive
@@ -144,6 +144,9 @@ interface MobileMenuProps {
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  
+  // Get mobile menu items from config
+  const mobileMenuItems = getMobileMenuItems(isAuthenticated);
 
   const handleNavigation = (path: string) => {
     navigate(path);
@@ -185,27 +188,27 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
               )}
 
               <nav className="space-y-2">
-                <MobileNavLink to="/" icon={Home} text="Início" onClick={handleNavigation} />
-                <MobileNavLink to="/participantes" icon={Users} text="Participantes" onClick={handleNavigation} />
-                <MobileNavLink to="/classificacao" icon={Trophy} text="Classificação" onClick={handleNavigation} />
-                <MobileNavLink to="/temporadas" icon={Calendar} text="Temporadas" onClick={handleNavigation} />
-                <MobileNavLink to="/votar" icon={Vote} text="Votar" onClick={handleNavigation} />
-                <MobileNavLink to="/conteudos" icon={BookOpen} text="Conteúdos" onClick={handleNavigation} />
-                  <MobileNavLink to="/blog" icon={Newspaper} text="Blog" onClick={handleNavigation} />
+                {mobileMenuItems.map(item => (
+                  <MobileNavLink 
+                    key={item.id}
+                    to={item.path} 
+                    icon={item.icon} 
+                    text={item.label} 
+                    onClick={handleNavigation} 
+                  />
+                ))}
                 
                 {isAuthenticated && (
                   <>
                     <div className="border-t border-gray-200 pt-4 mt-4">
-                      <MobileNavLink to="/perfil" icon={User} text="Meu Perfil" onClick={handleNavigation} />
-                      <MobileNavLink to="/dashboard" icon={Settings} text="Dashboard" onClick={handleNavigation} />
+                      <button
+                        onClick={handleLogout}
+                        className="flex items-center space-x-3 w-full px-3 py-2 text-left text-gray-700 hover:text-acredita-primary hover:bg-gray-50 rounded-md"
+                      >
+                        <LogOut className="h-5 w-5" />
+                        <span>Terminar Sessão</span>
+                      </button>
                     </div>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center space-x-3 w-full px-3 py-2 text-left text-gray-700 hover:text-acredita-primary hover:bg-gray-50 rounded-md"
-                    >
-                      <LogOut className="h-5 w-5" />
-                      <span>Terminar Sessão</span>
-                    </button>
                   </>
                 )}
 
@@ -238,7 +241,7 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
 
 interface MobileNavLinkProps {
   to: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: IconType;
   text: string;
   onClick: (path: string) => void;
 }
