@@ -9,8 +9,8 @@ from django.db.models import Q, Sum
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from participants.models import Participant
-from kixikila.models import KixikilaGroup, KixikilaMembership, KixikilaContribution, KixikilaPayout
+from .models import Participant
+from backend.kixikila.models import KixikilaGroup, KixikilaMembership, KixikilaContribution, KixikilaPayout
 from .serializers_kixikila import (
     KixikilaFundingDashboardSerializer,
     ParticipantWithKixikilaSerializer,

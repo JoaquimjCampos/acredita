@@ -3,8 +3,10 @@ Serializers for Kixikila integration with Participants
 """
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from participants.models import Participant
-from kixikila.models import KixikilaGroup, KixikilaMembership, KixikilaContribution, KixikilaPayout
+from django.utils import timezone
+from django.db import models
+from .models import Participant
+from backend.kixikila.models import KixikilaGroup, KixikilaMembership, KixikilaContribution, KixikilaPayout
 
 User = get_user_model()
 
@@ -145,7 +147,6 @@ class KixikilaGroupWithMembersSerializer(serializers.ModelSerializer):
     total_raised_by_group = serializers.SerializerMethodField()
     
     class Meta:
-        from kixikila.serializers import KixikilaGroupSerializer
         model = KixikilaGroup
         fields = ['id', 'name', 'group_type', 'monthly_contribution', 'current_round', 'status', 'members', 'total_raised_by_group']
     
