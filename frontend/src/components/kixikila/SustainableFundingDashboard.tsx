@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card } from '../common';
 import { TrendingUp, Users, DollarSign, Zap, Trophy, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { apiClient } from '../../services/api/client';
 
 interface FundingData {
   total_raised: number;
@@ -15,7 +16,7 @@ interface FundingData {
 }
 
 interface SustainableFundingDashboardProps {
-  participantId: number;
+  participantId?: number;
 }
 
 const SustainableFundingDashboard: React.FC<SustainableFundingDashboardProps> = ({ participantId }) => {
@@ -29,18 +30,10 @@ const SustainableFundingDashboard: React.FC<SustainableFundingDashboardProps> = 
 
   const fetchFunding = async () => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await apiClient.get(`/api/v2/participants/my-funding/`);
-      setFunding({
-        total_raised: 0,
-        total_contributed: 0,
-        active_group_id: null,
-        active_group_name: null,
-        next_payout_date: null,
-        next_payout_amount: null,
-        reputation_score: 50,
-        groups_count: 0,
-      });
+      // Use relative path from apiClient baseURL (default /api/v2)
+      // Our funding endpoints are under /api/participants/funding/
+      const data = await apiClient.get<FundingData>(`/../participants/funding/my-funding/`);
+      setFunding(data);
     } catch (error) {
       console.error('Error fetching funding data:', error);
       toast.error('Erro ao carregar dados de financiamento');

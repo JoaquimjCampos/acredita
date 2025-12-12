@@ -142,59 +142,75 @@ const HomePage: React.FC = () => {
       </a>
 
       {/* ===== HERO SECTION ===== */}
-      <div className="relative bg-gradient-to-br from-acredita-primary via-acredita-secondary to-white min-h-[65vh] flex flex-col justify-center items-center overflow-hidden">
+      <div className="relative bg-gradient-to-br from-acredita-primary via-acredita-secondary to-purple-600 min-h-[75vh] flex flex-col justify-center items-center overflow-hidden">
+        {/* Animated background pattern */}
         <div
           className="absolute inset-0 pointer-events-none opacity-10"
           style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
           }}
         />
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <img src="/logo.svg" alt="Acredita em Ti" className="h-20 w-auto mb-6 mx-auto animate-fade-in" />
-          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
-            Acredita em Ti, Acredita em Angola
-          </h1>
-          <p className="text-lg md:text-xl text-white/95 mb-8 leading-relaxed max-w-2xl mx-auto font-light">
-            Plataforma de empreendedorismo, inovação e financiamento colaborativo. Desenvolva seu negócio com a comunidade.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-            <Button
-              size="lg"
-              onClick={handleDashboard}
-              className="bg-white text-acredita-primary hover:bg-gray-100 shadow-lg font-semibold"
-            >
-              {isAuthenticated ? 'Dashboard' : 'Começar'}
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
-            {!isAuthenticated && (
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/10" />
+        
+        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
+          <div className="animate-fade-in">
+            <img src="/logo.svg" alt="Acredita em Ti" className="h-24 w-auto mb-8 mx-auto drop-shadow-2xl" />
+            <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-white mb-6 drop-shadow-2xl leading-tight">
+              Acredita em Ti,<br />Acredita em Angola
+            </h1>
+            <p className="text-xl md:text-2xl text-white/95 mb-10 leading-relaxed max-w-3xl mx-auto font-light">
+              A plataforma que transforma empreendedores angolanos em histórias de sucesso através de inovação, colaboração e financiamento comunitário.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
               <Button
                 size="lg"
-                variant="outline"
-                onClick={() => handleNavigate('/temporadas')}
-                className="border-white text-white hover:bg-white/10 font-semibold"
+                onClick={handleDashboard}
+                className="bg-white text-acredita-primary hover:bg-gray-100 shadow-2xl font-bold text-lg px-8 py-4 rounded-xl transform hover:scale-105 transition-all duration-200"
               >
-                Temporadas
+                {isAuthenticated ? '🎯 Meu Dashboard' : '🚀 Começar Agora'}
+                <ChevronRight className="ml-2 h-5 w-5" />
               </Button>
-            )}
+              {!isAuthenticated && (
+                <Button
+                  size="lg"
+                  variant="outline"
+                  onClick={() => handleNavigate('/temporadas')}
+                  className="border-2 border-white text-white hover:bg-white/20 font-bold text-lg px-8 py-4 rounded-xl backdrop-blur-sm"
+                >
+                  📺 Ver Temporadas
+                </Button>
+              )}
+            </div>
           </div>
+        </div>
+        
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+          <ChevronRight className="h-8 w-8 text-white/70 rotate-90" />
         </div>
       </div>
 
       {/* ===== VALUE PROPOSITION ===== */}
-      <section className="py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="value-prop-heading">
+      <section className="py-20 bg-white" aria-labelledby="value-prop-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 id="value-prop-heading" className="sr-only">
-            Proposição de valor do Acredita
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Porquê Acredita?
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Transforme a sua ideia em realidade com o apoio de uma comunidade vibrante
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {VALUE_PROPS.map(({ icon: Icon, color, label, desc }, i) => (
-              <Card key={i} className="p-6 hover:shadow-lg transition-all duration-300 group">
-                <div className={`w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
-                  <Icon className="h-7 w-7 text-white" />
+              <Card key={i} className="p-8 hover:shadow-2xl transition-all duration-300 group border-t-4 border-transparent hover:border-acredita-primary">
+                <div className={`w-16 h-16 mx-auto mb-6 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                  <Icon className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="font-semibold text-center text-gray-900 mb-2">{label}</h3>
-                <p className="text-sm text-center text-gray-600">{desc}</p>
+                <h3 className="font-bold text-xl text-center text-gray-900 mb-3">{label}</h3>
+                <p className="text-base text-center text-gray-600 leading-relaxed">{desc}</p>
               </Card>
             ))}
           </div>
@@ -372,37 +388,40 @@ const HomePage: React.FC = () => {
           </h2>
           {MODULE_PREVIEWS.map((module, idx) => {
             const Icon = module.icon;
-            const bgColor = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            const bgColor = idx % 2 === 0 ? 'bg-gradient-to-br from-gray-50 to-white' : 'bg-white';
             return (
               <div key={module.id} className={bgColor}>
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-                  <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
-                    {/* Header + Features */}
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-4">
-                        <div className={`p-3 rounded-lg bg-gradient-to-br ${module.color} shadow-md`}>
-                          <Icon className="h-6 w-6 text-white" />
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+                  <div className="flex flex-col md:flex-row gap-12 items-center">
+                    {/* Icon & Title */}
+                    <div className="flex-1 text-center md:text-left">
+                      <div className="inline-flex items-center gap-4 mb-6">
+                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${module.color} shadow-xl`}>
+                          <Icon className="h-8 w-8 text-white" />
                         </div>
                         <div>
-                          <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{module.title}</h3>
-                          <p className="text-sm text-gray-600">{module.subtitle}</p>
+                          <h3 className="text-3xl md:text-4xl font-bold text-gray-900">{module.title}</h3>
+                          <p className="text-lg text-gray-600 mt-1">{module.subtitle}</p>
                         </div>
                       </div>
-                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                      
+                      {/* Features Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-8">
                         {module.features.map((f, i) => (
-                          <div key={i} className="p-3 bg-gray-50 rounded-lg">
-                            <p className="font-medium text-sm text-gray-900">{f.label}</p>
-                            <p className="text-xs text-gray-600 mt-1">{f.desc}</p>
+                          <div key={i} className="p-4 bg-white rounded-xl shadow-md hover:shadow-lg transition-shadow border border-gray-100">
+                            <p className="font-bold text-base text-gray-900 mb-2">{f.label}</p>
+                            <p className="text-sm text-gray-600 leading-relaxed">{f.desc}</p>
                           </div>
                         ))}
                       </div>
+                      
                       <Button
                         size="lg"
                         onClick={() => handleNavigate(module.path)}
-                        className={`mt-6 bg-gradient-to-r ${module.color} hover:shadow-lg`}
+                        className={`mt-8 bg-gradient-to-r ${module.color} hover:shadow-xl text-white font-bold px-8 py-3 rounded-xl transform hover:scale-105 transition-all`}
                       >
                         Explorar {module.title}
-                        <ChevronRight className="ml-2 h-4 w-4" />
+                        <ChevronRight className="ml-2 h-5 w-5" />
                       </Button>
                     </div>
                   </div>
@@ -434,29 +453,60 @@ const HomePage: React.FC = () => {
 
       {/* ===== FINAL CTA ===== */}
       {!isAuthenticated && (
-        <section className="py-16 md:py-20 bg-gradient-to-r from-acredita-primary via-acredita-secondary to-acredita-primary text-white relative overflow-hidden">
+        <section className="py-24 md:py-32 bg-gradient-to-r from-acredita-primary via-purple-600 to-acredita-secondary text-white relative overflow-hidden">
           <div
             className="absolute inset-0 opacity-10"
             style={{
-              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
-              backgroundSize: '30px 30px'
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.15) 2px, transparent 2px)',
+              backgroundSize: '50px 50px'
             }}
           />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/20" />
+          
           <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
-              Junte-se à Revolução do Empreendedorismo
+            <div className="inline-block px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full text-sm font-semibold mb-6">
+              ✨ Junte-se a milhares de empreendedores
+            </div>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
+              Pronto para Transformar<br />o Seu Futuro?
             </h2>
-            <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto mb-8 font-light">
-              Milhares de empreendedores angolanos já estão transformando suas vidas no Acredita.
+            <p className="text-xl md:text-2xl opacity-95 max-w-2xl mx-auto mb-10 font-light leading-relaxed">
+              Comece hoje a sua jornada empreendedora com o apoio da maior comunidade de inovação de Angola.
             </p>
-            <Button
-              size="lg"
-              onClick={handleRegister}
-              className="bg-white text-acredita-primary hover:bg-gray-50 shadow-xl font-semibold px-8 py-3"
-            >
-              Começar Agora
-              <ChevronRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <Button
+                size="lg"
+                onClick={handleRegister}
+                className="bg-white text-acredita-primary hover:bg-gray-100 shadow-2xl font-bold text-lg px-10 py-4 rounded-xl transform hover:scale-105 transition-all"
+              >
+                🚀 Criar Conta Grátis
+                <ChevronRight className="ml-2 h-5 w-5" />
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                onClick={() => handleNavigate('/participantes')}
+                className="border-2 border-white text-white hover:bg-white/20 font-bold text-lg px-10 py-4 rounded-xl backdrop-blur-sm"
+              >
+                👥 Ver Participantes
+              </Button>
+            </div>
+            
+            {/* Trust indicators */}
+            <div className="mt-12 flex flex-wrap justify-center gap-8 text-sm opacity-90">
+              <div className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                <span>1000+ Empreendedores</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Trophy className="h-5 w-5" />
+                <span>50+ Histórias de Sucesso</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Heart className="h-5 w-5" />
+                <span>100% Gratuito</span>
+              </div>
+            </div>
           </div>
         </section>
       )}

@@ -463163,3 +463163,167 @@ C:\apps\Acredita\backend\kixikila\views.py changed, reloading.
 Watching for file changes with StatReloader
 Not Found: /api/kixikila/payouts/
 Unauthorized: /api/v2/kixikila/payouts/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjExMDMxNSwiaWF0IjoxNzY1NTA1NTE1LCJqdGkiOiI0NzUxNTM5MmZkYjU0NjU4OTZkMTJkMjY2ODhkNWEyNiIsInVzZXJfaWQiOiI0In0.NJljNGOvNrYJ6K7HFjxg-VTygNwAlpvpJPT6Kc2FrmI', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTA5MTE1LCJpYXQiOjE3NjU1MDU1MTUsImp0aSI6ImQyMzA2OWI0MTU2OTQyZmJhZTgyNDg1MmM0OWMwMTQzIiwidXNlcl9pZCI6IjQifQ.s9hP-wtUtp7DnqNlHP1WkyS7FmYnLjKz3PvgF1NXebM'}
+LoginView RESPONSE: 200
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Watching for file changes with StatReloader
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/games/
+Unauthorized: /api/accounts/profile/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/games/
+Unauthorized: /api/content/videos/
+Unauthorized: /api/accounts/profile/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/content/videos/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/sponsors/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+Unauthorized: /api/games/
+Unauthorized: /api/games/
+[DEBUG] Password correct for user: Joaquim
+Unauthorized: /api/sponsors/
+Unauthorized: /api/sponsors/
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjEzODAyNywiaWF0IjoxNzY1NTMzMjI3LCJqdGkiOiJmOTg4Yjg0MmJkMzc0MDM1YTgzNmVmOTM2OGYyMTFiYyIsInVzZXJfaWQiOiI0In0.3Mqez6kkb2WCWBwq8hebhYJ3zE7DgT-XucGc9Oo4eJY', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTM2ODI3LCJpYXQiOjE3NjU1MzMyMjcsImp0aSI6IjY0OTMwM2IwZTdmMTRlMzFiZWI3YjIzNGU0YWFiMmRlIiwidXNlcl9pZCI6IjQifQ.HYvKX4psYK8gqKFMS_8ANLPgEA_nA9VBgXV7I53pq_w'}
+LoginView RESPONSE: 200
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Unauthorized: /api/v2/kixikila/groups/3/
+Unauthorized: /api/donations/donations/
+Unauthorized: /api/donations/donations/
+Unauthorized: /api/v2/kixikila/groups/3/
+Not Found: /auth/token/refresh/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE1MTMwNSwiaWF0IjoxNzY1NTQ2NTA1LCJqdGkiOiI3ODJhM2QzZWIyODg0MDA5OWRmYWQzMzA2MjM3NmFiYSIsInVzZXJfaWQiOiI0In0.dxO4LfwoK59nxUq_2G95vkS6iI9ph68c9ZJ5rHLG23Y', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTUwMTA1LCJpYXQiOjE3NjU1NDY1MDUsImp0aSI6ImY1N2U3NTNiOTQ4MzQyN2I5M2FkMTlmNjM2NWE2ZmQzIiwidXNlcl9pZCI6IjQifQ.g4wCKi3hvd1cOSpiOBaVoi90hxxQb3Ll53j9VO8XEtU'}
+LoginView RESPONSE: 200
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Unauthorized: /api/sponsors/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/games/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/games/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE1MzA1NywiaWF0IjoxNzY1NTQ4MjU3LCJqdGkiOiJkZjRkYWIzMzQ1ZTA0OGQ0YTFjY2U2YjY3MTExOTU2YSIsInVzZXJfaWQiOiI0In0.LocRQMCmOFgOUCoPGnJ1K9itSQJ7Chwjf1v_VbKkYjk', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTUxODU3LCJpYXQiOjE3NjU1NDgyNTcsImp0aSI6IjBlYzU0ODBjMGZkYzQ2YTFiNTQwNjIzNTY3MzRhODljIiwidXNlcl9pZCI6IjQifQ.y4OCcM7voNhPpfCcyRPc508JoAtYnyjIO7LlTvmgV_g'}
+LoginView RESPONSE: 200
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Watching for file changes with StatReloader
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/games/
+Unauthorized: /api/accounts/profile/
+Unauthorized: /api/games/
+Unauthorized: /api/accounts/profile/
+Unauthorized: /api/seasons/
+Unauthorized: /api/participants/dashboard/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/sponsors/
+Watching for file changes with StatReloader
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE1ODEzNSwiaWF0IjoxNzY1NTUzMzM1LCJqdGkiOiJkODZjZmM2ZWQ5OWQ0YmY0ODUwMjNhODE0ZmI5N2Y0OSIsInVzZXJfaWQiOiI0In0.0mGhTuofXoOpm1GcJPBlGeodlb5krIWUoOHdEQZ_iuI', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU2OTM1LCJpYXQiOjE3NjU1NTMzMzUsImp0aSI6IjU5YzliNWRmMmVjNzQ2MTZiMTQyNmU5YTc3NjI1MjAxIiwidXNlcl9pZCI6IjQifQ.izgIxErXRIMQRc-vptgKTuehCvTy2EdsCeMmjw46duM'}
+LoginView RESPONSE: 200
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Unauthorized: /api/participants/funding/create-group/
+Not Found: /favicon.ico
+Watching for file changes with StatReloader
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE1OTI1MywiaWF0IjoxNzY1NTU0NDUzLCJqdGkiOiIyZGY5Njg1Y2UzNmU0MzhlODZjNDJiMjc2NTkzZjYzNCIsInVzZXJfaWQiOiI0In0.e5Pmvim-AdYoXGwclRCpf5vmm4RwgYzbUNrkdV6tS6A', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU4MDUzLCJpYXQiOjE3NjU1NTQ0NTMsImp0aSI6IjhjYzMzM2JiMWUwNDQwMzY5ZDcwNmM0OWIyNWFhMDM5IiwidXNlcl9pZCI6IjQifQ.rcRI-Z_jFSCXhkUHS9IONM1SspwuPmpglIC-TUKJH4U'}
+LoginView RESPONSE: 200
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Unauthorized: /api/sponsors/
+Unauthorized: /api/games/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/games/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE2MDAwNSwiaWF0IjoxNzY1NTU1MjA1LCJqdGkiOiIxY2FlZTkzZTFkYmY0ZmEwODUyMjQxNDhkZTdmYmU0MCIsInVzZXJfaWQiOiI0In0.BOnh3S5s94NUrE17C_HIYRd50CyDkGzKD9lqmnQpu_w', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU4ODA1LCJpYXQiOjE3NjU1NTUyMDUsImp0aSI6IjgwN2M4ZWZlMTM4ODQ3Nzg5MWUzMWZmZTlhNTg3ZTY2IiwidXNlcl9pZCI6IjQifQ.dF7EXWMp50wXVDx0Vo4k3XCj8N395QlMWWJmMCwX_tk'}
+LoginView RESPONSE: 200
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+Not Found: /marketplace/categories/
+Not Found: /marketplace/categories/
+Not Found: /marketplace/listings/
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+Not Found: /certifications/categories/
+Not Found: /certifications/categories/
+Not Found: /certifications/programs/
+Not Found: /certifications/programs/
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+User Joaquim (Administrador) is member of group 3
+User Joaquim (Administrador) is member of group 3
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+Not Found: /participants/funding/my-funding/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE2MDA4MywiaWF0IjoxNzY1NTU1MjgzLCJqdGkiOiI3ZjUyOWUwZmZkNjk0NmMxYWM2NDAzZTc4Mjg4YzFmOCIsInVzZXJfaWQiOiI0In0.cSYHU4iGc4rtLA29etMfTkAD76xpks3ScJK3yVi6cr4', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU4ODgzLCJpYXQiOjE3NjU1NTUyODMsImp0aSI6IjAyZGU4NWNiZmQ1MTRmMzA4MTI4YTRlMTM2N2JlMjFhIiwidXNlcl9pZCI6IjQifQ.FgFrDddddpxfl-anZlzl9yoo08mxc2VUpl5ac9eL190'}
+LoginView RESPONSE: 200
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE2MDExMCwiaWF0IjoxNzY1NTU1MzEwLCJqdGkiOiI4MjIwMGZlYzY4NjY0ZjI2OTdhY2FjMjg2MjVjZjUyNyIsInVzZXJfaWQiOiI0In0.RBgDOpprltBini78NFE1bRF9XYpclxEQ7xnDb1UrMrE', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU4OTEwLCJpYXQiOjE3NjU1NTUzMTAsImp0aSI6ImZiNjg1ODAzMWY3NTRhN2JhMDJhOGI0NmQ1YTJkMDI3IiwidXNlcl9pZCI6IjQifQ.aiDXxJegZjjZIMgONbudiQBiryQt_MNmDNrgYloCnvY'}
+LoginView RESPONSE: 200
+Unauthorized: /api/donations/donations/
+Unauthorized: /api/donations/donations/
+Unauthorized: /api/donations/donations/
+Unauthorized: /api/donations/donations/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE2MDM2MywiaWF0IjoxNzY1NTU1NTYzLCJqdGkiOiI3ZDM2NzIzOWI4Mjc0NWQ1OTMyYzllZjYwNWIzODg4YyIsInVzZXJfaWQiOiI0In0.nKzfrln8DXavHJFb9USHx7r9cWDUe-RnXfWxLrFrPg0', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU5MTYzLCJpYXQiOjE3NjU1NTU1NjMsImp0aSI6ImJiMWFkOGFkZDc1ZTRlNDNhMzkwNDAyMDJjZjAzMDEwIiwidXNlcl9pZCI6IjQifQ.fwVNwbdoWNN4shMh7TUmfOHT8N_E8O9ZYjQXqrG3pL8'}
+LoginView RESPONSE: 200
+Unauthorized: /api/games/
+Unauthorized: /api/sponsors/
+Unauthorized: /api/games/
+LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+[DEBUG] Login attempt for: Joaquim
+[DEBUG] User found: Joaquim
+[DEBUG] Password correct for user: Joaquim
+[DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2NjE2MTE4NSwiaWF0IjoxNzY1NTU2Mzg1LCJqdGkiOiJlZWUzYTY4Mzk5Y2Q0NjhiODJiZmQ5NzE0YjA0MDU4MiIsInVzZXJfaWQiOiI0In0.kY__XJwmx_3nXIJ9-LrxxhSGuzgvTYpD5erXID-Pi2Y', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY1NTU5OTg1LCJpYXQiOjE3NjU1NTYzODUsImp0aSI6Ijc4NjA4N2E3NWMwZjQ2MzI4MjE0MTI4OWQxNGViN2QwIiwidXNlcl9pZCI6IjQifQ.kmSId6l9aVhq-O6D09QZRXTiE07G1dC5ckss2F6BxKU'}
+LoginView RESPONSE: 200

@@ -1,7 +1,6 @@
 import { Newspaper, Moon, Sun, User } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import React, { useState } from 'react';
-import Sidebar from '../Sidebar';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../common';
@@ -300,14 +299,10 @@ export const Layout: React.FC<LayoutProps> = ({ children, className }) => {
         isOpen={isMobileMenuOpen}
         onClose={() => setIsMobileMenuOpen(false)}
       />
-      <div className="flex flex-1">
-        <nav className="hidden md:block" aria-label="Sidebar navegação">
-          <Sidebar />
-        </nav>
-        <main className={cn('flex-1', className)}>
-          {children}
-        </main>
-      </div>
+      {/* Full-width layout - Sidebar removed completely */}
+      <main className={cn('flex-1', className)}>
+        {children}
+      </main>
       <Footer />
     </div>
   );
