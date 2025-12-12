@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { ArrowLeft, Users, DollarSign, Calendar, Plus, Trash2, Check } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PayoutsPanel from '../components/kixikila/PayoutsPanel';
+import { CONTRIBUTION_STATUSES, CONTRIBUTION_STATUS_LABELS } from '../constants/kixikila';
 
 interface Member {
   id: string;
@@ -24,7 +25,7 @@ interface Contribution {
   member: Member;
   amount: number;
   date: string;
-  status: 'confirmed' | 'pending';
+  status: typeof CONTRIBUTION_STATUSES[keyof typeof CONTRIBUTION_STATUSES];
 }
 
 const KixikilaManagementPage: React.FC = () => {
@@ -41,7 +42,7 @@ const KixikilaManagementPage: React.FC = () => {
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [filters, setFilters] = useState<{ status: 'all' | 'confirmed' | 'pending'; round?: number }>({ status: 'all' });
+  const [filters, setFilters] = useState<{ status: 'all' | typeof CONTRIBUTION_STATUSES[keyof typeof CONTRIBUTION_STATUSES]; round?: number }>({ status: 'all' });
 
   const filteredContributions = contributions.filter(c => {
     const statusOk = filters.status === 'all' ? true : c.status === filters.status;
@@ -94,14 +95,14 @@ const KixikilaManagementPage: React.FC = () => {
           },
           amount: Number(c.amount) || 0,
           date: c.payment_date || new Date().toISOString().split('T')[0],
-          status: (c.status === 'confirmed' ? 'confirmed' : 'pending') as 'confirmed' | 'pending',
+          status: (c.status === CONTRIBUTION_STATUSES.CONFIRMED ? CONTRIBUTION_STATUSES.CONFIRMED : CONTRIBUTION_STATUSES.PENDING) as typeof CONTRIBUTION_STATUSES[keyof typeof CONTRIBUTION_STATUSES],
         }));
         setContributions(contribs);
 
         const totalsByMembership: Record<string, number> = {};
         const totalsByName: Record<string, number> = {};
         for (const c of contribs) {
-          if (c.status === 'confirmed') {
+          if (c.status === CONTRIBUTION_STATUSES.CONFIRMED) {
             const mid = c.member.id || '0';
             const mname = c.member.name || '';
             totalsByMembership[mid] = (totalsByMembership[mid] || 0) + (c.amount || 0);

@@ -4,6 +4,8 @@ import PayoutService from '../../services/kixikila/payoutService';
 import { KixikilaPayoutDTO } from '../../types/api';
 import { Clock, Send, Check, XCircle, RefreshCw, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
+import PaymentMethodSelect from './PaymentMethodSelect';
+import { PAYMENT_METHODS, PAYOUT_STATUSES, PAYOUT_STATUS_LABELS } from '../../constants/kixikila';
 
 interface PayoutsPanelProps {
   groupId: number;
@@ -18,11 +20,11 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedRecipient, setSelectedRecipient] = useState('');
   const [selectedRound, setSelectedRound] = useState(currentRound);
-  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
+  const [paymentMethod, setPaymentMethod] = useState<string>(PAYMENT_METHODS.BANK_TRANSFER);
   const [submitting, setSubmitting] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState<{open:boolean; payoutId:number|null}>({open:false, payoutId:null});
   const [showFailModal, setShowFailModal] = useState<{open:boolean; payoutId:number|null}>({open:false, payoutId:null});
-  const [completeMethod, setCompleteMethod] = useState('bank_transfer');
+  const [completeMethod, setCompleteMethod] = useState<string>(PAYMENT_METHODS.BANK_TRANSFER);
   const [failReason, setFailReason] = useState('');
 
   const fetchPayouts = useCallback(async () => {
@@ -82,7 +84,7 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
 
   const handleCompletePayout = useCallback((payoutId: number) => {
     setShowCompleteModal({open:true, payoutId});
-    setCompleteMethod(paymentMethod || 'bank_transfer');
+    setCompleteMethod(paymentMethod || PAYMENT_METHODS.BANK_TRANSFER);
   }, [paymentMethod]);
 
   const submitCompletePayout = useCallback(async () => {
@@ -121,11 +123,11 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'completed':
+      case PAYOUT_STATUSES.COMPLETED:
         return 'bg-green-100 text-green-800';
-      case 'processing':
+      case PAYOUT_STATUSES.PROCESSING:
         return 'bg-blue-100 text-blue-800';
-      case 'failed':
+      case PAYOUT_STATUSES.FAILED:
         return 'bg-red-100 text-red-800';
       default:
         return 'bg-yellow-100 text-yellow-800';
@@ -134,11 +136,11 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'completed':
+      case PAYOUT_STATUSES.COMPLETED:
         return <Check className="h-4 w-4" />;
-      case 'processing':
+      case PAYOUT_STATUSES.PROCESSING:
         return <Send className="h-4 w-4" />;
-      case 'failed':
+      case PAYOUT_STATUSES.FAILED:
         return <XCircle className="h-4 w-4" />;
       default:
         return <Clock className="h-4 w-4" />;
@@ -146,25 +148,14 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
   };
 
   const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'scheduled':
-        return 'Agendado';
-      case 'processing':
-        return 'Processando';
-      case 'completed':
-        return 'Concluído';
-      case 'failed':
-        return 'Falhado';
-      default:
-        return status;
-    }
+    return PAYOUT_STATUS_LABELS[status] || status;
   };
 
   const { scheduledPayouts, processingPayouts, completedPayouts, failedPayouts } = useMemo(() => ({
-    scheduledPayouts: payouts.filter(p => p.status === 'scheduled'),
-    processingPayouts: payouts.filter(p => p.status === 'processing'),
-    completedPayouts: payouts.filter(p => p.status === 'completed'),
-    failedPayouts: payouts.filter(p => p.status === 'failed'),
+    scheduledPayouts: payouts.filter(p => p.status === PAYOUT_STATUSES.SCHEDULED),
+    processingPayouts: payouts.filter(p => p.status === PAYOUT_STATUSES.PROCESSING),
+    completedPayouts: payouts.filter(p => p.status === PAYOUT_STATUSES.COMPLETED),
+    failedPayouts: payouts.filter(p => p.status === PAYOUT_STATUSES.FAILED),
   }), [payouts]);
 
   if (loading) {
@@ -408,10 +399,10 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
                   onChange={(e) => setPaymentMethod(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  <option value="transfer">Transferência Bancária</option>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="cash">Dinheiro</option>
-                  <option value="card">Cartão</option>
+                  <option value={PAYMENT_METHODS.BANK_TRANSFER}>Transferência Bancária</option>
+                  <option value={PAYMENT_METHODS.MOBILE_MONEY}>Mobile Money</option>
+                  <option value={PAYMENT_METHODS.CASH}>Dinheiro</option>
+                  <option value={PAYMENT_METHODS.CARD}>Cartão</option>
                 </select>
               </div>
             </div>
@@ -442,19 +433,10 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
           <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
             <h3 className="text-xl font-semibold mb-4">Completar Payout</h3>
             <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Método de Pagamento</label>
-                <select
-                  value={completeMethod}
-                  onChange={(e) => setCompleteMethod(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="bank_transfer">Transferência Bancária</option>
-                  <option value="mobile_money">Mobile Money</option>
-                  <option value="cash">Dinheiro</option>
-                  <option value="card">Cartão</option>
-                </select>
-              </div>
+              <PaymentMethodSelect
+                value={completeMethod}
+                onChange={setCompleteMethod}
+              />
             </div>
             <div className="flex gap-2 mt-6">
               <button
