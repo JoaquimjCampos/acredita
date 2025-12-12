@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Card } from '../common';
 import PayoutService from '../../services/kixikila/payoutService';
 import { KixikilaPayoutDTO } from '../../types/api';
@@ -18,10 +18,14 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [selectedRecipient, setSelectedRecipient] = useState('');
   const [selectedRound, setSelectedRound] = useState(currentRound);
-  const [paymentMethod, setPaymentMethod] = useState('transfer');
+  const [paymentMethod, setPaymentMethod] = useState('bank_transfer');
   const [submitting, setSubmitting] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState<{open:boolean; payoutId:number|null}>({open:false, payoutId:null});
+  const [showFailModal, setShowFailModal] = useState<{open:boolean; payoutId:number|null}>({open:false, payoutId:null});
+  const [completeMethod, setCompleteMethod] = useState('bank_transfer');
+  const [failReason, setFailReason] = useState('');
 
-  const fetchPayouts = async () => {
+  const fetchPayouts = useCallback(async () => {
     try {
       const data = await PayoutService.getPayouts({ group: groupId });
       setPayouts(data);
@@ -31,14 +35,14 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
     } finally {
       setLoading(false);
     }
-  };
+  }, [groupId]);
 
   useEffect(() => {
     fetchPayouts();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [groupId]);
+  }, [fetchPayouts]);
 
-  const handleCreatePayout = async () => {
+  const handleCreatePayout = useCallback(async () => {
     if (!selectedRecipient || !selectedRound) {
       toast.error('Selecione um beneficiário e ronda');
       return;
@@ -63,9 +67,9 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
     } finally {
       setSubmitting(false);
     }
-  };
+  }, [groupId, selectedRound, selectedRecipient, paymentMethod, fetchPayouts]);
 
-  const handleProcessPayout = async (payoutId: number) => {
+  const handleProcessPayout = useCallback(async (payoutId: number) => {
     try {
       await PayoutService.processPayout(payoutId);
       toast.success('Payout marcado como em processamento');
@@ -74,34 +78,46 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
       const errorMsg = error.response?.data?.error || error.message || 'Erro ao processar payout';
       toast.error(errorMsg);
     }
-  };
+  }, [fetchPayouts]);
 
-  const handleCompletePayout = async (payoutId: number) => {
-    const method = prompt('Método de pagamento usado:', 'transfer');
-    if (!method) return;
+  const handleCompletePayout = useCallback((payoutId: number) => {
+    setShowCompleteModal({open:true, payoutId});
+    setCompleteMethod(paymentMethod || 'bank_transfer');
+  }, [paymentMethod]);
 
+  const submitCompletePayout = useCallback(async () => {
+    if (!showCompleteModal.payoutId) return;
     try {
-      await PayoutService.completePayout(payoutId, method);
+      await PayoutService.completePayout(showCompleteModal.payoutId, completeMethod);
       toast.success('Payout concluído com sucesso!');
+      setShowCompleteModal({open:false, payoutId:null});
       await fetchPayouts();
     } catch (error: any) {
       const errorMsg = error.response?.data?.error || error.message || 'Erro ao completar payout';
       toast.error(errorMsg);
     }
-  };
+  }, [showCompleteModal, completeMethod, fetchPayouts]);
 
-  const handleFailPayout = async (payoutId: number) => {
-    const reason = prompt('Motivo da falha:');
-    if (!reason) return;
+  const handleFailPayout = useCallback((payoutId: number) => {
+    setShowFailModal({open:true, payoutId});
+    setFailReason('');
+  }, []);
 
+  const submitFailPayout = useCallback(async () => {
+    if (!showFailModal.payoutId || !failReason.trim()) {
+      toast.error('Informe o motivo da falha');
+      return;
+    }
     try {
-      await PayoutService.failPayout(payoutId, reason);
+      await PayoutService.failPayout(showFailModal.payoutId, failReason.trim());
       toast.success('Payout marcado como falhado');
+      setShowFailModal({open:false, payoutId:null});
+      setFailReason('');
       await fetchPayouts();
     } catch (error: any) {
       toast.error(error.message || 'Erro ao falhar payout');
     }
-  };
+  }, [showFailModal, failReason, fetchPayouts]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -144,14 +160,33 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
     }
   };
 
-  if (loading) {
-    return <div className="text-center py-8">Carregando payouts...</div>;
-  }
+  const { scheduledPayouts, processingPayouts, completedPayouts, failedPayouts } = useMemo(() => ({
+    scheduledPayouts: payouts.filter(p => p.status === 'scheduled'),
+    processingPayouts: payouts.filter(p => p.status === 'processing'),
+    completedPayouts: payouts.filter(p => p.status === 'completed'),
+    failedPayouts: payouts.filter(p => p.status === 'failed'),
+  }), [payouts]);
 
-  const scheduledPayouts = payouts.filter(p => p.status === 'scheduled');
-  const processingPayouts = payouts.filter(p => p.status === 'processing');
-  const completedPayouts = payouts.filter(p => p.status === 'completed');
-  const failedPayouts = payouts.filter(p => p.status === 'failed');
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <div className="h-8 w-40 bg-gray-200 animate-pulse rounded" />
+          <div className="h-9 w-48 bg-gray-200 animate-pulse rounded" />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          {[1,2,3,4].map((i) => (
+            <Card key={i}>
+              <div className="h-16 bg-gray-100 animate-pulse rounded" />
+            </Card>
+          ))}
+        </div>
+        <Card>
+          <div className="h-48 bg-gray-100 animate-pulse rounded" />
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -170,6 +205,7 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
             <button
               onClick={() => setShowCreateModal(true)}
               className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+              disabled={!isAdmin}
             >
               <Plus className="h-4 w-4" />
               Criar Payout
@@ -394,6 +430,79 @@ const PayoutsPanel: React.FC<PayoutsPanelProps> = ({ groupId, isAdmin, members, 
                 disabled={submitting}
               >
                 {submitting ? 'Criando...' : 'Criar Payout'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Complete Payout Modal */}
+      {showCompleteModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-semibold mb-4">Completar Payout</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Método de Pagamento</label>
+                <select
+                  value={completeMethod}
+                  onChange={(e) => setCompleteMethod(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="bank_transfer">Transferência Bancária</option>
+                  <option value="mobile_money">Mobile Money</option>
+                  <option value="cash">Dinheiro</option>
+                  <option value="card">Cartão</option>
+                </select>
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => setShowCompleteModal({open:false, payoutId:null})}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={submitCompletePayout}
+                className="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+              >
+                Completar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Fail Payout Modal */}
+      {showFailModal.open && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-xl font-semibold mb-4">Falhar Payout</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Motivo</label>
+                <textarea
+                  value={failReason}
+                  onChange={(e) => setFailReason(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  rows={3}
+                  placeholder="Descreva o motivo da falha"
+                />
+              </div>
+            </div>
+            <div className="flex gap-2 mt-6">
+              <button
+                onClick={() => setShowFailModal({open:false, payoutId:null})}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={submitFailPayout}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+              >
+                Confirmar Falha
               </button>
             </div>
           </div>
