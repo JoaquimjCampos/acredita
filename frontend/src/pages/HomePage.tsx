@@ -1,4 +1,15 @@
-import React, { Suspense, lazy } from 'react';
+/**
+ * HomePage - Revised & Harmonized
+ * 
+ * Improvements:
+ * - Unified design system across module previews
+ * - Eliminated redundant card patterns
+ * - Improved lazy loading strategy (critical vs deferred)
+ * - Enhanced accessibility and semantic HTML
+ * - Performance optimizations (memoization, better suspense fallbacks)
+ * - Mobile-first responsive design
+ */
+import React, { Suspense, lazy, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useSeasons } from '../hooks/useSeasons';
@@ -13,18 +24,107 @@ import GamesSection from '../components/GamesSection';
 import FeaturedQuizChallenge from '../components/FeaturedQuizChallenge';
 import { Participant } from '../types';
 
-// Lazy-loaded heavy components
+// Lazy-loaded primary sections (high engagement)
+const SustainableFundingDashboard = lazy(() => import('../components/kixikila/SustainableFundingDashboard'));
+const VideosSection = lazy(() => import('../components/VideosSection'));
+
+// Lazy-loaded secondary sections (deferred)
 const SponsorsSection = lazy(() => import('../components/SponsorsSection'));
 const FundraisingSection = lazy(() => import('../components/FundraisingSection'));
 const AdsSection = lazy(() => import('../components/AdsSection'));
-const VideosSection = lazy(() => import('../components/VideosSection'));
+
+// Module Preview Configuration - Single Source of Truth
+interface ModulePreview {
+  id: string;
+  path: string;
+  title: string;
+  subtitle: string;
+  color: string;
+  icon: React.ElementType;
+  features: Array<{ label: string; desc: string }>;
+}
+
+const MODULE_PREVIEWS: ModulePreview[] = [
+  {
+    id: 'kixikila',
+    path: '/kixikila',
+    title: 'Kixikila',
+    subtitle: 'Grupos de Poupança Colaborativa',
+    color: 'from-violet-600 to-violet-700',
+    icon: Users,
+    features: [
+      { label: '👥 Colaborativo', desc: 'Crie grupos com amigos e familiares' },
+      { label: '👁️ Transparente', desc: 'Acompanhe transações em tempo real' },
+      { label: '🔒 Seguro', desc: 'Mecanismos avançados de proteção' }
+    ]
+  },
+  {
+    id: 'marketplace',
+    path: '/marketplace',
+    title: 'Marketplace',
+    subtitle: 'Serviços Profissionais',
+    color: 'from-cyan-600 to-cyan-700',
+    icon: ShoppingBag,
+    features: [
+      { label: '📚 Diversidade', desc: 'Múltiplas categorias de serviços' },
+      { label: '⭐ Confiável', desc: 'Profissionais com histórico comprovado' },
+      { label: '💰 Justo', desc: 'Negociação direta de preços' }
+    ]
+  },
+  {
+    id: 'certifications',
+    path: '/certifications',
+    title: 'Certificações',
+    subtitle: 'Treinamentos Profissionais',
+    color: 'from-orange-600 to-orange-700',
+    icon: GraduationCap,
+    features: [
+      { label: '🎯 Qualidade', desc: 'Instrutores especializados' },
+      { label: '🏆 Reconhecido', desc: 'Certificados valorizados no mercado' },
+      { label: '💳 Acessível', desc: 'Opções de financiamento' }
+    ]
+  }
+];
+
+// Value Proposition Configuration
+const VALUE_PROPS = [
+  {
+    icon: Trophy,
+    color: 'from-blue-500 to-blue-600',
+    label: 'Participe e Ganhe',
+    desc: 'Acumule pontos, desbloqueie prémios e recompensas exclusivas.'
+  },
+  {
+    icon: Star,
+    color: 'from-amber-500 to-amber-600',
+    label: 'Destaque-se',
+    desc: 'Construa sua reputação e ganhe reconhecimento da comunidade.'
+  },
+  {
+    icon: Heart,
+    color: 'from-red-500 to-red-600',
+    label: 'Impacte Angola',
+    desc: 'Apoie causas sociais e transforme sua comunidade.'
+  }
+];
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
-  const context = user ? { user: user.id || user.email || user.nome, session: undefined } : {};
+  
+  // Memoize context to avoid unnecessary re-renders
+  const context = useMemo(
+    () => user ? { user: user.id || user.email || user.nome, session: undefined } : {},
+    [user]
+  );
+
   const { seasons, loading: seasonsLoading, error: seasonsError } = useSeasons(context);
   const { leaderboard, loading: leaderboardLoading, error: leaderboardError } = useLeaderboard(context);
+
+  // Memoize navigation handlers
+  const handleNavigate = useCallback((path: string) => navigate(path), [navigate]);
+  const handleRegister = useCallback(() => handleNavigate('/registo'), [handleNavigate]);
+  const handleDashboard = useCallback(() => handleNavigate(isAuthenticated ? '/dashboard' : '/registo'), [handleNavigate, isAuthenticated]);
 
   return (
     <Layout>
@@ -34,77 +134,74 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Skip to main content (accessibility) */}
-      <a href="#main-content" className="skip-nav-link absolute left-2 top-2 z-50 bg-acredita-primary text-white px-3 py-2 rounded focus:translate-y-0 -translate-y-full focus:outline-none">
+      <a
+        href="#main-content"
+        className="skip-nav-link absolute left-2 top-2 z-50 bg-acredita-primary text-white px-3 py-2 rounded focus:translate-y-0 -translate-y-full focus:outline-none"
+      >
         Saltar para o conteúdo principal
       </a>
 
-      {/* Hero Banner - Streamlined */}
-      <div className="relative bg-gradient-to-br from-acredita-primary via-acredita-secondary to-white min-h-[70vh] flex flex-col justify-center items-center overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none opacity-10" style={{
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
-          backgroundSize: '30px 30px'
-        }} />
-        <div className="relative z-10 text-center px-4 max-w-5xl mx-auto">
-          <img src="/logo.svg" alt="Acredita em Ti" className="h-24 w-auto mb-6 mx-auto animate-fade-in" />
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 drop-shadow-lg">
+      {/* ===== HERO SECTION ===== */}
+      <div className="relative bg-gradient-to-br from-acredita-primary via-acredita-secondary to-white min-h-[65vh] flex flex-col justify-center items-center overflow-hidden">
+        <div
+          className="absolute inset-0 pointer-events-none opacity-10"
+          style={{
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+            backgroundSize: '30px 30px'
+          }}
+        />
+        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+          <img src="/logo.svg" alt="Acredita em Ti" className="h-20 w-auto mb-6 mx-auto animate-fade-in" />
+          <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-4 drop-shadow-lg">
             Acredita em Ti, Acredita em Angola
           </h1>
-          <p className="text-xl md:text-2xl text-white/95 mb-8 leading-relaxed max-w-3xl mx-auto">
-            A plataforma líder de empreendedorismo e inovação em Angola. Jogue, vote, aprenda e faça parte de uma comunidade que acredita no seu potencial.
+          <p className="text-lg md:text-xl text-white/95 mb-8 leading-relaxed max-w-2xl mx-auto font-light">
+            Plataforma de empreendedorismo, inovação e financiamento colaborativo. Desenvolva seu negócio com a comunidade.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
             <Button
               size="lg"
-              onClick={() => navigate(isAuthenticated ? '/dashboard' : '/registo')}
-              className="bg-white text-acredita-primary hover:bg-gray-100 shadow-xl"
+              onClick={handleDashboard}
+              className="bg-white text-acredita-primary hover:bg-gray-100 shadow-lg font-semibold"
             >
-              {isAuthenticated ? 'Ir para o Dashboard' : 'Começar Gratuitamente'}
-              <ChevronRight className="ml-2 h-5 w-5" />
+              {isAuthenticated ? 'Dashboard' : 'Começar'}
+              <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
             {!isAuthenticated && (
               <Button
                 size="lg"
                 variant="outline"
-                onClick={() => navigate('/temporadas')}
-                className="border-white text-white hover:bg-white/10"
+                onClick={() => handleNavigate('/temporadas')}
+                className="border-white text-white hover:bg-white/10 font-semibold"
               >
-                Explorar Temporadas
+                Temporadas
               </Button>
             )}
           </div>
         </div>
       </div>
 
-      {/* Value Proposition - Simplified */}
-      <section className="py-16 bg-gray-50">
+      {/* ===== VALUE PROPOSITION ===== */}
+      <section className="py-16 bg-gradient-to-b from-gray-50 to-white" aria-labelledby="value-prop-heading">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 mx-auto mb-4 bg-acredita-primary/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Trophy className="h-8 w-8 text-acredita-primary" />
-              </div>
-              <h3 className="font-bold text-xl mb-3 text-gray-900">Participe e Ganhe</h3>
-              <p className="text-gray-600">Acumule pontos através de jogos, votos e partilhas para trocar por prémios exclusivos.</p>
-            </div>
-            <div className="text-center p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 mx-auto mb-4 bg-yellow-500/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Star className="h-8 w-8 text-yellow-500" />
-              </div>
-              <h3 className="font-bold text-xl mb-3 text-gray-900">Destaque-se</h3>
-              <p className="text-gray-600">Mostre o seu talento, conquiste badges e seja reconhecido pela comunidade.</p>
-            </div>
-            <div className="text-center p-8 bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 group">
-              <div className="w-16 h-16 mx-auto mb-4 bg-red-500/10 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Heart className="h-8 w-8 text-red-500" />
-              </div>
-              <h3 className="font-bold text-xl mb-3 text-gray-900">Impacte Angola</h3>
-              <p className="text-gray-600">Apoie causas sociais e inspire outros a fazer parte da transformação.</p>
-            </div>
+          <h2 id="value-prop-heading" className="sr-only">
+            Proposição de valor do Acredita
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {VALUE_PROPS.map(({ icon: Icon, color, label, desc }, i) => (
+              <Card key={i} className="p-6 hover:shadow-lg transition-all duration-300 group">
+                <div className={`w-14 h-14 mx-auto mb-4 rounded-full bg-gradient-to-br ${color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform`}>
+                  <Icon className="h-7 w-7 text-white" />
+                </div>
+                <h3 className="font-semibold text-center text-gray-900 mb-2">{label}</h3>
+                <p className="text-sm text-center text-gray-600">{desc}</p>
+              </Card>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Temporada em Destaque - Optimized */}
+      {/* ===== FEATURED SEASON ===== */}
       <SectionWrapper
         id="featured-season"
         title="Temporada em Destaque"
@@ -115,7 +212,7 @@ const HomePage: React.FC = () => {
         emptyIcon={<Trophy className="h-16 w-16 text-gray-400" />}
         emptyTitle="Nenhuma temporada activa"
         emptyMessage="Em breve novas temporadas. Fique atento!"
-        emptyAction={<Button onClick={() => navigate('/temporadas')}>Ver Histórico</Button>}
+        emptyAction={<Button onClick={() => handleNavigate('/temporadas')}>Ver Histórico</Button>}
         containerClassName="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
       >
         {seasons && seasons.length > 0 && (
@@ -130,16 +227,21 @@ const HomePage: React.FC = () => {
                 <div className="flex items-center gap-2 text-gray-600 mb-6">
                   <Calendar className="w-5 h-5 text-acredita-primary" />
                   <span className="text-sm">
-                    {new Date(seasons[0].start_date).toLocaleDateString('pt-AO')} - {new Date(seasons[0].end_date).toLocaleDateString('pt-AO')}
+                    {new Date(seasons[0].start_date).toLocaleDateString('pt-AO')} -{' '}
+                    {new Date(seasons[0].end_date).toLocaleDateString('pt-AO')}
                   </span>
                 </div>
                 <div className="flex flex-wrap gap-3">
-                  <Button onClick={() => navigate(`/temporadas/${seasons[0].id}`)} size="lg" className="flex-1 sm:flex-initial">
-                    Explorar Temporada
+                  <Button
+                    onClick={() => handleNavigate(`/temporadas/${seasons[0].id}`)}
+                    size="lg"
+                    className="flex-1 sm:flex-initial"
+                  >
+                    Explorar
                     <ChevronRight className="ml-2 h-5 w-5" />
                   </Button>
-                  <Button variant="outline" onClick={() => navigate('/participantes')} className="flex-1 sm:flex-initial">
-                    Ver Participantes
+                  <Button variant="outline" onClick={() => handleNavigate('/participantes')} className="flex-1 sm:flex-initial">
+                    Participantes
                   </Button>
                 </div>
               </div>
@@ -156,10 +258,10 @@ const HomePage: React.FC = () => {
         )}
       </SectionWrapper>
 
-      {/* Quiz Challenge */}
+      {/* ===== QUIZ CHALLENGE ===== */}
       <FeaturedQuizChallenge />
 
-      {/* Top Participantes - Enhanced */}
+      {/* ===== LEADERBOARD ===== */}
       <SectionWrapper
         id="leaderboard"
         title="Top Participantes"
@@ -179,7 +281,13 @@ const HomePage: React.FC = () => {
                 <Card
                   key={participant.id}
                   className={`p-6 text-center transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 ${
-                    index === 0 ? 'ring-2 ring-yellow-400' : index === 1 ? 'ring-2 ring-gray-400' : index === 2 ? 'ring-2 ring-amber-600' : ''
+                    index === 0
+                      ? 'ring-2 ring-yellow-400'
+                      : index === 1
+                      ? 'ring-2 ring-gray-400'
+                      : index === 2
+                      ? 'ring-2 ring-amber-600'
+                      : ''
                   }`}
                 >
                   <div className="relative">
@@ -187,9 +295,11 @@ const HomePage: React.FC = () => {
                       <div className="absolute -top-3 -right-3 z-10">
                         <div
                           className={`w-10 h-10 rounded-full flex items-center justify-center shadow-lg ${
-                            index === 0 ? 'bg-gradient-to-br from-yellow-400 to-yellow-600' : 
-                            index === 1 ? 'bg-gradient-to-br from-gray-300 to-gray-500' : 
-                            'bg-gradient-to-br from-amber-500 to-amber-700'
+                            index === 0
+                              ? 'bg-gradient-to-br from-yellow-400 to-yellow-600'
+                              : index === 1
+                              ? 'bg-gradient-to-br from-gray-300 to-gray-500'
+                              : 'bg-gradient-to-br from-amber-500 to-amber-700'
                           }`}
                         >
                           <Trophy className="h-5 w-5 text-white" />
@@ -223,7 +333,7 @@ const HomePage: React.FC = () => {
             </div>
             {leaderboard.length > 6 && (
               <div className="text-center">
-                <Button size="lg" onClick={() => navigate('/classificacao')}>
+                <Button size="lg" onClick={() => handleNavigate('/classificacao')}>
                   Ver Classificação Completa
                   <ChevronRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -233,183 +343,84 @@ const HomePage: React.FC = () => {
         )}
       </SectionWrapper>
 
-      {/* CTA Section - Streamlined */}
-      {!isAuthenticated && (
-        <section className="py-20 bg-gradient-to-r from-acredita-primary to-acredita-secondary text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10" style={{
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.15) 1px, transparent 1px)',
-            backgroundSize: '20px 20px'
-          }}></div>
-          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6 leading-tight">
-              Transforme o Seu Sonho em Realidade
-            </h2>
-            <p className="text-xl mb-10 opacity-95 max-w-2xl mx-auto">
-              Junte-se a milhares de empreendedores angolanos que estão a construir o futuro.
-            </p>
-            <Button
-              size="lg"
-              onClick={() => navigate('/registo')}
-              className="bg-white text-acredita-primary hover:bg-gray-100 shadow-2xl text-lg px-8 py-4"
-            >
-              Começar Gratuitamente
-              <ChevronRight className="ml-2 h-6 w-6" />
-            </Button>
-          </div>
-        </section>
-      )}
-
-      {/* Conteúdo Pesado - Lazy Loaded */}
+      {/* ===== PRIMARY CONTENT ===== */}
       <div id="main-content">
-        {/* Preview Section: Kixikila (Savings Groups) */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-violet-100 mb-4">
-                <Users className="h-8 w-8 text-violet-600" />
+        {/* Funding Dashboard - Authenticated Users */}
+        {isAuthenticated && (
+          <section className="py-12 bg-gradient-to-b from-gray-50 to-white">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div>
+                  <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Seu Financiamento</h2>
+                  <p className="text-sm md:text-base text-gray-600 mt-1">Gerencie seu perfil Kixikila e grupos ativos</p>
+                </div>
+                <Button size="sm" onClick={() => handleNavigate('/kixikila')} className="whitespace-nowrap">
+                  Abrir <ChevronRight className="ml-1 h-4 w-4" />
+                </Button>
               </div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-3">Kixikila - Grupos de Poupança</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Reúna-se com amigos e familiares para poupar e investir juntos numa plataforma segura e transparente.
-              </p>
+              <Suspense fallback={<div className="h-40 rounded-lg bg-white shadow-sm animate-pulse" />}>
+                <SustainableFundingDashboard />
+              </Suspense>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Card className="p-6 border-l-4 border-violet-500">
-                <div className="h-32 bg-violet-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Users className="h-12 w-12 text-violet-200" />
+          </section>
+        )}
+
+        {/* Module Previews - Unified Pattern */}
+        <section className="space-y-0" aria-labelledby="modules-heading">
+          <h2 id="modules-heading" className="sr-only">
+            Módulos principais do Acredita
+          </h2>
+          {MODULE_PREVIEWS.map((module, idx) => {
+            const Icon = module.icon;
+            const bgColor = idx % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+            return (
+              <div key={module.id} className={bgColor}>
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+                  <div className="flex flex-col md:flex-row gap-8 items-start md:items-center">
+                    {/* Header + Features */}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div className={`p-3 rounded-lg bg-gradient-to-br ${module.color} shadow-md`}>
+                          <Icon className="h-6 w-6 text-white" />
+                        </div>
+                        <div>
+                          <h3 className="text-2xl md:text-3xl font-bold text-gray-900">{module.title}</h3>
+                          <p className="text-sm text-gray-600">{module.subtitle}</p>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+                        {module.features.map((f, i) => (
+                          <div key={i} className="p-3 bg-gray-50 rounded-lg">
+                            <p className="font-medium text-sm text-gray-900">{f.label}</p>
+                            <p className="text-xs text-gray-600 mt-1">{f.desc}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <Button
+                        size="lg"
+                        onClick={() => handleNavigate(module.path)}
+                        className={`mt-6 bg-gradient-to-r ${module.color} hover:shadow-lg`}
+                      >
+                        Explorar {module.title}
+                        <ChevronRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Grupos Colaborativos</h3>
-                <p className="text-sm text-gray-600 mb-4">Crie e gerencie grupos de poupança com controle total sobre contribuições.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-violet-500">
-                <div className="h-32 bg-violet-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Star className="h-12 w-12 text-violet-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Transparência Total</h3>
-                <p className="text-sm text-gray-600 mb-4">Acompanhe cada transação e veja o progresso do seu grupo em tempo real.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-violet-500">
-                <div className="h-32 bg-violet-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Heart className="h-12 w-12 text-violet-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Segurança Garantida</h3>
-                <p className="text-sm text-gray-600 mb-4">Proteja seu investimento com mecanismos de segurança avançados.</p>
-              </Card>
-            </div>
-            <div className="text-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/kixikila')}
-                className="bg-violet-600 hover:bg-violet-700 text-white"
-              >
-                Explorar Kixikila
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </div>
+              </div>
+            );
+          })}
         </section>
 
-        {/* Preview Section: Marketplace */}
-        <section className="py-16 bg-gray-50">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-cyan-100 mb-4">
-                <ShoppingBag className="h-8 w-8 text-cyan-600" />
-              </div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-3">Marketplace - Serviços Profissionais</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Ofereça seus serviços profissionais ou contrate talentos da comunidade Acredita.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Card className="p-6 border-l-4 border-cyan-500">
-                <div className="h-32 bg-cyan-50 rounded-lg mb-4 flex items-center justify-center">
-                  <ShoppingBag className="h-12 w-12 text-cyan-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Múltiplas Categorias</h3>
-                <p className="text-sm text-gray-600 mb-4">Encontre serviços em consultoria, design, tecnologia, marketing e muito mais.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-cyan-500">
-                <div className="h-32 bg-cyan-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Star className="h-12 w-12 text-cyan-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Profissionais Avaliados</h3>
-                <p className="text-sm text-gray-600 mb-4">Contrate com confiança baseado em avaliações e histórico de clientes.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-cyan-500">
-                <div className="h-32 bg-cyan-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Heart className="h-12 w-12 text-cyan-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Preços Competitivos</h3>
-                <p className="text-sm text-gray-600 mb-4">Negocie diretamente e obtenha os melhores preços para seus projetos.</p>
-              </Card>
-            </div>
-            <div className="text-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/marketplace')}
-                className="bg-cyan-600 hover:bg-cyan-700 text-white"
-              >
-                Explorar Marketplace
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Preview Section: Certifications */}
-        <section className="py-16 bg-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-orange-100 mb-4">
-                <GraduationCap className="h-8 w-8 text-orange-600" />
-              </div>
-              <h2 className="text-4xl font-bold text-gray-900 mb-3">Certificações & Treinamentos</h2>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-                Desenvolva suas competências com programas de treinamento certificados por especialistas.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <Card className="p-6 border-l-4 border-orange-500">
-                <div className="h-32 bg-orange-50 rounded-lg mb-4 flex items-center justify-center">
-                  <GraduationCap className="h-12 w-12 text-orange-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Cursos Qualificados</h3>
-                <p className="text-sm text-gray-600 mb-4">Aprenda com instrutores experientes em áreas de grande demanda.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-orange-500">
-                <div className="h-32 bg-orange-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Star className="h-12 w-12 text-orange-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Certificados Reconhecidos</h3>
-                <p className="text-sm text-gray-600 mb-4">Obtenha certificados valorizados no mercado de trabalho angolano.</p>
-              </Card>
-              <Card className="p-6 border-l-4 border-orange-500">
-                <div className="h-32 bg-orange-50 rounded-lg mb-4 flex items-center justify-center">
-                  <Heart className="h-12 w-12 text-orange-200" />
-                </div>
-                <h3 className="font-semibold text-gray-900 mb-2">Preços Acessíveis</h3>
-                <p className="text-sm text-gray-600 mb-4">Investimento em educação com opções de financiamento disponíveis.</p>
-              </Card>
-            </div>
-            <div className="text-center">
-              <Button
-                size="lg"
-                onClick={() => navigate('/certifications')}
-                className="bg-orange-600 hover:bg-orange-700 text-white"
-              >
-                Explorar Certificações
-                <ChevronRight className="ml-2 h-5 w-5" />
-              </Button>
-            </div>
-          </div>
-        </section>
-
-        {/* Other Sections */}
-        <GamesSection />
-        <Suspense fallback={<div className="py-12" />}>
+        {/* High-Engagement Sections - Prioritized Lazy Load */}
+        <Suspense fallback={<div className="py-20" />}>
+          <GamesSection />
+        </Suspense>
+        <Suspense fallback={<div className="py-20" />}>
           <VideosSection />
         </Suspense>
+
+        {/* Secondary Sections - Deferred Lazy Load */}
         <Suspense fallback={<div className="py-12" />}>
           <AdsSection />
         </Suspense>
@@ -420,6 +431,35 @@ const HomePage: React.FC = () => {
           <FundraisingSection />
         </Suspense>
       </div>
+
+      {/* ===== FINAL CTA ===== */}
+      {!isAuthenticated && (
+        <section className="py-16 md:py-20 bg-gradient-to-r from-acredita-primary via-acredita-secondary to-acredita-primary text-white relative overflow-hidden">
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+              backgroundSize: '30px 30px'
+            }}
+          />
+          <div className="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 relative z-10">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 leading-tight">
+              Junte-se à Revolução do Empreendedorismo
+            </h2>
+            <p className="text-base md:text-lg opacity-90 max-w-2xl mx-auto mb-8 font-light">
+              Milhares de empreendedores angolanos já estão transformando suas vidas no Acredita.
+            </p>
+            <Button
+              size="lg"
+              onClick={handleRegister}
+              className="bg-white text-acredita-primary hover:bg-gray-50 shadow-xl font-semibold px-8 py-3"
+            >
+              Começar Agora
+              <ChevronRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        </section>
+      )}
     </Layout>
   );
 };
