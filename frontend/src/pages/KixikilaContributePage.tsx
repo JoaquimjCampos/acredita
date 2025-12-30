@@ -18,6 +18,23 @@ const KixikilaContributePage: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<'transfer' | 'card' | 'cash'>('transfer');
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const copyToClipboard = async (text: string, label?: string) => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      toast.success(`${label || 'Texto'} copiado`);
+    } catch {
+      toast.error('Falha ao copiar');
+    }
+  };
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -70,30 +87,21 @@ const KixikilaContributePage: React.FC = () => {
 
     setSubmitting(true);
     try {
-      // Get user's membership
-      const membershipsResponse = await KixikilaService.getGroupMembers(parseInt(id!));
-      const userMembership = membershipsResponse.results?.find(
-        (m: any) => m.member_id === user?.id || m.member?.id === user?.id
-      );
+      // Ask backend for the current user's membership on this group
+      const membershipInfo = await KixikilaService.checkMembership(parseInt(id!));
+      const userMembershipId = membershipInfo.is_member ? membershipInfo.membership?.id : undefined;
 
-      if (!userMembership) {
-        toast.error('Você não é membro deste grupo');
+      if (!userMembershipId) {
+        toast.error('Você precisa ser membro deste grupo para contribuir');
         return;
       }
 
-      // Create contribution
-      console.log('User membership found:', userMembership);
-      console.log('Contribution payload:', {
-        membership_id: userMembership.id,
-        amount: parseFloat(amount),
-        payment_method: paymentMethod,
-      });
-      
+      // Create contribution (backend will also enforce ownership of membership)
       const created = await KixikilaService.createContribution({
-        membership_id: userMembership.id,
+        membership_id: userMembershipId,
         amount: parseFloat(amount),
         payment_method: paymentMethod,
-      });
+      } as any);
 
       toast.success('Contribuição registrada com sucesso!');
       setSuccess(true);
@@ -245,9 +253,17 @@ const KixikilaContributePage: React.FC = () => {
                   <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                     <p className="text-sm font-medium text-blue-900 mb-2">Detalhes para Transferência</p>
                     <div className="text-sm text-blue-800 space-y-1">
-                      <p>Banco: Banco de Poupança e Crédito</p>
-                      <p>IBAN: PT50 0002 0123 1234567890</p>
-                      <p>Referência: {group.id}</p>
+                      <p className="flex items-center justify-between">
+                        <span>Banco: Banco de Poupança e Crédito</span>
+                      </p>
+                      <p className="flex items-center justify-between gap-2">
+                        <span>IBAN: PT50 0002 0123 1234567890</span>
+                        <button type="button" className="px-2 py-1 text-xs border border-blue-600 text-blue-600 rounded hover:bg-blue-100" onClick={() => copyToClipboard('PT50 0002 0123 1234567890', 'IBAN')}>Copiar</button>
+                      </p>
+                      <p className="flex items-center justify-between gap-2">
+                        <span>Referência: {group.id}</span>
+                        <button type="button" className="px-2 py-1 text-xs border border-blue-600 text-blue-600 rounded hover:bg-blue-100" onClick={() => copyToClipboard(String(group.id), 'Referência')}>Copiar</button>
+                      </p>
                     </div>
                   </div>
                 )}

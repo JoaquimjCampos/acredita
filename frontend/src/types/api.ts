@@ -112,6 +112,13 @@ export interface ServiceProviderDTO {
   user: UserProfileDTO;
   user_id?: number;
   business_name: string;
+  business_type?: string;
+  provider_type?: 'service_provider' | 'merchant';
+  description?: string;
+  province?: string;
+  municipality?: string;
+  neighborhood?: string;
+  address?: string;
   registration_number?: string;
   services_count?: number;
   rating: number;
@@ -127,15 +134,21 @@ export interface ServiceListingDTO {
   provider_id?: number;
   category: ServiceCategoryDTO;
   category_id?: number;
+  listing_type: 'service' | 'product';
   title: string;
   description: string;
-  price: number;
   price_type: 'fixed' | 'hourly' | 'negotiable';
-  location: string;
-  is_featured: boolean;
-  views: number;
-  status: 'active' | 'inactive' | 'archived';
+  base_price: number;
+  currency: string;
+  available: boolean;
+  delivery_time: string;
+  quantity_available?: number | null;
+  sku?: string;
+  tags?: string[];
   images?: string[];
+  video_url?: string;
+  views: number;
+  featured: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -148,7 +161,8 @@ export interface ServiceOrderDTO {
   listing_id?: number;
   order_date: string;
   delivery_date: string | null;
-  status: 'pending' | 'accepted' | 'completed' | 'cancelled';
+  status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled';
+  payment_status?: 'pending' | 'paid' | 'failed';
   total_amount: number;
   payment_method: 'card' | 'transfer' | 'cash';
   notes?: string;
@@ -279,18 +293,24 @@ export interface ApiError {
 
 export interface CreateServiceListingRequest {
   category_id: number;
+  listing_type: 'service' | 'product';
   title: string;
   description: string;
   price: number;
   price_type: 'fixed' | 'hourly' | 'negotiable';
-  location: string;
+  currency?: string;
+  delivery_time?: string;
+  quantity_available?: number;
+  sku?: string;
+  tags?: string[];
   images?: File[];
 }
 
 export interface CreateServiceOrderRequest {
   listing_id: number;
+  quantity?: number;
   delivery_date?: string;
-  payment_method: 'card' | 'transfer' | 'cash';
+  payment_method?: 'card' | 'transfer' | 'cash';
   notes?: string;
 }
 
@@ -335,7 +355,7 @@ export interface FilterOptions {
   category_id?: number;
   price_min?: number;
   price_max?: number;
-  location?: string;
+  listing_type?: 'service' | 'product';
   status?: string;
   ordering?: string;
   page?: number;

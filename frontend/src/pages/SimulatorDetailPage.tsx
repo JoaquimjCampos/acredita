@@ -4,7 +4,7 @@ import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner, ErrorMessage } from '../components/common';
 import { useSimulationDetail } from '../hooks/useSimulationDetail';
 import { Simulation } from '../types/Simulation';
-import { apiService } from '../services/api.original';
+import { gamesService } from '../services/gamesService';
 
 
 const SimulatorDetailPage: React.FC = () => {
@@ -32,9 +32,9 @@ const SimulatorDetailPage: React.FC = () => {
         revenue,
         cost,
       };
-  if (!sim) throw new Error('Simulador não encontrado.');
-  const response = await apiService.runSimulator(sim.id, inputData);
-  setResult(response.result);
+      if (!sim) throw new Error('Simulador não encontrado.');
+      const response = await gamesService.runSimulator(sim.id, inputData);
+      setResult(response.result);
     } catch (err: any) {
       setSimError(err.message || 'Erro ao executar simulação');
     } finally {

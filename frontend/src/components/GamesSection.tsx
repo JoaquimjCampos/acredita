@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner } from '../components/common';
-import { apiService } from '../services/api';
+import gamesService from '../services/gamesService';
 import seasonConfig from '../config/season.json';
 
 const GamesSection: React.FC = () => {
@@ -15,7 +15,7 @@ const GamesSection: React.FC = () => {
     try {
       // Example inputData, replace with real form if needed
       const inputData = { initial_balance: 1000, interest_rate: 0.05 };
-      const data = await apiService.runSimulator(simulatorId, inputData);
+      const data = await gamesService.runSimulator(simulatorId, inputData);
       setSimResult({ id: simulatorId, result: data.result });
     } catch (err: any) {
       setSimError(err.message);
@@ -33,9 +33,21 @@ const GamesSection: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    apiService.getGames()
-      .then((res: any) => {
-        setGames(res.results || res.data?.results || res.data || []);
+    // Fetch all game types
+    Promise.all([
+      gamesService.getQuizzesBySeason(seasonNumber).catch(() => []),
+      gamesService.getAssociations().catch(() => []),
+      gamesService.getCrosswords().catch(() => []),
+      gamesService.getSimulators().catch(() => [])
+    ])
+      .then(([quizzes, associations, crosswords, simulators]) => {
+        const allGames = [
+          ...quizzes.map((q: any) => ({ ...q, type: 'quiz' })),
+          ...associations.map((a: any) => ({ ...a, type: 'association' })),
+          ...crosswords.map((c: any) => ({ ...c, type: 'crossword' })),
+          ...simulators.map((s: any) => ({ ...s, type: 'simulator' }))
+        ];
+        setGames(allGames);
         setError(null);
       })
       .catch((err: any) => {
@@ -57,7 +69,7 @@ const GamesSection: React.FC = () => {
   });
 
   // Simulators-only view (example usage)
-  const simulators = games.filter(game => game.type === 'simulador');
+  const simulators = games.filter(game => game.type === 'simulator');
 
   if (loading) {
   return <LoadingSpinner size="lg" text={`A carregar jogos...`} />;
@@ -94,9 +106,9 @@ const GamesSection: React.FC = () => {
           >
             <option value="all">Todos os tipos</option>
             <option value="quiz">Quiz</option>
-            <option value="simulador">Simulador</option>
-            <option value="associacao">Associação</option>
-            <option value="outro">Outro</option>
+            <option value="simulator">Simulador</option>
+            <option value="association">Associação</option>
+            <option value="crossword">Palavras Cruzadas</option>
           </select>
           <select
             value={order}
@@ -112,7 +124,7 @@ const GamesSection: React.FC = () => {
           <div className="overflow-x-auto pb-4" aria-live="polite">
             <div className="flex gap-8 min-w-full" role="list">
               {filteredGames.map(game => (
-                <Card key={game.id} className="flex flex-col min-w-[320px] max-w-xs shadow-lg hover:scale-105 transition-transform duration-300 border-2 border-transparent focus-within:border-acredita-primary">
+                <Card key={`${game.type}-${game.id}`} className="flex flex-col min-w-[320px] max-w-xs shadow-lg hover:scale-105 transition-transform duration-300 border-2 border-transparent focus-within:border-acredita-primary">
                   {game.image && (
                     <img src={game.image} alt={`Imagem do jogo ${game.title}`} className="h-40 w-full object-cover rounded-t" />
                   )}
@@ -130,11 +142,11 @@ const GamesSection: React.FC = () => {
                       onClick={() => {
                         // Navegação para o jogo
                         if (game.type === 'quiz') {
-                          window.location.href = `/quiz/${game.id}`;
-                        } else if (game.type === 'simulador') {
-                          window.location.href = `/simuladores`;
-                        } else if (game.type === 'associacao') {
-                          window.location.href = `/associacao`;
+                          window.location.href = `/jogos/quiz/${game.id}`;
+                        } else if (game.type === 'simulator') {
+                          window.location.href = `/jogos/simulador`;
+                        } else if (game.type === 'association') {
+                          window.location.href = `/jogos/associacao`;
                         } else {
                           alert('Tipo de jogo não suportado: ' + game.type);
                         }
@@ -168,7 +180,7 @@ const GamesSection: React.FC = () => {
           {simulators.length > 0 ? (
             <div className="flex gap-8 min-w-full" role="list">
               {simulators.map(sim => (
-                <Card key={sim.id} className="flex flex-col min-w-[320px] max-w-xs shadow-lg border-2 border-acredita-secondary focus-within:border-acredita-secondary">
+                <Card key={`sim-${sim.id}`} className="flex flex-col min-w-[320px] max-w-xs shadow-lg border-2 border-acredita-secondary focus-within:border-acredita-secondary">
                   {sim.image && (
                     <img src={sim.image} alt={`Imagem do simulador ${sim.title}`} className="h-40 w-full object-cover rounded-t" />
                   )}

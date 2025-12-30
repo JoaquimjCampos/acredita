@@ -21,7 +21,7 @@ export function useGames() {
       try {
         setLoading(true);
         setError(null);
-        const { data } = await mcpFetch('/api/games/');
+        const { data } = await mcpFetch('/api/games/games/');
         if (Array.isArray(data)) {
           setGames(data);
         } else if (data && Array.isArray(data.results)) {

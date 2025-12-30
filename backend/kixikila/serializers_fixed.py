@@ -140,20 +140,5 @@ class KixikilaPayoutSerializer(serializers.ModelSerializer):
         ]
 
 
-class KixikilaRatingSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source="user.username", read_only=True)
-
-    class Meta:
-        model = KixikilaRating
-        fields = [
-            "id",
-            "username",
-            "groups_participated",
-            "contributions_on_time",
-            "contributions_late",
-            "contributions_missed",
-            "reputation_score",
-            "trust_level",
-            "warnings",
-            "suspended_until",
-        ]
+# KixikilaRatingSerializer temporarily removed - ratings feature pending backend support
+# Will be re-enabled in next sprint after payout + cycle logic is implemented

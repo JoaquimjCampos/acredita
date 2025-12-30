@@ -13,6 +13,8 @@ class SponsorViewSet(viewsets.ReadOnlyModelViewSet):
     
     Permite filtrar por tipo (sponsor, partner, supporter).
     """
+    # Public endpoint: skip auth to avoid 401 when stale/invalid tokens are sent
+    authentication_classes = []
     permission_classes = [AllowAny]
     serializer_class = SponsorSerializer
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]

@@ -7,6 +7,8 @@ import { Button } from '../common';
 import { cn } from '../../utils/index.original';
 import { LogOut, Menu, X, Heart, ArrowRight } from 'lucide-react';
 import { getHeaderNavItems, getMobileMenuItems, type NavigationItem, type IconType } from '../../config/navigationConfig';
+import ActivityBadge from '../ActivityBadge';
+import { useActivityNotification } from '../../hooks/useActivityNotification';
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -17,7 +19,16 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
   const { t, i18n } = useTranslation();
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    const stored = localStorage.getItem('theme');
+    if (stored === 'dark') return true;
+    if (stored === 'light') return false;
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+  
+  // Get activity notification count for dashboard badge
+  const totalActivityCount = parseInt(localStorage.getItem('last_activity_count') || '0', 10);
+  const { unreadCount } = useActivityNotification(totalActivityCount);
   
   // Get header nav items from config
   const headerNavItems = getHeaderNavItems(isAuthenticated);
@@ -38,33 +49,51 @@ const Header: React.FC<HeaderProps> = ({ onMobileMenuToggle, isMobileMenuOpen })
   };
 
   return (
-    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-800">
+    <header className="bg-white dark:bg-gray-900 shadow-sm border-b border-gray-100 dark:border-gray-800" role="banner">
       <a href="#main-content" className="skip-nav-link absolute left-2 top-2 z-50 bg-acredita-primary text-white px-3 py-2 rounded focus:translate-y-0 -translate-y-full focus:outline-none">Saltar para o conteúdo principal</a>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center h-16">
-        <div className="flex items-center">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-6 flex justify-between items-center h-16">
+        <div className="flex items-center gap-2">
           <button
             type="button"
             className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-acredita-primary lg:hidden"
             onClick={onMobileMenuToggle}
-            aria-label="Abrir menu"
+            aria-label={isMobileMenuOpen ? 'Fechar menu' : 'Abrir menu'}
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
           >
             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
           </button>
-          <Link to="/" className="flex items-center ml-4 lg:ml-0">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 bg-gradient-to-r from-acredita-primary to-acredita-secondary rounded-lg flex items-center justify-center">
-                <Heart className="h-5 w-5 text-white" />
-              </div>
+          <Link to="/" className="flex items-center" aria-label="Acredita - Início">
+            <div className="flex items-center space-x-3">
+              <picture>
+                <source srcSet="/logo.svg" type="image/svg+xml" />
+                <source srcSet="/logo512.png" type="image/png" />
+                <img
+                  src="/logo512.jpg"
+                  alt="Logotipo Acredita"
+                  className="h-10 w-auto drop-shadow-sm"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </picture>
               <div>
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Acredita</h1>
+                <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">Acredita</span>
                 <p className="text-xs text-gray-500 dark:text-gray-400 -mt-1">em Ti, em Angola</p>
               </div>
             </div>
           </Link>
         </div>
-        <nav className="hidden lg:flex space-x-6">
+        <nav className="hidden lg:flex space-x-6" aria-label="Navegação principal">
           {headerNavItems.map(item => (
-            <NavLink key={item.id} to={item.path} icon={item.icon} text={item.label} title={item.title} />
+            <NavLink 
+              key={item.id} 
+              to={item.path} 
+              icon={item.icon} 
+              text={item.label} 
+              title={item.title}
+              badge={item.path === '/dashboard' ? unreadCount : 0}
+            />
           ))}
         </nav>
         <div className="flex items-center space-x-2">
@@ -111,9 +140,10 @@ interface NavLinkProps {
   icon: IconType;
   text: string;
   title?: string;
+  badge?: number;
 }
 
-const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text, title }) => {
+const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text, title, badge = 0 }) => {
   const location = useLocation();
   const isActive = location.pathname === to;
 
@@ -121,8 +151,9 @@ const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text, title }) => {
     <Link
       to={to}
       title={title}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
-        'flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors',
+        'flex items-center space-x-1 px-3 py-2 rounded-md text-sm font-medium transition-colors relative',
         isActive
           ? 'text-acredita-primary bg-orange-50'
           : 'text-gray-600 hover:text-acredita-primary hover:bg-gray-50'
@@ -130,6 +161,12 @@ const NavLink: React.FC<NavLinkProps> = ({ to, icon: Icon, text, title }) => {
     >
       <Icon className="h-4 w-4" />
       <span>{text}</span>
+      {badge > 0 && (
+        <ActivityBadge 
+          count={badge}
+          className="ml-1 absolute -top-2 -right-2 text-xs"
+        />
+      )}
     </Link>
   );
 };
@@ -143,6 +180,7 @@ interface MobileMenuProps {
 const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
+  const panelRef = React.useRef<HTMLDivElement>(null);
   
   // Get mobile menu items from config
   const mobileMenuItems = getMobileMenuItems(isAuthenticated);
@@ -157,11 +195,58 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  React.useEffect(() => {
+    if (!isOpen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [isOpen, onClose]);
+
+  // Basic focus trap inside the mobile menu panel
+  React.useEffect(() => {
+    if (!isOpen || !panelRef.current) return;
+    const panel = panelRef.current;
+    const focusableSelectors = [
+      'a[href]','button:not([disabled])','select:not([disabled])','textarea:not([disabled])',
+      'input:not([disabled])','[tabindex]:not([tabindex="-1"])'
+    ].join(',');
+
+    const focusables = Array.from(panel.querySelectorAll<HTMLElement>(focusableSelectors));
+    const first = focusables[0] || panel;
+    const last = focusables[focusables.length - 1] || panel;
+    (first as HTMLElement).focus();
+
+    const handleTrap = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+      if (focusables.length === 0) return;
+      const active = document.activeElement as HTMLElement | null;
+      const goingBack = e.shiftKey;
+      if (!active) return;
+      if (!panel.contains(active)) {
+        e.preventDefault();
+        (first as HTMLElement).focus();
+        return;
+      }
+      if (!goingBack && active === last) {
+        e.preventDefault();
+        (first as HTMLElement).focus();
+      } else if (goingBack && active === first) {
+        e.preventDefault();
+        (last as HTMLElement).focus();
+      }
+    };
+
+    document.addEventListener('keydown', handleTrap);
+    return () => document.removeEventListener('keydown', handleTrap);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
-    <div className="lg:hidden">
-      <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="lg:hidden" id="mobile-menu">
+      <div className="fixed inset-0 z-50 overflow-y-auto" role="dialog" aria-modal="true" aria-labelledby="mobile-menu-title">
         <div className="flex items-start justify-start min-h-screen">
           {/* Overlay */}
           <div 
@@ -170,8 +255,9 @@ const MobileMenu: React.FC<MobileMenuProps> = ({ isOpen, onClose }) => {
           />
           
           {/* Menu */}
-          <div className="relative bg-white w-64 min-h-screen shadow-xl">
+          <div ref={panelRef} className="relative bg-white w-64 min-h-screen shadow-xl outline-none" tabIndex={-1}>
             <div className="p-4">
+              <h2 id="mobile-menu-title" className="sr-only">Menu principal</h2>
               {isAuthenticated && user && (
                 <div className="mb-6 pb-4 border-b border-gray-200">
                   <div className="flex items-center space-x-3">
@@ -300,7 +386,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, className }) => {
         onClose={() => setIsMobileMenuOpen(false)}
       />
       {/* Full-width layout - Sidebar removed completely */}
-      <main className={cn('flex-1', className)}>
+      <main id="main-content" className={cn('flex-1', className)}>
         {children}
       </main>
       <Footer />

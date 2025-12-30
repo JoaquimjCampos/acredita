@@ -45,19 +45,13 @@ class ApiService {
     return response.data;
   }
 
-  // --- Métodos para quizzes ---
-  async getQuizzesBySeason(seasonNumber: number): Promise<ApiResponse<any>> {
-    const response = await this.api.get(`/api/games/quiz/quizzes/?season_number=${seasonNumber}`);
-    return response.data;
-  }
-  async getQuizQuestions(quizId: number | string): Promise<any[]> {
-    const response = await this.api.get(`/api/games/quiz/${quizId}/questions/`);
-    return response.data.results || response.data;
-  }
-  async getQuizLeaderboard(quizId: number, seasonNumber: number): Promise<ApiResponse<any>> {
-    const response = await this.api.get(`/api/games/quiz/quizzes/${quizId}/leaderboard/?season_number=${seasonNumber}`);
-    return response.data;
-  }
+  // --- Quiz methods moved to gamesService.ts ---
+
+  // --- Simulator methods moved to gamesService.ts ---
+
+  // --- Association methods moved to gamesService.ts ---
+
+  // --- Crosswords methods moved to gamesService.ts ---
 
   // --- Métodos para doações ---
   async getDonationCampaigns(): Promise<ApiResponse<any>> {
@@ -107,6 +101,7 @@ class ApiService {
     this.api.interceptors.request.use(
       (config) => {
         const token = localStorage.getItem('access_token');
+        // Only add token if it exists
         if (token && config.headers) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -119,13 +114,24 @@ class ApiService {
       (response) => response,
       async (error) => {
         if (error.response?.status === 401) {
+          const originalRequest = error.config;
+          
+          // Check if this is a public endpoint (quiz-related)
+          const isPublicEndpoint = 
+            originalRequest.url?.includes('/quiz/') || 
+            originalRequest.url?.includes('/games/');
+          
+          // For public endpoints, just return the error without logout
+          if (isPublicEndpoint && originalRequest.method?.toLowerCase() === 'get') {
+            return Promise.reject(error);
+          }
+          
           const refreshToken = localStorage.getItem('refresh_token');
           if (refreshToken) {
             try {
               const response = await this.refreshToken(refreshToken);
               if (response.sucesso) {
                 localStorage.setItem('access_token', response.dados.access);
-                const originalRequest = error.config;
                 originalRequest._retry = originalRequest._retry || false;
                 if (!originalRequest._retry) {
                   originalRequest._retry = true;
@@ -149,37 +155,9 @@ class ApiService {
     );
   }
 
-  // --- Métodos principais ---
-  async getGames(): Promise<Game[]> {
-    try {
-      const response = await this.api.get('/api/games/');
-      if (Array.isArray(response.data)) return response.data;
-      if (response.data?.results) return response.data.results;
-      if (response.data?.data?.results) return response.data.data.results;
-      return [];
-    } catch (error: any) {
-      throw new Error(error?.response?.data?.detail || error.message || 'Erro ao buscar jogos');
-    }
-  }
+  // --- Main methods ---
 
-  async runSimulator(simulatorId: number, inputData: any): Promise<SimulatorResult> {
-    try {
-      const response = await this.api.post(`/api/games/simulator/simulators/${simulatorId}/run/`, inputData);
-      if (response.data?.result !== undefined) return { result: response.data.result };
-      return { result: response.data };
-    } catch (error: any) {
-      throw new Error(error?.response?.data?.detail || error.message || 'Erro ao executar simulação');
-    }
-  }
-
-  async getSimulatorAnalytics(simulatorId: number): Promise<any> {
-    try {
-      const response = await this.api.get(`/api/games/simulator/simulators/${simulatorId}/analytics/`);
-      return response.data;
-    } catch (error: any) {
-      throw new Error(error?.response?.data?.detail || error.message || 'Erro ao buscar analytics');
-    }
-  }
+  // Simulator methods moved to gamesService.ts
 
   // --- Métodos utilitários e de autenticação ---
   async login(credentials: LoginCredentials): Promise<AuthResponse> {

@@ -25,12 +25,27 @@ class ServiceCategory(models.Model):
 
 
 class ServiceProvider(models.Model):
-	"""Prestadores de serviços."""
+	"""Prestadores de serviços e comerciantes (integrado com certificações INEFOB)."""
+
+	PROVIDER_TYPES = (
+		("service_provider", "Prestador de Serviço"),
+		("merchant", "Comerciante"),
+	)
 
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_provider")
 	business_name = models.CharField(max_length=200)
 	business_type = models.CharField(max_length=100)  # ex: Freelancer, Loja, Serviço
+	provider_type = models.CharField(max_length=20, choices=PROVIDER_TYPES, default="service_provider")
 	categories = models.ManyToManyField(ServiceCategory, related_name="providers")
+	# Link to INEFOB certifications (optional - for certified professionals)
+	professional_category = models.ForeignKey(
+		'certifications.ProfessionalCategory',
+		on_delete=models.SET_NULL,
+		null=True,
+		blank=True,
+		related_name="marketplace_providers",
+		help_text="Categoria profissional INEFOB (se aplicável)"
+	)
 	description = models.TextField(blank=True)
 
 	# Documentação e formalização
@@ -65,7 +80,12 @@ class ServiceProvider(models.Model):
 
 
 class ServiceListing(models.Model):
-	"""Serviços ou produtos ofertados."""
+	"""Unified model for both services and products."""
+
+	LISTING_TYPES = (
+		("service", "Serviço"),
+		("product", "Produto"),
+	)
 
 	PRICE_TYPES = (
 		("fixed", "Preço fixo"),
@@ -75,13 +95,16 @@ class ServiceListing(models.Model):
 
 	provider = models.ForeignKey(ServiceProvider, on_delete=models.CASCADE, related_name="listings")
 	category = models.ForeignKey(ServiceCategory, on_delete=models.PROTECT, related_name="listings")
+	listing_type = models.CharField(max_length=20, choices=LISTING_TYPES, default="service")
 	title = models.CharField(max_length=200)
 	description = models.TextField()
 	price_type = models.CharField(max_length=20, choices=PRICE_TYPES, default="fixed")
 	base_price = models.DecimalField(max_digits=12, decimal_places=2)
 	currency = models.CharField(max_length=10, default="AOA")
 	available = models.BooleanField(default=True)
-	delivery_time = models.CharField(max_length=100, blank=True)
+	delivery_time = models.CharField(max_length=100, blank=True)  # e.g. "2-3 dias", "Imediato"
+	quantity_available = models.PositiveIntegerField(null=True, blank=True)  # For products
+	sku = models.CharField(max_length=100, blank=True)  # For products
 	tags = models.JSONField(default=list, blank=True)
 	images = models.JSONField(default=list, blank=True)
 	video_url = models.URLField(blank=True)
@@ -93,13 +116,13 @@ class ServiceListing(models.Model):
 	class Meta:
 		ordering = ["-featured", "-created_at"]
 		indexes = [
-			models.Index(fields=["available"]),
+			models.Index(fields=["listing_type", "available"]),
 			models.Index(fields=["featured", "views"]),
 			models.Index(fields=["category", "price_type"]),
 		]
 
 	def __str__(self) -> str:  # pragma: no cover
-		return self.title
+		return f"{self.get_listing_type_display()} - {self.title}"
 
 
 class ServiceOrder(models.Model):

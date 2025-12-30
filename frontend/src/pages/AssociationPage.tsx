@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Card, LoadingSpinner } from '../components/common';
 import { mcpFetch } from '../mcpClient';
-import { AssociationGame } from '../types/AssociationGame';
+import { Association } from '../types/games';
 import { Lightbulb, Search, Filter } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 const AssociationPage: React.FC = () => {
-  const [games, setGames] = useState<AssociationGame[]>([]);
+  const [games, setGames] = useState<Association[]>([]);
   const [search, setSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

@@ -5,9 +5,10 @@ import { Card, LoadingSpinner } from '../components/common';
 import KixikilaService from '../services/kixikila/kixikilaService';
 import { KixikilaGroupDTO } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
-import { ArrowLeft, Users, DollarSign, Calendar, Plus, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, Users, DollarSign, Calendar, Plus, Trash2, Check, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import PayoutsPanel from '../components/kixikila/PayoutsPanel';
+import KixikilaAnalyticsDashboard from '../components/kixikila/KixikilaAnalyticsDashboard';
 import { CONTRIBUTION_STATUSES, CONTRIBUTION_STATUS_LABELS } from '../constants/kixikila';
 
 interface Member {
@@ -16,6 +17,7 @@ interface Member {
   email: string;
   joined_date: string;
   is_admin: boolean;
+  is_active?: boolean;
   total_contributed: number;
   last_contribution: string;
 }
@@ -38,11 +40,16 @@ const KixikilaManagementPage: React.FC = () => {
   const [totals, setTotals] = useState<{ cash: number; active: number; next: number }>({ cash: 0, active: 0, next: 0 });
   const [members, setMembers] = useState<Member[]>([]);
   const [contributions, setContributions] = useState<Contribution[]>([]);
-  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'contributions' | 'payouts'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'contributions' | 'payouts' | 'analytics'>('overview');
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [newMemberEmail, setNewMemberEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [filters, setFilters] = useState<{ status: 'all' | typeof CONTRIBUTION_STATUSES[keyof typeof CONTRIBUTION_STATUSES]; round?: number }>({ status: 'all' });
+  const [confirmModal, setConfirmModal] = useState<{ show: boolean; action: 'suspend' | 'reactivate' | null; membershipId: string | null; memberName: string }>({ show: false, action: null, membershipId: null, memberName: '' });
+  const [actionInProgress, setActionInProgress] = useState(false);
+  const canAddMembers = true; // Toggle to false if backend does not support inviting by email
 
   const filteredContributions = contributions.filter(c => {
     const statusOk = filters.status === 'all' ? true : c.status === filters.status;
@@ -70,6 +77,7 @@ const KixikilaManagementPage: React.FC = () => {
           email: m.user?.email || 'member@example.com',
           joined_date: m.joined_date || new Date().toISOString().split('T')[0],
           is_admin: !!m.is_admin,
+          is_active: typeof m.is_active === 'boolean' ? m.is_active : (m.status ? m.status === 'active' : true),
           total_contributed: Number(m.total_contributed || 0),
           last_contribution: m.last_contribution || '',
         }));
@@ -141,10 +149,30 @@ const KixikilaManagementPage: React.FC = () => {
     }
   };
 
+  const fetchAnalytics = async () => {
+    if (!id) return;
+    setAnalyticsLoading(true);
+    try {
+      const analyticsData = await KixikilaService.getGroupAnalytics(parseInt(id));
+      setAnalytics(analyticsData);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+      toast.error('Erro ao carregar análises');
+    } finally {
+      setAnalyticsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchGroupData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab === 'analytics') {
+      fetchAnalytics();
+    }
+  }, [activeTab]);
 
   const handleAddMember = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -185,6 +213,34 @@ const KixikilaManagementPage: React.FC = () => {
       toast.success('Membro removido');
     } catch (error: any) {
       toast.error(error.message || 'Erro ao remover membro');
+    }
+  };
+
+  const handleSuspendMember = async (membershipId: string, memberName: string) => {
+    setConfirmModal({ show: true, action: 'suspend', membershipId, memberName });
+  };
+
+  const handleReactivateMember = async (membershipId: string, memberName: string) => {
+    setConfirmModal({ show: true, action: 'reactivate', membershipId, memberName });
+  };
+
+  const confirmAction = async () => {
+    if (!id || !confirmModal.membershipId || !confirmModal.action) return;
+    setActionInProgress(true);
+    try {
+      if (confirmModal.action === 'suspend') {
+        await KixikilaService.suspendMember(parseInt(id), parseInt(confirmModal.membershipId));
+        toast.success(`${confirmModal.memberName} foi suspenso`);
+      } else {
+        await KixikilaService.reactivateMember(parseInt(id), parseInt(confirmModal.membershipId));
+        toast.success(`${confirmModal.memberName} foi reativado`);
+      }
+      await fetchGroupData();
+    } catch (error: any) {
+      toast.error(error.message || 'Erro ao processar ação');
+    } finally {
+      setActionInProgress(false);
+      setConfirmModal({ show: false, action: null, membershipId: null, memberName: '' });
     }
   };
 
@@ -300,8 +356,9 @@ const KixikilaManagementPage: React.FC = () => {
           {/* Tabs */}
           {isGroupAdmin && (
             <div className="border-b border-gray-200">
-              <div className="flex gap-8">
-                {(['overview', 'members', 'contributions', 'payouts'] as const).map((tab) => (
+              <div className="flex items-center gap-8 justify-between">
+                <div className="flex gap-8">
+                {(['overview', 'members', 'contributions', 'payouts', 'analytics'] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -315,8 +372,27 @@ const KixikilaManagementPage: React.FC = () => {
                     {tab === 'members' && 'Membros'}
                     {tab === 'contributions' && 'Contribuições'}
                     {tab === 'payouts' && 'Desembolsos'}
+                    {tab === 'analytics' && 'Análises'}
                   </button>
                 ))}
+                </div>
+                <div className="py-2">
+                  <button
+                    onClick={async () => {
+                      try {
+                        const toastId = toast.loading('Preparando exportação...');
+                        await KixikilaService.exportGroupContributions(parseInt(id!));
+                        toast.dismiss(toastId);
+                        toast.success('CSV exportado com sucesso');
+                      } catch (e: any) {
+                        toast.error(e.message || 'Falha ao exportar CSV');
+                      }
+                    }}
+                    className="text-sm bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    Exportar CSV
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -342,16 +418,20 @@ const KixikilaManagementPage: React.FC = () => {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-2xl font-bold text-gray-900">Gerenciar Membros</h2>
-                <button
-                  onClick={() => setShowAddMemberModal(true)}
-                  className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg"
-                >
-                  <Plus className="h-4 w-4" />
-                  Adicionar Membro
-                </button>
+                {canAddMembers ? (
+                  <button
+                    onClick={() => setShowAddMemberModal(true)}
+                    className="flex items-center gap-2 bg-violet-600 hover:bg-violet-700 text-white px-4 py-2 rounded-lg"
+                  >
+                    <Plus className="h-4 w-4" />
+                    Adicionar Membro
+                  </button>
+                ) : (
+                  <div className="text-sm text-gray-600">Convites por email indisponíveis neste ambiente.</div>
+                )}
               </div>
 
-              {showAddMemberModal && (
+              {canAddMembers && showAddMemberModal && (
                 <Card className="p-6 bg-violet-50">
                   <form onSubmit={handleAddMember} className="space-y-4">
                     <div>
@@ -366,6 +446,7 @@ const KixikilaManagementPage: React.FC = () => {
                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500"
                         required
                       />
+                      <p className="mt-1 text-xs text-violet-800">Nota: Este ambiente usa modo demonstração; o membro será adicionado localmente.</p>
                     </div>
                     <div className="flex gap-2">
                       <button
@@ -420,14 +501,37 @@ const KixikilaManagementPage: React.FC = () => {
                             {new Date(member.joined_date).toLocaleDateString('pt-AO')}
                           </td>
                           <td className="py-3 text-center">
-                            {!member.is_admin && (
-                              <button
-                                onClick={() => handleRemoveMember(member.id)}
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            )}
+                            <div className="flex items-center justify-center gap-2">
+                              <span className={`text-xs px-2 py-1 rounded-full font-medium ${member.is_active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                {member.is_active ? 'Ativo' : 'Suspenso'}
+                              </span>
+                              {!member.is_admin && (
+                                <div className="flex items-center justify-center gap-2">
+                                  {member.is_active ? (
+                                    <button
+                                      onClick={() => handleSuspendMember(member.id, member.name)}
+                                      className="text-yellow-700 hover:text-yellow-800 border border-yellow-300 bg-yellow-50 px-2 py-1 rounded text-xs"
+                                    >
+                                      Suspender
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleReactivateMember(member.id, member.name)}
+                                      className="text-green-700 hover:text-green-800 border border-green-300 bg-green-50 px-2 py-1 rounded text-xs"
+                                    >
+                                      Reativar
+                                    </button>
+                                  )}
+                                  <button
+                                    onClick={() => handleRemoveMember(member.id)}
+                                    className="text-red-600 hover:text-red-700"
+                                    title="Remover do grupo (apenas UI demo)"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              )}
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -550,8 +654,47 @@ const KixikilaManagementPage: React.FC = () => {
               currentRound={group.current_round || 1}
             />
           )}
+
+          {activeTab === 'analytics' && isGroupAdmin && (
+            <KixikilaAnalyticsDashboard data={analytics} loading={analyticsLoading} />
+          )}
         </div>
       </div>
+
+      {/* Confirm Modal */}
+      {confirmModal.show && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <Card className="p-6 max-w-sm mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <AlertCircle className="h-6 w-6 text-yellow-600" />
+              <h2 className="text-lg font-bold text-gray-900">
+                {confirmModal.action === 'suspend' ? 'Suspender Membro?' : 'Reativar Membro?'}
+              </h2>
+            </div>
+            <p className="text-gray-600 mb-6">
+              {confirmModal.action === 'suspend'
+                ? `Tem certeza que deseja suspender ${confirmModal.memberName}? Ele/Ela não poderá fazer contribuições enquanto estiver suspenso.`
+                : `Tem certeza que deseja reativar ${confirmModal.memberName}? Ele/Ela poderá voltar a fazer contribuições.`}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setConfirmModal({ show: false, action: null, membershipId: null, memberName: '' })}
+                disabled={actionInProgress}
+                className="flex-1 border border-gray-300 text-gray-700 py-2 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmAction}
+                disabled={actionInProgress}
+                className={`flex-1 text-white py-2 rounded-lg disabled:opacity-50 ${confirmModal.action === 'suspend' ? 'bg-yellow-600 hover:bg-yellow-700' : 'bg-green-600 hover:bg-green-700'}`}
+              >
+                {actionInProgress ? 'Processando...' : confirmModal.action === 'suspend' ? 'Suspender' : 'Reativar'}
+              </button>
+            </div>
+          </Card>
+        </div>
+      )}
     </Layout>
   );
 };

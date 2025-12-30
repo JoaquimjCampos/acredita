@@ -32,7 +32,7 @@ const SimulatorLeaderboard: React.FC<{ simulatorId: string }> = ({ simulatorId }
       setLoading(true);
       setError(null);
       try {
-        const { data } = await mcpFetch(`/api/games/simulator/${simulatorId}/analytics/`);
+        const { data } = await mcpFetch(`/api/games/simulator/analytics/${simulatorId}/`);
   setEntries(data.leaderboard || []);
   setScenarioMap(data.scenario_map || {});
   setScenarioChart(data.scenario_chart || []);
@@ -72,6 +72,11 @@ const SimulatorLeaderboard: React.FC<{ simulatorId: string }> = ({ simulatorId }
     <Card title="Leaderboard">
       <div className="mb-6">
         <div className="font-semibold mb-2">Taxa de conclusão: <span className="text-green-700">{(completionRate * 100).toFixed(1)}%</span></div>
+        {scenarioChart.length > 0 && (
+          <div className="text-sm text-gray-600">Média de escolhas por cenário: {(
+            scenarioChart.reduce((acc, sc) => acc + (sc.total || 0), 0) / Math.max(scenarioChart.length, 1)
+          ).toFixed(1)}</div>
+        )}
         {scenarioChart.length > 0 && (
           <Bar
             data={{

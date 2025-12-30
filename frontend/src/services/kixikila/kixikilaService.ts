@@ -54,6 +54,36 @@ export class KixikilaService {
   }
 
   /**
+   * Suspend a member in a group (owner or staff)
+   */
+  static async suspendMember(groupId: number, membershipId: number): Promise<{id:number; is_active:boolean}> {
+    try {
+      return await apiClient.post<{id:number; is_active:boolean}>(
+        `${this.BASE_URL}/groups/${groupId}/suspend_member/`,
+        { membership_id: membershipId }
+      );
+    } catch (error: any) {
+      const message = error.response?.data?.detail || error.message || 'Não foi possível suspender o membro';
+      throw new Error(message);
+    }
+  }
+
+  /**
+   * Reactivate a suspended member in a group (owner or staff)
+   */
+  static async reactivateMember(groupId: number, membershipId: number): Promise<{id:number; is_active:boolean}> {
+    try {
+      return await apiClient.post<{id:number; is_active:boolean}>(
+        `${this.BASE_URL}/groups/${groupId}/reactivate_member/`,
+        { membership_id: membershipId }
+      );
+    } catch (error: any) {
+      const message = error.response?.data?.detail || error.message || 'Não foi possível reativar o membro';
+      throw new Error(message);
+    }
+  }
+
+  /**
    * Get single group details
    */
   static async getGroup(groupId: number): Promise<KixikilaGroupDTO> {
@@ -186,6 +216,20 @@ export class KixikilaService {
   }
 
   /**
+   * Get group cycle information (current round, next beneficiary, pending contributions)
+   */
+  static async getGroupCycles(groupId: number): Promise<any> {
+    try {
+      return await apiClient.get<any>(
+        `${this.BASE_URL}/groups/${groupId}/cycles/`
+      );
+    } catch (error) {
+      console.error(`Error fetching cycles for group ${groupId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
    * Create contribution
    */
   static async createContribution(
@@ -201,14 +245,17 @@ export class KixikilaService {
       return response;
     } catch (error: any) {
       console.error('Raw error response:', error.response?.data);
-      const message = error.response?.data?.detail || 
-                     error.response?.data?.error ||
-                     error.response?.data?.non_field_errors?.[0] ||
-                     error.response?.data?.membership_id?.[0] ||
-                     error.response?.data?.amount?.[0] ||
-                     error.response?.data?.payment_method?.[0] ||
-                     error.message || 
-                     'Erro ao criar contribuição';
+      let message = error.response?.data?.detail || 
+                    error.response?.data?.error ||
+                    error.response?.data?.non_field_errors?.[0] ||
+                    error.response?.data?.membership_id?.[0] ||
+                    error.response?.data?.amount?.[0] ||
+                    error.response?.data?.payment_method?.[0] ||
+                    error.message || 
+                    'Erro ao criar contribuição';
+      if (Array.isArray(error.response?.data) && error.response?.data[0]) {
+        message = error.response.data[0];
+      }
       console.error('Error creating contribution:', message);
       throw new Error(message);
     }
@@ -257,6 +304,51 @@ export class KixikilaService {
       );
     } catch (error) {
       console.error(`Error fetching contributions for group ${groupId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get my reputation (computed)
+   */
+  static async getMyReputation(): Promise<{
+    username: string;
+    groups_participated: number;
+    contributions_on_time: number;
+    contributions_late: number;
+    contributions_missed: number;
+    reputation_score: number;
+    trust_level: 'beginner' | 'reliable' | 'trusted' | 'champion';
+  }> {
+    try {
+      return await apiClient.get(
+        `${this.BASE_URL}/contributions/my_reputation/`
+      );
+    } catch (error) {
+      console.error('Error fetching my reputation:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Export group contributions as CSV (owner or staff)
+   */
+  static async exportGroupContributions(groupId: number): Promise<void> {
+    try {
+      const blob = await apiClient.get<Blob>(
+        `${this.BASE_URL}/groups/${groupId}/contributions_export/`,
+        { responseType: 'blob' as any }
+      );
+      const url = window.URL.createObjectURL(blob as any);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `kixikila_group_${groupId}_contributions.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(`Error exporting contributions for group ${groupId}:`, error);
       throw error;
     }
   }
@@ -323,6 +415,12 @@ export class KixikilaService {
       );
       return response.results;
     } catch (error) {
+      // Gracefully handle 404 (endpoint not available) by returning empty
+      const status = (error as any)?.response?.status;
+      if (status === 404) {
+        console.warn(`Ratings endpoint not found for group ${groupId}, returning empty list.`);
+        return [];
+      }
       console.error(`Error fetching ratings for group ${groupId}:`, error);
       throw error;
     }
@@ -341,6 +439,36 @@ export class KixikilaService {
       return await apiClient.get(`${this.BASE_URL}/stats/`);
     } catch (error) {
       console.error('Error fetching kixikila stats:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get group analytics (member stats, contribution patterns, round participation)
+   */
+  static async getGroupAnalytics(groupId: number): Promise<any> {
+    try {
+      return await apiClient.get<any>(
+        `${this.BASE_URL}/groups/${groupId}/analytics/`
+      );
+    } catch (error) {
+      console.error(`Error fetching analytics for group ${groupId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get reputation leaderboard
+   */
+  static async getLeaderboard(limit?: number): Promise<any> {
+    try {
+      const params = limit ? { limit } : {};
+      return await apiClient.get<any>(
+        `${this.BASE_URL}/leaderboard/reputation/`,
+        { params }
+      );
+    } catch (error) {
+      console.error('Error fetching leaderboard:', error);
       throw error;
     }
   }

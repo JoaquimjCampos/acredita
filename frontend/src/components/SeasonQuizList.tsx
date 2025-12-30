@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner, Button } from './common';
-import apiService from '../services/api.original';
+import gamesService from '../services/gamesService';
 
 const SeasonQuizList: React.FC<{ seasonNumber: number }> = ({ seasonNumber }) => {
   const [quizzes, setQuizzes] = useState<any[]>([]);
@@ -8,17 +8,15 @@ const SeasonQuizList: React.FC<{ seasonNumber: number }> = ({ seasonNumber }) =>
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiService.getQuizzesBySeason(seasonNumber)
-      .then(res => {
+    gamesService.getQuizzesBySeason(seasonNumber)
+      .then((res: any[]) => {
         if (Array.isArray(res)) {
           setQuizzes(res);
-        } else if (Array.isArray(res.results)) {
-          setQuizzes(res.results);
         } else {
           setQuizzes([]);
         }
       })
-      .catch(err => setError(err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, [seasonNumber]);
 

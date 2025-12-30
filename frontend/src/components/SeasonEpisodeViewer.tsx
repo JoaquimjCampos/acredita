@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner, Button } from './common';
-import apiService from '../services/api.original';
+import apiService from '../services/api';
 import { Episode } from '../types';
 
 const SeasonEpisodeViewer: React.FC<{ seasonId: number }> = ({ seasonId }) => {
@@ -11,7 +11,7 @@ const SeasonEpisodeViewer: React.FC<{ seasonId: number }> = ({ seasonId }) => {
 
   useEffect(() => {
     apiService.getSeasonEpisodes(seasonId)
-      .then(res => {
+      .then((res: any) => {
         if (Array.isArray(res.results)) {
           // Flatten if results is an array of arrays
           const flat = res.results.flat();
@@ -20,7 +20,7 @@ const SeasonEpisodeViewer: React.FC<{ seasonId: number }> = ({ seasonId }) => {
           setEpisodes([]);
         }
       })
-      .catch(err => setError(err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, [seasonId]);
 

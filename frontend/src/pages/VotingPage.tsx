@@ -3,24 +3,33 @@
 import React, { useState } from 'react';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
+import { useRenderTime } from '../utils/performance';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { useVoting } from '../hooks';
 import { apiService } from '../services/api';
-import { Heart, Star, MapPin } from 'lucide-react';
+import { analyticsService } from '../services/analytics';
+import { Heart, Star, MapPin, ChevronRight } from 'lucide-react';
 
 // Tipo importado do hook
 
 const VotingPage: React.FC = () => {
+    useRenderTime('VotingPage');
   const { participants, loading, error } = useVoting();
   const [voting, setVoting] = useState<string | null>(null);
   const [voted, setVoted] = useState<string | null>(null);
   const [voteError, setVoteError] = useState<string | null>(null);
 
-  const handleVote = async (participantId: string) => {
+  const handleVote = async (participantId: string, participantName: string) => {
     setVoting(participantId);
     setVoteError(null);
     try {
-      // apiService.vote deve ser mantido para registrar o voto
+      // Track vote submission
+      analyticsService.trackEvent('vote_submitted', {
+        participant_id: participantId,
+        participant_name: participantName,
+        timestamp: new Date().toISOString()
+      });
+      
       await apiService.vote({ participante: participantId });
       setVoted(participantId);
     } catch (err: any) {
@@ -72,14 +81,22 @@ const VotingPage: React.FC = () => {
           {voteError && <ErrorMessage message={voteError} className="mb-4" />}
           {voted && (
             <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded" role="status" aria-live="polite">
-              Voto registado com sucesso!
+              ✓ Voto registado com sucesso!
             </div>
           )}
+          
+          {/* Info Banner */}
+          <div className="mb-8 p-6 bg-white border-l-4 border-acredita-primary rounded-lg shadow-sm">
+            <p className="text-gray-700">
+              <strong>Como funciona:</strong> Cada utilizador pode votar uma vez por dia. Os participantes com mais votos serão destacados no ranking.
+            </p>
+          </div>
+          
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {participants.map((p) => (
               <Card key={p.id} className="p-4 flex flex-col items-center transition-transform duration-200 hover:scale-105 hover:shadow-lg focus-within:scale-105 focus-within:shadow-lg border-2 border-transparent hover:border-acredita-primary">
                 <div
-                  className="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4 overflow-hidden outline-none"
+                  className="w-24 h-24 rounded-full bg-primary-100 flex items-center justify-center mb-4 overflow-hidden outline-none ring-2 ring-offset-2 ring-transparent hover:ring-acredita-primary"
                   tabIndex={0}
                   aria-label={`Participante: ${p.nome}`}
                 >
@@ -95,18 +112,30 @@ const VotingPage: React.FC = () => {
                   <MapPin className="w-4 h-4 mr-1" aria-hidden="true" /> {p.provincia}
                 </p>
                 {typeof p.total_votos === 'number' && (
-                  <p className="text-xs text-gray-400 mb-2">Votos: {p.total_votos}</p>
+                  <p className="text-xs text-acredita-primary font-semibold mb-2">
+                    ❤️ {p.total_votos} {p.total_votos === 1 ? 'voto' : 'votos'}
+                  </p>
                 )}
                 <Button
                   className="w-full mt-auto"
                   size="sm"
                   variant="primary"
-                  onClick={() => handleVote(p.id)}
+                  onClick={() => handleVote(p.id, p.nome)}
                   loading={voting === p.id}
                   disabled={!!voted || voting === p.id}
                   aria-label={`Votar em ${p.nome}`}
+                  data-analytics="vote-button-click"
+                  data-participant-id={p.id}
+                  data-participant-name={p.nome}
                 >
-                  {voted === p.id ? 'Votado!' : 'Votar'}
+                  {voted === p.id ? (
+                    <>✓ Votado!</>
+                  ) : (
+                    <>
+                      Votar
+                      <ChevronRight className="ml-1 h-4 w-4" />
+                    </>
+                  )}
                 </Button>
               </Card>
             ))}

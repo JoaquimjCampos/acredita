@@ -11,6 +11,11 @@ const MyGroupsPage: React.FC = () => {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<KixikilaGroupDTO[]>([]);
   const [loading, setLoading] = useState(false);
+  const [reputation, setReputation] = useState<{
+    reputation_score: number;
+    trust_level: 'beginner' | 'reliable' | 'trusted' | 'champion';
+    groups_participated: number;
+  } | null>(null);
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -18,6 +23,16 @@ const MyGroupsPage: React.FC = () => {
       try {
         const response = await KixikilaService.getGroups({ status: 'active' });
         setGroups(response.results);
+        try {
+          const rep = await KixikilaService.getMyReputation();
+          setReputation({
+            reputation_score: rep.reputation_score,
+            trust_level: rep.trust_level,
+            groups_participated: rep.groups_participated,
+          });
+        } catch {
+          // ignore
+        }
       } catch (error: any) {
         toast.error('Erro ao carregar meus grupos.');
       } finally {
@@ -50,6 +65,20 @@ const MyGroupsPage: React.FC = () => {
 
       <div className="bg-gray-50 min-h-screen py-12">
         <div className="max-w-6xl mx-auto px-4">
+          {reputation && (
+            <Card className="p-4 mb-6 border-l-4 border-purple-500">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-600">Reputação Kixikila</p>
+                  <p className="text-lg font-semibold text-gray-900">{reputation.trust_level.toUpperCase()}</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-gray-600">Pontuação</p>
+                  <p className="text-xl font-bold text-gray-900">{reputation.reputation_score}</p>
+                </div>
+              </div>
+            </Card>
+          )}
           {groups.length === 0 ? (
             <Card className="p-12 text-center">
               <Users className="h-16 w-16 text-gray-400 mx-auto mb-4" />

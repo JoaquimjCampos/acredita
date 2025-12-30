@@ -20,6 +20,9 @@ const KixikilaDetailPage: React.FC = () => {
   const [totalInCash, setTotalInCash] = useState<number>(0);
   const [nextCycleAmount, setNextCycleAmount] = useState<number>(0);
   const [participationRate, setParticipationRate] = useState<number>(0);
+  const [recentContributions, setRecentContributions] = useState<any[]>([]);
+  const [cycleInfo, setCycleInfo] = useState<any>(null);
+  const [reputation, setReputation] = useState<any>(null);
 
   useEffect(() => {
     const fetchGroup = async () => {
@@ -51,6 +54,35 @@ const KixikilaDetailPage: React.FC = () => {
             // Keep defaults if endpoint fails
             setMembersCount(0);
             setTotalInCash(0);
+          }
+
+          // Load recent contributions for timeline
+          try {
+            const contribs = await KixikilaService.getGroupContributions(parseInt(id));
+            // Get last 5 contributions
+            setRecentContributions(contribs.results?.slice(0, 5) || []);
+          } catch (err) {
+            // Keep empty timeline if endpoint fails
+            setRecentContributions([]);
+          }
+
+          // Load cycle information (round, next beneficiary, etc)
+          try {
+            const cycles = await KixikilaService.getGroupCycles(parseInt(id));
+            setCycleInfo(cycles);
+          } catch (err) {
+            // Keep empty if endpoint fails
+            setCycleInfo(null);
+          }
+
+          // Load my reputation
+          if (user) {
+            try {
+              const rep = await KixikilaService.getMyReputation();
+              setReputation(rep);
+            } catch (err) {
+              setReputation(null);
+            }
           }
         }
       } catch (error: any) {
@@ -162,7 +194,7 @@ const KixikilaDetailPage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-gray-600 text-sm font-medium">Membros</p>
-                  <p className="text-3xl font-bold text-gray-900 mt-1">{group.member_count || 0}</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{membersCount}</p>
                 </div>
                 <Users className="h-10 w-10 text-violet-600 opacity-20" />
               </div>
@@ -226,6 +258,45 @@ const KixikilaDetailPage: React.FC = () => {
             </Card>
           )}
 
+          {/* Cycle Information Card */}
+          {cycleInfo && (
+            <Card className="p-6 bg-blue-50 border-l-4 border-blue-600">
+              <h3 className="text-lg font-semibold text-blue-900 mb-4">Ciclo Atual</h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div>
+                  <p className="text-sm text-blue-800">Ronda</p>
+                  <p className="text-2xl font-bold text-blue-900">{cycleInfo.current_round}/{cycleInfo.total_rounds}</p>
+                </div>
+                {cycleInfo.next_beneficiary && (
+                  <>
+                    <div>
+                      <p className="text-sm text-blue-800">Próximo Beneficiário</p>
+                      <p className="text-lg font-bold text-blue-900">{cycleInfo.next_beneficiary.username}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-800">Valor Previsto</p>
+                      <p className="text-lg font-bold text-blue-900">AOA {Number(cycleInfo.next_beneficiary.amount).toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-blue-800">Data Agendada</p>
+                      <p className="text-lg font-bold text-blue-900">{new Date(cycleInfo.next_beneficiary.scheduled_date).toLocaleDateString('pt-AO')}</p>
+                    </div>
+                  </>
+                )}
+              </div>
+              {cycleInfo.current_round_contributions && (
+                <div className="mt-4 pt-4 border-t border-blue-200">
+                  <p className="text-sm text-blue-800 mb-2">Contribuições desta Ronda</p>
+                  <div className="flex gap-4 text-sm">
+                    <span className="text-blue-900">✓ Confirmadas: {cycleInfo.current_round_contributions.confirmed}</span>
+                    <span className="text-yellow-700">⏳ Pendentes: {cycleInfo.current_round_contributions.pending}</span>
+                    <span className="text-red-600">⚠ Atrasadas: {cycleInfo.current_round_contributions.late}</span>
+                  </div>
+                </div>
+              )}
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
@@ -245,17 +316,29 @@ const KixikilaDetailPage: React.FC = () => {
               <Card className="p-8">
                 <h2 className="text-2xl font-bold text-gray-900 mb-6">Atividades Recentes</h2>
                 <div className="space-y-6">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0">
-                      <div className="h-10 w-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
-                        <Users className="h-5 w-5 text-violet-600" />
-                      </div>
-                      <div className="flex-1">
-                        <p className="font-medium text-gray-900">João Silva entrou no grupo</p>
-                        <p className="text-sm text-gray-600 mt-1">Há 2 dias</p>
-                      </div>
-                    </div>
-                  ))}
+                  {recentContributions && recentContributions.length > 0 ? (
+                    recentContributions.map((contrib) => {
+                      const daysAgo = Math.floor(
+                        (new Date().getTime() - new Date(contrib.payment_date).getTime()) / (1000 * 60 * 60 * 24)
+                      );
+                      const timeLabel = daysAgo === 0 ? 'Hoje' : daysAgo === 1 ? 'Ontem' : `Há ${daysAgo} dias`;
+                      return (
+                        <div key={contrib.id} className="flex gap-4 pb-6 border-b border-gray-200 last:border-b-0">
+                          <div className="h-10 w-10 rounded-full bg-violet-100 flex items-center justify-center flex-shrink-0">
+                            <DollarSign className="h-5 w-5 text-violet-600" />
+                          </div>
+                          <div className="flex-1">
+                            <p className="font-medium text-gray-900">
+                              {contrib.member_username} contribuiu AOA {Number(contrib.amount).toFixed(2)}
+                            </p>
+                            <p className="text-sm text-gray-600 mt-1">{timeLabel}</p>
+                          </div>
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <p className="text-center text-gray-500">Sem atividades recentes</p>
+                  )}
                 </div>
               </Card>
             </div>
@@ -273,7 +356,7 @@ const KixikilaDetailPage: React.FC = () => {
                   <div>
                     <p className="text-sm font-medium text-gray-600">Total em Caixa</p>
                     <p className="text-2xl font-bold text-violet-600 mt-1">
-                      AOA {((group.member_count || 1) * Number(group.monthly_contribution || 0)).toFixed(2)}
+                      AOA {Number(totalInCash).toFixed(2)}
                     </p>
                   </div>
                   <div>
@@ -284,6 +367,23 @@ const KixikilaDetailPage: React.FC = () => {
                   </div>
                 </div>
               </Card>
+
+              {/* Reputation */}
+              {reputation && (
+                <Card className="p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">Reputação</h3>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-gray-600">Nível</p>
+                      <p className="text-xl font-bold capitalize">{reputation.trust_level.replace('_', ' ')}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-gray-600">Score</p>
+                      <p className="text-2xl font-bold">{reputation.reputation_score}</p>
+                    </div>
+                  </div>
+                </Card>
+              )}
 
               {/* Actions */}
               <Card className="p-6 space-y-3">
@@ -314,6 +414,23 @@ const KixikilaDetailPage: React.FC = () => {
                   >
                     <DollarSign className="h-4 w-4" />
                     Fazer Contribuição
+                  </button>
+                )}
+
+                {/* Export CSV (owner only) */}
+                {user && group && (group as any).created_by_username === (user as any).username && (
+                  <button
+                    onClick={async () => {
+                      try {
+                        await KixikilaService.exportGroupContributions(Number(id));
+                      } catch (e: any) {
+                        toast.error(e.message || 'Erro ao exportar CSV');
+                      }
+                    }}
+                    className="w-full flex items-center justify-center gap-2 border border-violet-300 text-violet-700 hover:bg-violet-50 px-4 py-3 rounded-lg font-medium transition-colors"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Exportar Contribuições (CSV)
                   </button>
                 )}
 

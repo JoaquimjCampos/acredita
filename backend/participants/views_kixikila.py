@@ -31,10 +31,20 @@ class ParticipantFundingViewSet(viewsets.ViewSet):
             serializer = KixikilaFundingDashboardSerializer(participant)
             return Response(serializer.data)
         except Participant.DoesNotExist:
-            return Response(
-                {'error': 'User is not a participant'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            # Return an empty dashboard instead of 404 to avoid breaking the UI
+            empty_dashboard = {
+                'total_raised': 0,
+                'total_contributed': 0,
+                'active_group_id': None,
+                'active_group_name': None,
+                'next_payout_date': None,
+                'next_payout_amount': None,
+                'reputation_score': 50,  # neutral baseline
+                'groups_count': 0,
+                'has_participant': False,
+                'message': 'User is not a participant; showing empty dashboard'
+            }
+            return Response(empty_dashboard, status=status.HTTP_200_OK)
 
     @action(detail=False, methods=['get'], url_path='funding-leaderboard')
     def funding_leaderboard(self, request):

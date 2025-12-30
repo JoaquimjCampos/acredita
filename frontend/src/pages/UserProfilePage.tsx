@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
 import { ErrorMessage } from '../components/common/ErrorMessage';
 import { User, Edit, Save, X, Mail, MapPin, Calendar } from 'lucide-react';
+import KixikilaService from '../services/kixikila/kixikilaService';
 
 const UserProfilePage: React.FC = () => {
   const { user, updateProfile, isLoading } = useAuth();
@@ -16,6 +17,27 @@ const UserProfilePage: React.FC = () => {
   });
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [reputation, setReputation] = useState<{
+    username: string;
+    groups_participated: number;
+    contributions_on_time: number;
+    contributions_late: number;
+    contributions_missed: number;
+    reputation_score: number;
+    trust_level: 'beginner' | 'reliable' | 'trusted' | 'champion';
+  } | null>(null);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const rep = await KixikilaService.getMyReputation();
+        setReputation(rep);
+      } catch (e) {
+        // silent fail if endpoint not available
+      }
+    };
+    load();
+  }, []);
 
   if (isLoading) {
     return (
@@ -76,6 +98,24 @@ const UserProfilePage: React.FC = () => {
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-12">
+        {reputation && (
+          <Card className="p-6 mb-6 border-l-4 border-indigo-500">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-gray-600">Reputação Kixikila</p>
+                <p className="text-2xl font-bold text-gray-900 mt-1">{reputation.trust_level.toUpperCase()}</p>
+                <p className="text-sm text-gray-600 mt-1">
+                  Pontuação: <span className="font-semibold text-gray-900">{reputation.reputation_score}</span>
+                  {' '}• Em dia: {reputation.contributions_on_time} • Atrasos: {reputation.contributions_late} • Falhas: {reputation.contributions_missed}
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-gray-600">Grupos</p>
+                <p className="text-xl font-semibold text-gray-900">{reputation.groups_participated}</p>
+              </div>
+            </div>
+          </Card>
+        )}
         <Card className="p-8">
           {error && <ErrorMessage message={error} className="mb-6" />}
 

@@ -21,6 +21,7 @@ const KixikilaCreatePage: React.FC = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<FormData>({
     name: '',
     description: '',
@@ -57,18 +58,46 @@ const KixikilaCreatePage: React.FC = () => {
         ? parseFloat(value) || 0
         : value,
     }));
+
+    // Inline validation per field
+    const today = new Date().toISOString().split('T')[0];
+    const newErrors: Record<string, string> = { ...errors };
+    if (name === 'name') {
+      newErrors.name = value.trim() ? '' : 'Nome do grupo é obrigatório';
+    }
+    if (name === 'monthly_contribution') {
+      const v = parseFloat(value);
+      newErrors.monthly_contribution = isNaN(v) || v < 0 ? 'Contribuição deve ser 0 ou maior' : '';
+    }
+    if (name === 'max_members') {
+      const v = parseFloat(value);
+      newErrors.max_members = v < 3 || v > 50 ? 'Máx. membros deve estar entre 3 e 50' : '';
+    }
+    if (name === 'duration_months') {
+      const v = parseFloat(value);
+      newErrors.duration_months = v < 3 || v > 24 ? 'Duração deve estar entre 3 e 24 meses' : '';
+    }
+    if (name === 'start_date') {
+      newErrors.start_date = value < today ? 'Data de início não pode ser no passado' : '';
+    }
+    setErrors(newErrors);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!formData.name.trim()) {
-      toast.error('Nome do grupo é obrigatório');
-      return;
-    }
-
-    if (formData.monthly_contribution < 0) {
-      toast.error('Contribuição mensal não pode ser negativa');
+    // Validate all fields
+    const today = new Date().toISOString().split('T')[0];
+    const newErrors: Record<string, string> = {
+      name: formData.name.trim() ? '' : 'Nome do grupo é obrigatório',
+      monthly_contribution: formData.monthly_contribution < 0 ? 'Contribuição mensal não pode ser negativa' : '',
+      max_members: formData.max_members < 3 || formData.max_members > 50 ? 'Máx. membros deve estar entre 3 e 50' : '',
+      duration_months: formData.duration_months < 3 || formData.duration_months > 24 ? 'Duração deve estar entre 3 e 24 meses' : '',
+      start_date: formData.start_date < today ? 'Data de início não pode ser no passado' : '',
+    };
+    setErrors(newErrors);
+    const hasErrors = Object.values(newErrors).some(Boolean);
+    if (hasErrors) {
+      toast.error('Por favor, corrija os erros do formulário');
       return;
     }
 
@@ -133,6 +162,7 @@ const KixikilaCreatePage: React.FC = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   required
                 />
+                {errors.name && (<p className="mt-1 text-xs text-red-600">{errors.name}</p>)}
               </div>
 
               {/* Descrição */}
@@ -192,6 +222,7 @@ const KixikilaCreatePage: React.FC = () => {
                       />
                     </div>
                   </div>
+                  {errors.monthly_contribution && (<p className="mt-1 text-xs text-red-600">{errors.monthly_contribution}</p>)}
                 </div>
               </div>
 
@@ -213,6 +244,7 @@ const KixikilaCreatePage: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   />
                   <p className="mt-1 text-xs text-gray-500">3-50 pessoas</p>
+                  {errors.max_members && (<p className="mt-1 text-xs text-red-600">{errors.max_members}</p>)}
                 </div>
 
                 {/* Duração em Meses */}
@@ -231,6 +263,7 @@ const KixikilaCreatePage: React.FC = () => {
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   />
                   <p className="mt-1 text-xs text-gray-500">3-24 meses</p>
+                  {errors.duration_months && (<p className="mt-1 text-xs text-red-600">{errors.duration_months}</p>)}
                 </div>
 
                 {/* Data de Início */}
@@ -247,6 +280,7 @@ const KixikilaCreatePage: React.FC = () => {
                     required
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-violet-500 focus:border-transparent"
                   />
+                  {errors.start_date && (<p className="mt-1 text-xs text-red-600">{errors.start_date}</p>)}
                 </div>
               </div>
 
@@ -261,7 +295,7 @@ const KixikilaCreatePage: React.FC = () => {
                 </button>
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || Object.values(errors).some(Boolean)}
                   className="flex-1 px-6 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 text-white rounded-lg transition-colors"
                 >
                   {loading ? 'Criando...' : 'Criar Grupo'}

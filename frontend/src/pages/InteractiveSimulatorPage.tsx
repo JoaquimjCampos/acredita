@@ -51,9 +51,9 @@ const InteractiveSimulatorPage: React.FC = () => {
     const fetchSimulator = async () => {
       setLoading(true);
       try {
-        const { data: simData } = await mcpFetch(`/api/games/simulator/${id}/`);
+        const { data: simData } = await mcpFetch(`/api/games/simulator/simulators/${id}/`);
         setSimulator(simData);
-        const { data: scenData } = await mcpFetch(`/api/games/scenario/?simulator=${id}`);
+        const { data: scenData } = await mcpFetch(`/api/games/simulator/scenarios/?simulator=${id}`);
         setScenarios(scenData.results || scenData);
         setCurrentScenario((scenData.results || scenData)[0]);
         setSession({ simulator: simData.id, choices: [] });
@@ -88,7 +88,7 @@ const InteractiveSimulatorPage: React.FC = () => {
     if (!session) return;
     setLoading(true);
     try {
-      await mcpFetch(`/api/games/simulator-session/`, {
+      await mcpFetch(`/api/games/simulator/sessions/`, {
         method: 'POST',
         body: JSON.stringify({ ...session, feedback }),
         headers: { 'Content-Type': 'application/json' },

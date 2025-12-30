@@ -18,7 +18,7 @@ import {
 } from '../../types/api';
 
 export class MarketplaceService {
-  private static readonly BASE_URL = '/marketplace';
+  private static readonly BASE_URL = '/api/v2/marketplace';
 
   /**
    * Get all service categories
@@ -40,12 +40,12 @@ export class MarketplaceService {
    */
   static async getListings(filters?: FilterOptions): Promise<PaginatedResponse<ServiceListingDTO>> {
     try {
-      const params = {
+      const params: { [key: string]: any } = {
         search: filters?.search,
         category: filters?.category_id,
         price_min: filters?.price_min,
         price_max: filters?.price_max,
-        location: filters?.location,
+        listing_type: filters?.listing_type,
         status: filters?.status || 'active',
         ordering: filters?.ordering,
         page: filters?.page || 1,
@@ -53,11 +53,11 @@ export class MarketplaceService {
       };
 
       // Remove undefined params
-        Object.keys(params).forEach((key) => {
-          if (params[key as keyof typeof params] === undefined) {
-            delete params[key as keyof typeof params];
-          }
-        });
+      Object.keys(params).forEach((key) => {
+        if (params[key] === undefined) {
+          delete params[key];
+        }
+      });
 
       return await apiClient.get<PaginatedResponse<ServiceListingDTO>>(
         `${this.BASE_URL}/listings/`,
@@ -67,6 +67,17 @@ export class MarketplaceService {
       console.error('Error fetching listings:', error);
       throw error;
     }
+  }
+
+  /**
+   * Get listings by type (services or products)
+   */
+  static async getListingsByType(
+    type: 'service' | 'product',
+    filters?: Omit<FilterOptions, 'listing_type'>
+  ): Promise<PaginatedResponse<ServiceListingDTO>> {
+    const filtersWithType: FilterOptions = { ...filters, listing_type: type };
+    return this.getListings(filtersWithType);
   }
 
   /**
@@ -84,37 +95,74 @@ export class MarketplaceService {
   }
 
   /**
-   * Create new service listing
+   * Create new service listing or product
    */
   static async createListing(
     data: CreateServiceListingRequest
   ): Promise<ServiceListingDTO> {
     try {
-      const formData = new FormData();
-      formData.append('category_id', data.category_id.toString());
-      formData.append('title', data.title);
-      formData.append('description', data.description);
-      formData.append('price', data.price.toString());
-      formData.append('price_type', data.price_type);
-      formData.append('location', data.location);
-
-      if (data.images) {
-        data.images.forEach((image, index) => {
-          formData.append(`images`, image);
-        });
+      console.log('[MarketplaceService] Creating listing with data:', data);
+      
+      // Convert File objects to data URLs if needed
+      let imageUrls: string[] = [];
+      if (data.images && data.images.length > 0) {
+        console.log('[MarketplaceService] Processing', data.images.length, 'images');
+        imageUrls = await Promise.all(
+          data.images.map((file) => {
+            console.log('[MarketplaceService] Converting file:', file.name, file.size, 'bytes');
+            return this.fileToDataUrl(file);
+          })
+        );
+        console.log('[MarketplaceService] Images converted to URLs. Total:', imageUrls.length);
       }
 
-      return await apiClient.post<ServiceListingDTO>(
+      const payload = {
+        category_id: data.category_id,
+        listing_type: data.listing_type,
+        title: data.title,
+        description: data.description,
+        price: data.price,
+        price_type: data.price_type,
+        currency: data.currency || 'AOA',
+        delivery_time: data.delivery_time || '',
+        quantity_available: data.quantity_available || null,
+        sku: data.sku || '',
+        tags: data.tags || [],
+        images: imageUrls,
+      };
+
+      console.log('[MarketplaceService] Sending payload with', imageUrls.length, 'images');
+      
+      const result = await apiClient.post<ServiceListingDTO>(
         `${this.BASE_URL}/listings/`,
-        formData,
-        {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }
+        payload
       );
+      
+      console.log('[MarketplaceService] Listing created successfully:', result);
+      return result;
     } catch (error) {
       console.error('Error creating listing:', error);
       throw error;
     }
+  }
+
+  /**
+   * Convert File to data URL
+   */
+  private static fileToDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const dataUrl = reader.result as string;
+        console.log('[fileToDataUrl] Converted', file.name, 'to', dataUrl.length, 'char data URL');
+        resolve(dataUrl);
+      };
+      reader.onerror = () => {
+        console.error('[fileToDataUrl] Error reading file:', file.name);
+        reject(new Error(`Failed to read file: ${file.name}`));
+      };
+      reader.readAsDataURL(file);
+    });
   }
 
   /**
@@ -227,7 +275,7 @@ export class MarketplaceService {
    */
   static async updateOrderStatus(
     orderId: number,
-    status: 'pending' | 'accepted' | 'completed' | 'cancelled'
+    status: 'pending' | 'accepted' | 'in_progress' | 'completed' | 'cancelled'
   ): Promise<ServiceOrderDTO> {
     try {
       return await apiClient.patch<ServiceOrderDTO>(
@@ -236,6 +284,21 @@ export class MarketplaceService {
       );
     } catch (error) {
       console.error(`Error updating order ${orderId}:`, error);
+      throw error;
+    }
+  }
+
+  /**
+   * Cancel order
+   */
+  static async cancelOrder(orderId: number): Promise<ServiceOrderDTO> {
+    try {
+      return await apiClient.post<ServiceOrderDTO>(
+        `${this.BASE_URL}/orders/${orderId}/cancel/`,
+        {}
+      );
+    } catch (error) {
+      console.error(`Error cancelling order ${orderId}:`, error);
       throw error;
     }
   }
@@ -273,7 +336,26 @@ export class MarketplaceService {
   }
 
   /**
-   * Get provider profile
+   * Create bulk orders from cart items
+   */
+  static async createBulkOrders(
+    listings: Array<{ listing_id: number; quantity: number }>
+  ): Promise<Array<ServiceOrderDTO>> {
+    try {
+      console.log('[MarketplaceService] Creating bulk orders:', listings);
+      const response = await apiClient.post<{ orders: ServiceOrderDTO[] }>(
+        `${this.BASE_URL}/orders/bulk_create/`,
+        { listings }
+      );
+      return response.orders;
+    } catch (error) {
+      console.error('Error creating bulk orders:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get provider stats (for listing view)
    */
   static async getProvider(providerId: number): Promise<ServiceProviderDTO> {
     try {

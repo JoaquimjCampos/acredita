@@ -1,10 +1,28 @@
 # 📅 Roadmap: Acredita em Ti, Acredita em Angola (Jira Scrum Upload)
 
-## 🎯 Project Overview
-- **Season:** Nova Temporada (Season 2)
+## 🎯 Project Overview (atualizar datas reais)
+- **Season:** Temporada vigente (preencher nome)
 - **Status:** Active
-- **Registration:** 21–22 Aug 2025
-- **Season Dates:** 23 Aug – 1 Sep 2025
+- **Registration:** dd MMM – dd MMM 2026 (ajustar)
+- **Season Dates:** dd MMM – dd MMM 2026 (ajustar)
+
+## 🔄 Delta 2025-12-24 (estado atual)
+- Core unificado em produção: `/api/v2/core/me/dashboard` e `/api/v2/core/me/revenue` alimentam HomePage e Dashboard.
+- HomePage minimalista focada em conversão (hero renovado, resumo rápido autenticado, 3 módulos, destaque de temporada, CTA final).
+- Dashboard simplificado (cartões principais + oportunidades + breakdown).
+- Próximo: instrumentar eventos PLG (hero CTA, módulos), adicionar social proof leve, smoke `npm start`/`runserver`.
+
+## 🚀 Próximos 30 dias (sugestão)
+- Instrumentar analytics: `hero-cta-click`, `module-card-clicked`, `featured-season-cta`, erros de rede com IDs.
+- Social proof leve no hero: métricas do core (média trust, ciclos Kixikila, vendas marketplace) em chips.
+- Personalização simples de CTA por segmento (autenticado vs visitante; destino dashboard vs registo).
+- QA: smoke `npm start` + `/api/v2/core/me`; criar 1 teste E2E hero→dashboard.
+
+## 📅 Próximos 60–90 dias (sugestão)
+- Nova ação `/api/v2/core/me/activity` com eventos recentes (quiz, marketplace, kixikila, certificações) e caching.
+- Cache leve para agregações do core; rate limit para proteger endpoints públicos.
+- A/B de hero (layout A atual vs layout B com imagem e CTA secundária “Ver Temporadas”).
+- Observabilidade: métricas de latência e erro por endpoint core; logs de confiança (trust breakdown) auditáveis.
 
 ## 🟢 Current State
 - Backend: Django, modular apps, ready for educational games

@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../contexts/AuthContext';
+import { analyticsService } from '../services/analytics';
 import { Layout } from '../components/layout/Layout';
 import { Button, Input, Card } from '../components/common';
 import { LoginCredentials } from '../types';
@@ -42,11 +43,25 @@ const LoginPage: React.FC = () => {
 
   const onSubmit = async (data: LoginCredentials) => {
     try {
+      analyticsService.trackEvent('login_started', {
+        username: data.username,
+        timestamp: new Date().toISOString()
+      });
+      
       const success = await login(data);
       if (success) {
+        analyticsService.trackEvent('login_completed', {
+          username: data.username,
+          timestamp: new Date().toISOString()
+        });
         navigate('/dashboard');
       }
     } catch (error: any) {
+      analyticsService.trackEvent('login_failed', {
+        username: data.username,
+        error_message: error.message,
+        timestamp: new Date().toISOString()
+      });
       setError('root', {
         type: 'manual',
         message: error.message || 'Erro ao iniciar sessão',
@@ -60,10 +75,18 @@ const LoginPage: React.FC = () => {
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
           {/* Logo e título */}
           <div className="flex justify-center">
-            <div className="flex items-center space-x-2">
-              <div className="w-12 h-12 bg-gradient-to-r from-acredita-primary to-acredita-secondary rounded-lg flex items-center justify-center">
-                <Heart className="h-7 w-7 text-white" />
-              </div>
+            <div className="flex items-center space-x-3">
+              <picture>
+                <source srcSet="/logo.svg" type="image/svg+xml" />
+                <source srcSet="/logo512.png" type="image/png" />
+                <img
+                  src="/logo512.jpg"
+                  alt="Logotipo Acredita"
+                  className="h-12 w-auto drop-shadow-sm"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              </picture>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Acredita</h1>
                 <p className="text-sm text-gray-600 -mt-1">em Ti, em Angola</p>
@@ -152,6 +175,7 @@ const LoginPage: React.FC = () => {
                 loading={isLoading}
                 disabled={isLoading}
                 className="w-full"
+                data-analytics="login-submit-click"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 {isLoading ? 'A entrar...' : 'Entrar'}
@@ -174,6 +198,7 @@ const LoginPage: React.FC = () => {
                   variant="outline"
                   className="w-full"
                   onClick={() => navigate('/registo')}
+                  data-analytics="login-register-redirect"
                 >
                   Criar Conta Nova
                 </Button>

@@ -1,13 +1,46 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 import random
+from django.db import models as db_models
 
 from rest_framework import viewsets
 from .models import Quiz, Question, Answer, GameSession, UserAnswer
 from .serializers import QuizSerializer, QuestionSerializer, AnswerSerializer, GameSessionSerializer, UserAnswerSerializer
+from .permissions import QuizPermissionHelper
+from .audit import QuizAccessLogMixin
 
 # Quiz CRUD API
 class QuizViewSet(viewsets.ModelViewSet):
+    queryset = Quiz.objects.filter(is_active=True).order_by('-created_at')
+    serializer_class = QuizSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    def get_queryset(self):
+        """Filtra quizzes por temporada - apenas usuários autenticados podem acessar"""
+        queryset = Quiz.objects.filter(is_active=True)
+        
+        season_number = self.request.query_params.get('season_number')
+        if season_number:
+            queryset = queryset.filter(season_number=season_number)
+        
+        return queryset.order_by('-created_at')
+    
+    def retrieve(self, request, *args, **kwargs):
+        """Sobrescreve retrieve para registrar acessos"""
+        response = super().retrieve(request, *args, **kwargs)
+        
+        # Registra acesso
+        access_type = 'authenticated' if request.user.is_authenticated else 'public'
+        QuizAccessLogMixin.log_access(
+            request, 
+            kwargs.get('pk'), 
+            access_type=access_type,
+            endpoint=f'GET /api/games/quiz/quizzes/{kwargs.get("pk")}/'
+        )
+        
+        return response
+
     @action(detail=True, methods=['get'], url_path='analytics')
     def analytics(self, request, pk=None):
         quiz = self.get_object()
@@ -68,7 +101,8 @@ class QuizViewSet(viewsets.ModelViewSet):
         from .models import GameSession, UserAnswer
         question_ids = quiz.questions.values_list('id', flat=True)
         season_number = request.query_params.get('season_number')
-        sessions = GameSession.objects.filter(useranswer__question_id__in=question_ids).distinct()
+        # Use the correct related name "user_answers" to traverse UserAnswer -> Question
+        sessions = GameSession.objects.filter(user_answers__question_id__in=question_ids).distinct()
         if season_number:
             sessions = sessions.filter(season_number=season_number)
         top_sessions = sessions.order_by('-score', '-started_at')[:10]
@@ -141,10 +175,22 @@ class QuizViewSet(viewsets.ModelViewSet):
 class QuestionViewSet(viewsets.ModelViewSet):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        """Filtra questões por quiz - apenas usuários autenticados"""
+        quiz_id = self.request.query_params.get('quiz')
+        queryset = Question.objects.all()
+        
+        if quiz_id:
+            queryset = queryset.filter(quiz_id=quiz_id)
+        
+        return queryset
 
 class AnswerViewSet(viewsets.ModelViewSet):
     queryset = Answer.objects.all()
     serializer_class = AnswerSerializer
+    permission_classes = [IsAuthenticated]
 
 class GameSessionViewSet(viewsets.ModelViewSet):
     queryset = GameSession.objects.all()

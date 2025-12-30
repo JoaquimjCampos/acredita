@@ -60,7 +60,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Home,
     showInHeader: true,
     showInMobileMenu: true,
-    showInSidebar: true,
+    showInSidebar: false,
     category: 'main',
     title: 'Ir para a página inicial'
   },
@@ -73,7 +73,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Calendar,
     showInHeader: true,
     showInMobileMenu: true,
-    showInSidebar: true,
+    showInSidebar: false,
     category: 'community',
     title: 'Ver temporadas ativas e histórico'
   },
@@ -84,7 +84,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Vote,
     showInHeader: true,
     showInMobileMenu: true,
-    showInSidebar: true,
+    showInSidebar: false,
     category: 'community',
     title: 'Votar nos participantes favoritos'
   },
@@ -95,7 +95,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Users,
     showInHeader: true,
     showInMobileMenu: true,
-    showInSidebar: true,
+    showInSidebar: false,
     category: 'community',
     title: 'Ver lista de participantes'
   },
@@ -106,7 +106,7 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     icon: Trophy,
     showInHeader: true,
     showInMobileMenu: true,
-    showInSidebar: true,
+    showInSidebar: false,
     category: 'community',
     title: 'Ver ranking e estatísticas'
   },

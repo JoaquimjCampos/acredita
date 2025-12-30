@@ -5,6 +5,7 @@ import { Card, LoadingSpinner } from '../components/common';
 import KixikilaService from '../services/kixikila/kixikilaService';
 import { KixikilaGroupDTO } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
+import { useDebounce } from '../utils/performance';
 import { Users, Search, Plus } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -14,12 +15,13 @@ const KixikilaPage: React.FC = () => {
   const [groups, setGroups] = useState<KixikilaGroupDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
   useEffect(() => {
     const fetchGroups = async () => {
       setLoading(true);
       try {
-        const filters = searchTerm ? { search: searchTerm } : undefined;
+        const filters = debouncedSearchTerm ? { search: debouncedSearchTerm } : undefined;
         const response = await KixikilaService.getGroups(filters);
         setGroups(response.results || response);
       } catch (error: any) {
@@ -30,19 +32,15 @@ const KixikilaPage: React.FC = () => {
       }
     };
 
-    const debounceTimer = setTimeout(() => {
-      fetchGroups();
-    }, 300);
-
-    return () => clearTimeout(debounceTimer);
-  }, [searchTerm]);
+    fetchGroups();
+  }, [debouncedSearchTerm]);
 
   const filteredGroups = useMemo(
     () => groups.filter((g) =>
-      g.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      g.description?.toLowerCase().includes(searchTerm.toLowerCase())
+      g.name.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+      g.description?.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     ),
-    [groups, searchTerm]
+    [groups, debouncedSearchTerm]
   );
 
   const handleCreateGroup = () => {

@@ -30,9 +30,8 @@ const SustainableFundingDashboard: React.FC<SustainableFundingDashboardProps> = 
 
   const fetchFunding = async () => {
     try {
-      // Use relative path from apiClient baseURL (default /api/v2)
-      // Our funding endpoints are under /api/participants/funding/
-      const data = await apiClient.get<FundingData>(`/../participants/funding/my-funding/`);
+      // Use correct API path - funding endpoints are under /api/participants/funding/
+      const data = await apiClient.get<FundingData>(`/api/participants/funding/my-funding/`);
       setFunding(data);
     } catch (error) {
       console.error('Error fetching funding data:', error);

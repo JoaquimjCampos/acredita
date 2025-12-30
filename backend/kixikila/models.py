@@ -144,6 +144,15 @@ class KixikilaContribution(models.Model):
     def __str__(self) -> str:  # pragma: no cover
         return f"Contribution {self.membership.member.username} round {self.round}"
 
+    def clean(self):
+        from django.core.exceptions import ValidationError
+        if self.membership and not self.membership.is_active:
+            raise ValidationError("Membership is inactive; cannot create contribution")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
+
 
 class KixikilaPayout(models.Model):
     """Pagamento ao beneficiário do mês."""

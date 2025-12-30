@@ -50,7 +50,11 @@ export class ApiClient {
   private refreshSubscribers: Array<(token: string) => void> = [];
 
   constructor(
-    baseURL: string = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v2'
+    baseURL: string =
+      // Prefer explicit API_BASE from env vars
+      (typeof process !== 'undefined' && (process as any)?.env?.REACT_APP_API_BASE) ||
+      (typeof process !== 'undefined' && (process as any)?.env?.REACT_APP_API_URL) ||
+      'http://localhost:8000'
   ) {
     this.baseURL = baseURL;
     this.client = axios.create({

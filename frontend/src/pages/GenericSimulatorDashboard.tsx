@@ -1,18 +1,21 @@
 import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, LoadingSpinner } from '../components/common';
 import { Bar, Pie } from 'react-chartjs-2';
 import { mcpFetch } from '../mcpClient';
 
-const GenericSimulatorDashboard: React.FC<{ simulatorId: string }> = ({ simulatorId }) => {
+const GenericSimulatorDashboard: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   useEffect(() => {
-    mcpFetch(`/api/games/simulator/analytics/${simulatorId}/`).then(({ data }) => {
+    if (!id) return;
+    mcpFetch(`/api/games/simulator/analytics/${id}/`).then(({ data }) => {
       setAnalytics(data);
       setLoading(false);
     });
-  }, [simulatorId]);
+  }, [id]);
 
   if (loading || !analytics) return <Layout><LoadingSpinner text="Carregando analytics..." /></Layout>;
 

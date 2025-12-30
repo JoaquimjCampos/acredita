@@ -2,17 +2,19 @@ import React from 'react';
 import { useAds } from '../hooks/useAds';
 import { Card, LoadingSpinner } from '../components/common';
 import { OptimizedImage } from './common/OptimizedImage';
+import { useDebounce } from '../utils/performance';
 
-const AdsSection: React.FC = () => {
+const AdsSection: React.FC = React.memo(() => {
   const { ads, loading, error } = useAds();
   const [search, setSearch] = React.useState('');
+    const debouncedSearch = useDebounce(search, 300);
   const [type, setType] = React.useState('all');
   const [activeOnly, setActiveOnly] = React.useState(true);
   const [order, setOrder] = React.useState<'title'|'type'>('title');
 
   let filteredAds = ads.filter(ad =>
     (type === 'all' || ad.type === type) &&
-    ad.title.toLowerCase().includes(search.toLowerCase()) &&
+    ad.title.toLowerCase().includes(debouncedSearch.toLowerCase()) &&
     (!activeOnly || ad.active)
   );
   filteredAds = [...filteredAds].sort((a, b) => {
@@ -107,6 +109,8 @@ const AdsSection: React.FC = () => {
       </div>
     </section>
   );
-};
+});
+
+AdsSection.displayName = 'AdsSection';
 
 export default AdsSection;

@@ -95,6 +95,16 @@ class Participant(models.Model):
         verbose_name='Financiamento Recebido'
     )
     
+    # Kixikila Integration
+    primary_savings_group = models.ForeignKey(
+        'kixikila.KixikilaGroup',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='primary_participants',
+        verbose_name='Grupo de Poupança Principal'
+    )
+    
     # Timeline
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

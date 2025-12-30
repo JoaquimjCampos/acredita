@@ -1,16 +1,20 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { useVideos } from '../hooks/useVideos';
 import { Card, LoadingSpinner } from '../components/common';
 import { OptimizedImage } from './common/OptimizedImage';
+import { useDebounce, useIntersectionObserver } from '../utils/performance';
 
-const VideosSection: React.FC = () => {
+const VideosSection: React.FC = React.memo(() => {
+  const sectionRef = useRef<HTMLElement>(null);
+  const isVisible = useIntersectionObserver(sectionRef, 0.1);
   const { videos, loading, error } = useVideos();
   const [search, setSearch] = React.useState('');
+  const debouncedSearch = useDebounce(search, 300);
   const [type, setType] = React.useState('all');
   const [order, setOrder] = React.useState<'title'|'video_type'>('title');
   let filteredVideos = videos.filter(video =>
     (type === 'all' || (video.video_type === type)) &&
-    video.title.toLowerCase().includes(search.toLowerCase())
+    video.title.toLowerCase().includes(debouncedSearch.toLowerCase())
   );
   filteredVideos = [...filteredVideos].sort((a, b) => {
     if (order === 'title') return a.title.localeCompare(b.title);
@@ -36,8 +40,15 @@ const VideosSection: React.FC = () => {
   }
 
   return (
-    <section className="py-8 bg-white animate-fade-in">
+    <section ref={sectionRef} className="py-8 bg-white animate-fade-in">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                {!isVisible && (
+                  <div className="flex justify-center py-12">
+                    <LoadingSpinner size="md" />
+                  </div>
+                )}
+                {isVisible && (
+                <>
         <div className="mb-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <input
             type="text"
@@ -73,7 +84,14 @@ const VideosSection: React.FC = () => {
               {filteredVideos.map(video => (
                 <Card key={video.id} className="flex flex-col min-w-[320px] max-w-xs shadow-lg hover:scale-105 transition-transform duration-300">
                   {video.thumbnail && (
-                    <a href={video.url} target="_blank" rel="noopener noreferrer">
+                    <a
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      data-analytics="video-open"
+                      data-video-id={video.id}
+                      data-video-title={video.title}
+                    >
                       <OptimizedImage src={video.thumbnail} alt={video.title} width={400} height={160} className="h-40 w-full object-cover rounded-t" lazy={true} />
                     </a>
                   )}
@@ -81,7 +99,17 @@ const VideosSection: React.FC = () => {
                     <h3 className="text-lg font-bold text-gray-900 mb-2">{video.title}</h3>
                     <p className="text-gray-700 mb-4">{video.description}</p>
                     <span className="text-xs text-gray-500 mb-2">Tipo: {video.video_type}</span>
-                    <a href={video.url} target="_blank" rel="noopener noreferrer" className="text-acredita-primary font-semibold mt-auto">Assistir</a>
+                    <a
+                      href={video.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-acredita-primary font-semibold mt-auto"
+                      data-analytics="video-open"
+                      data-video-id={video.id}
+                      data-video-title={video.title}
+                    >
+                      Assistir
+                    </a>
                   </div>
                 </Card>
               ))}
@@ -93,9 +121,13 @@ const VideosSection: React.FC = () => {
             <p className="text-gray-600 mb-6">Ajuste os filtros ou tente outra busca.</p>
           </Card>
         )}
+        </>
+        )}
       </div>
     </section>
   );
-};
+});
+
+VideosSection.displayName = 'VideosSection';
 
 export default VideosSection;

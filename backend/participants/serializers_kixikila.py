@@ -100,7 +100,7 @@ class KixikilaFundingDashboardSerializer(serializers.Serializer):
         late = KixikilaContribution.objects.filter(
             membership__member=obj.user,
             status='pending',
-            created_at__lt=timezone.now() - timezone.timedelta(days=7)
+            payment_date__lt=timezone.now() - timezone.timedelta(days=7)
         ).count()
         base -= late * 20
         

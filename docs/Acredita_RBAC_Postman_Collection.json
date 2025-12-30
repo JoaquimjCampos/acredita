@@ -1,0 +1,296 @@
+{
+  "info": {
+    "name": "Acredita RBAC API Testing",
+    "description": "Complete API collection for testing Role-Based Access Control permissions",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Get Token (Eleitor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_eleitor\",\n  \"password\": \"Test123!@#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "accounts", "token", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Token (Participante)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_participante\",\n  \"password\": \"Test123!@#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "accounts", "token", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Token (Mentor)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_mentor\",\n  \"password\": \"Test123!@#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "accounts", "token", ""]
+            }
+          }
+        },
+        {
+          "name": "Get Token (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"test_admin\",\n  \"password\": \"Test123!@#\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/accounts/token/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "accounts", "token", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Marketplace - ServiceListings",
+      "item": [
+        {
+          "name": "GET Listings (All Roles)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/marketplace/listings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "marketplace", "listings", ""]
+            }
+          }
+        },
+        {
+          "name": "POST Listing (Eleitor - SHOULD FAIL 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{eleitor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Service by Eleitor\",\n  \"description\": \"This should fail with 403\",\n  \"price\": \"100.00\",\n  \"service_type\": \"service\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/marketplace/listings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "marketplace", "listings", ""]
+            }
+          }
+        },
+        {
+          "name": "POST Listing (Participante - SHOULD SUCCESS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{participante_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Service by Participante\",\n  \"description\": \"This should succeed with 201\",\n  \"price\": \"150.00\",\n  \"service_type\": \"service\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/marketplace/listings/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "marketplace", "listings", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Games - Kixikila",
+      "item": [
+        {
+          "name": "GET Games (All Roles)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/games/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", ""]
+            }
+          }
+        },
+        {
+          "name": "POST Game (Eleitor - SHOULD FAIL 403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{eleitor_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Game by Eleitor\",\n  \"description\": \"This should fail with 403\",\n  \"type\": \"quiz\",\n  \"max_score\": 100\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/games/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", ""]
+            }
+          }
+        },
+        {
+          "name": "POST Game (Participante - SHOULD SUCCESS)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{participante_token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test Game by Participante\",\n  \"description\": \"This should succeed with 201\",\n  \"type\": \"simulator\",\n  \"max_score\": 200\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/games/",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", ""]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin - AuditLog Check",
+      "item": [
+        {
+          "name": "GET Recent AuditLogs (Admin Only)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/admin/core/auditlog/",
+              "host": ["{{base_url}}"],
+              "path": ["admin", "core", "auditlog", ""]
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "eleitor_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "participante_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "mentor_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_token",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}

@@ -36,8 +36,8 @@ class Season(models.Model):
     )
     
     # Media
-    poster_image = models.ImageField(
-        upload_to='seasons/posters/', 
+    poster_image = models.CharField(
+        max_length=255,
         null=True, 
         blank=True,
         verbose_name=_('Imagem da Temporada')
@@ -98,8 +98,8 @@ class Episode(models.Model):
     
     # Content
     video_url = models.URLField(blank=True, verbose_name=_('URL do Vídeo'))
-    thumbnail = models.ImageField(
-        upload_to='episodes/thumbnails/', 
+    thumbnail = models.CharField(
+        max_length=255,
         null=True, 
         blank=True,
         verbose_name=_('Miniatura')

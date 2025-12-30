@@ -4,8 +4,12 @@ from rest_framework import viewsets, mixins, permissions, status, serializers
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.http import HttpResponse
+import io
+import csv
 from django.utils import timezone
 from django.contrib.auth import get_user_model
+from django.db import models
 import logging
 
 from backend.core.feature_flags import check_feature_flag, feature_flag_required, FeatureFlagService
@@ -22,7 +26,7 @@ from .serializers import (
     KixikilaMembershipSerializer,
     KixikilaContributionSerializer,
     KixikilaPayoutSerializer,
-    KixikilaRatingSerializer,
+    # KixikilaRatingSerializer temporarily removed - pending feature completion
 )
 
 logger = logging.getLogger(__name__)
@@ -79,13 +83,197 @@ class KixikilaGroupViewSet(viewsets.ModelViewSet):
             logger.error(f"Error computing stats for group {pk}: {e}", exc_info=True)
             return Response({"detail": "Could not compute stats"}, status=status.HTTP_400_BAD_REQUEST)
 
+    @action(detail=True, methods=["get"], permission_classes=[permissions.IsAuthenticated], url_path="contributions_export")
+    def contributions_export(self, request, pk=None):
+        """Export all group contributions as CSV (group owner or staff)."""
+        group = self.get_object()
+        if not (request.user.is_staff or group.created_by_id == request.user.id):
+            return Response({"detail": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
+
+        memberships = KixikilaMembership.objects.filter(group=group)
+        contributions = KixikilaContribution.objects.filter(
+            membership__in=memberships
+        ).select_related('membership__member').order_by('-payment_date')
+
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerow(["id", "member", "round", "amount", "status", "payment_method", "payment_date"])
+        for c in contributions:
+            writer.writerow([
+                c.id,
+                c.membership.member.username,
+                c.round,
+                f"{c.amount}",
+                c.status,
+                c.payment_method,
+                c.payment_date.isoformat(),
+            ])
+
+        response = HttpResponse(output.getvalue(), content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="kixikila_group_{group.id}_contributions.csv"'
+        return response
+
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def suspend_member(self, request, pk=None):
+        """Suspend a group member (make inactive). Only staff or group owner."""
+        group = self.get_object()
+        if not (request.user.is_staff or group.created_by_id == request.user.id):
+            return Response({"detail": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
+
+        membership_id = request.data.get("membership_id")
+        if not membership_id:
+            return Response({"detail": "membership_id é obrigatório"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            membership = KixikilaMembership.objects.get(id=membership_id, group=group)
+            membership.is_active = False
+            membership.save(update_fields=["is_active"])
+            return Response({"id": membership.id, "is_active": membership.is_active})
+        except KixikilaMembership.DoesNotExist:
+            return Response({"detail": "Membership não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=["post"], permission_classes=[permissions.IsAuthenticated])
+    def reactivate_member(self, request, pk=None):
+        """Reactivate a suspended member. Only staff or group owner."""
+        group = self.get_object()
+        if not (request.user.is_staff or group.created_by_id == request.user.id):
+            return Response({"detail": "Not allowed"}, status=status.HTTP_403_FORBIDDEN)
+
+        membership_id = request.data.get("membership_id")
+        if not membership_id:
+            return Response({"detail": "membership_id é obrigatório"}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            membership = KixikilaMembership.objects.get(id=membership_id, group=group)
+            membership.is_active = True
+            membership.save(update_fields=["is_active"])
+            return Response({"id": membership.id, "is_active": membership.is_active})
+        except KixikilaMembership.DoesNotExist:
+            return Response({"detail": "Membership não encontrado"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=True, methods=["get"], url_path="analytics")
+    def analytics(self, request, pk=None):
+        """Return analytics for a group: participation trends, contribution patterns, member statistics."""
+        try:
+            group = self.get_object()
+            
+            # Member statistics
+            total_members = KixikilaMembership.objects.filter(group=group).count()
+            active_members = KixikilaMembership.objects.filter(group=group, is_active=True).count()
+            inactive_members = total_members - active_members
+            
+            # Contribution statistics
+            all_contributions = KixikilaContribution.objects.filter(membership__group=group)
+            confirmed_contributions = all_contributions.filter(status='confirmed').count()
+            pending_contributions = all_contributions.filter(status='pending').count()
+            late_contributions = all_contributions.filter(status='late').count()
+            
+            # Financial metrics
+            total_amount = sum(float(c.amount) for c in all_contributions)
+            average_contribution = total_amount / all_contributions.count() if all_contributions.count() > 0 else 0
+            
+            # Payout statistics
+            payouts = KixikilaPayout.objects.filter(group=group)
+            completed_payouts = payouts.filter(status='completed').count()
+            pending_payouts = payouts.filter(status__in=['scheduled', 'processing']).count()
+            
+            # Participation rate by round
+            rounds_data = []
+            for round_num in range(1, group.current_round + 1):
+                round_contribs = all_contributions.filter(round=round_num)
+                round_confirmed = round_contribs.filter(status='confirmed').count()
+                round_participation = (round_confirmed / active_members * 100) if active_members > 0 else 0
+                rounds_data.append({
+                    'round': round_num,
+                    'total_contributions': round_contribs.count(),
+                    'confirmed': round_confirmed,
+                    'participation_rate': round(round_participation, 2)
+                })
+            
+            return Response({
+                'group_id': group.id,
+                'group_name': group.name,
+                'members': {
+                    'total': total_members,
+                    'active': active_members,
+                    'inactive': inactive_members,
+                },
+                'contributions': {
+                    'total_count': all_contributions.count(),
+                    'confirmed': confirmed_contributions,
+                    'pending': pending_contributions,
+                    'late': late_contributions,
+                    'total_amount': float(total_amount),
+                    'average': float(average_contribution),
+                },
+                'payouts': {
+                    'total_count': payouts.count(),
+                    'completed': completed_payouts,
+                    'pending': pending_payouts,
+                    'total_disbursed': float(sum(float(p.net_amount) for p in payouts.filter(status='completed'))),
+                },
+                'rounds': rounds_data,
+                'current_round': group.current_round,
+                'total_rounds': group.duration_months,
+            })
+        except Exception as e:
+            logger.error(f"Error computing analytics for group {pk}: {e}", exc_info=True)
+            return Response({"detail": "Could not compute analytics"}, status=status.HTTP_400_BAD_REQUEST)
+        """Return cycle info: current round, next beneficiary, scheduled payouts."""
+        try:
+            group = self.get_object()
+            
+            # Get next scheduled payout (upcoming beneficiary)
+            next_payout = KixikilaPayout.objects.filter(
+                group=group,
+                status__in=['scheduled', 'processing']
+            ).order_by('scheduled_date').first()
+            
+            next_beneficiary = None
+            if next_payout:
+                next_beneficiary = {
+                    'id': next_payout.recipient.id,
+                    'username': next_payout.recipient.username,
+                    'scheduled_date': next_payout.scheduled_date.isoformat(),
+                    'amount': float(next_payout.total_amount),
+                    'round': next_payout.round,
+                }
+            
+            # Get pending contributions for current round
+            current_round_contribs = KixikilaContribution.objects.filter(
+                membership__group=group,
+                round=group.current_round
+            ).aggregate(
+                total=models.Sum('amount'),
+                confirmed=models.Count('id', filter=models.Q(status='confirmed')),
+                pending=models.Count('id', filter=models.Q(status='pending')),
+                late=models.Count('id', filter=models.Q(status='late')),
+            )
+            
+            return Response({
+                'current_round': group.current_round,
+                'total_rounds': group.duration_months,
+                'status': group.status,
+                'next_beneficiary': next_beneficiary,
+                'current_round_contributions': {
+                    'total_amount': float(current_round_contribs.get('total') or 0),
+                    'confirmed': current_round_contribs.get('confirmed', 0),
+                    'pending': current_round_contribs.get('pending', 0),
+                    'late': current_round_contribs.get('late', 0),
+                }
+            })
+        except Exception as e:
+            logger.error(f"Error computing cycles for group {pk}: {e}", exc_info=True)
+            return Response({"detail": "Could not compute cycles"}, status=status.HTTP_400_BAD_REQUEST)
+
     def get_serializer_class(self):
         if self.action in ["create", "update", "partial_update"]:
             return KixikilaGroupCreateUpdateSerializer
         return KixikilaGroupSerializer
 
     def get_permissions(self):
-        if self.action in ["create", "update", "partial_update", "destroy"]:
+        from backend.core.rbac_permissions import CanCreateKixikila
+        if self.action == "create":
+            return [CanCreateKixikila()]
+        if self.action in ["update", "partial_update", "destroy"]:
             return [permissions.IsAuthenticated()]
         return super().get_permissions()
 
@@ -266,6 +454,12 @@ class KixikilaContributionViewSet(mixins.ListModelMixin,
                 id=membership_id, 
                 member=self.request.user
             )
+
+            # Business guard: block inactive memberships with a clear message
+            if not getattr(membership, 'is_active', True):
+                raise serializers.ValidationError({
+                    "detail": "A sua adesão a este grupo está suspensa. Contacte o administrador do grupo."
+                })
             
             # Calculate round: current round + 1 (or 1 if first)
             last_contribution = KixikilaContribution.objects.filter(
@@ -297,6 +491,47 @@ class KixikilaContributionViewSet(mixins.ListModelMixin,
         except Exception as e:
             logger.error(f"Error creating contribution: {str(e)}", exc_info=True)
             raise serializers.ValidationError(f"Error creating contribution: {str(e)}")
+
+    @action(detail=False, methods=["get"], url_path="my_reputation")
+    def my_reputation(self, request):
+        """Compute a simple reputation score for the authenticated user based on contributions."""
+        user = request.user
+        if not user or not user.is_authenticated:
+            return Response({"detail": "Authentication required"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        qs = KixikilaContribution.objects.filter(membership__member=user)
+        total = qs.count()
+        confirmed = qs.filter(status="confirmed").count()
+        late = qs.filter(status="late").count()
+        missed = qs.filter(status="missed").count()
+
+        # Simple scoring: base 50, +50 * on-time ratio, -10 per missed (min 0, max 100)
+        score = 50
+        if total:
+            score += int(50 * (confirmed / total))
+        score -= 10 * missed
+        score = max(0, min(100, score))
+
+        if score >= 85:
+            trust = "champion"
+        elif score >= 70:
+            trust = "trusted"
+        elif score >= 55:
+            trust = "reliable"
+        else:
+            trust = "beginner"
+
+        groups_participated = request.user.kixikila_memberships.values("group").distinct().count()
+
+        return Response({
+            "username": user.username,
+            "groups_participated": groups_participated,
+            "contributions_on_time": confirmed,
+            "contributions_late": late,
+            "contributions_missed": missed,
+            "reputation_score": score,
+            "trust_level": trust,
+        })
 
     @action(detail=True, methods=["post"], url_path="confirm")
     def confirm(self, request, pk=None):
@@ -514,10 +749,85 @@ class KixikilaPayoutViewSet(mixins.ListModelMixin,
 
 
 @feature_flag_required("kixikila")
-class KixikilaRatingViewSet(mixins.ListModelMixin,
-                            mixins.RetrieveModelMixin,
-                            viewsets.GenericViewSet):
-    queryset = KixikilaRating.objects.all()
-    serializer_class = KixikilaRatingSerializer
+class KixikilaLeaderboardViewSet(viewsets.ViewSet):
+    """Leaderboard for Kixikila members by reputation score."""
     permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=["get"], url_path="reputation")
+    def reputation_leaderboard(self, request):
+        """Get leaderboard of top members by reputation score."""
+        try:
+            limit = int(request.query_params.get('limit', 50))
+            
+            # Get all users with their reputation computed
+            members = KixikilaMembership.objects.select_related('member').filter(
+                is_active=True
+            ).values('member_id', 'member__username', 'member__email')
+            
+            leaderboard = []
+            for membership in members:
+                user_id = membership['member_id']
+                
+                # Calculate reputation
+                confirmed = KixikilaContribution.objects.filter(
+                    membership__member_id=user_id,
+                    status='confirmed'
+                ).count()
+                
+                late = KixikilaContribution.objects.filter(
+                    membership__member_id=user_id,
+                    status='late'
+                ).count()
+                
+                missed = KixikilaContribution.objects.filter(
+                    membership__member_id=user_id,
+                    status='missed'
+                ).count()
+                
+                # Score calculation
+                score = 50 + (confirmed * 5) - (late * 10) - (missed * 20)
+                score = max(0, min(100, score))
+                
+                if score >= 85:
+                    trust = 'champion'
+                elif score >= 70:
+                    trust = 'trusted'
+                elif score >= 55:
+                    trust = 'reliable'
+                else:
+                    trust = 'beginner'
+                
+                groups_count = KixikilaMembership.objects.filter(
+                    member_id=user_id
+                ).count()
+                
+                leaderboard.append({
+                    'member_id': user_id,
+                    'username': membership['member__username'],
+                    'reputation_score': score,
+                    'trust_level': trust,
+                    'contributions_confirmed': confirmed,
+                    'contributions_late': late,
+                    'contributions_missed': missed,
+                    'groups_participated': groups_count,
+                })
+            
+            # Sort by reputation score (descending)
+            leaderboard = sorted(leaderboard, key=lambda x: x['reputation_score'], reverse=True)
+            
+            # Add ranking
+            for idx, member in enumerate(leaderboard[:limit], 1):
+                member['rank'] = idx
+            
+            return Response({
+                'leaderboard': leaderboard[:limit],
+                'total_members': len(leaderboard),
+            })
+        except Exception as e:
+            logger.error(f"Error computing reputation leaderboard: {e}", exc_info=True)
+            return Response({"detail": "Could not compute leaderboard"}, status=status.HTTP_400_BAD_REQUEST)
     ordering_fields = ["reputation_score", "groups_participated"]
+
+    def get_queryset(self):
+        # Return empty queryset - feature disabled
+        return KixikilaRating.objects.none()

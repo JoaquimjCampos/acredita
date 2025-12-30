@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 
 import { cn } from '../../utils/index.original';
 
@@ -14,17 +14,22 @@ interface CardProps extends BaseComponentProps {
   footer?: React.ReactNode;
 }
 
-export const Card: React.FC<CardProps> = ({
+export const Card: React.FC<CardProps> = React.memo(({
   title,
   subtitle,
   children,
   footer,
   className,
 }) => {
+  const headerClasses = useMemo(() => 
+    title || subtitle ? 'card-header' : undefined,
+    [title, subtitle]
+  );
+
   return (
     <div className={cn('card', className)}>
-      {(title || subtitle) && (
-        <div className="card-header">
+      {headerClasses && (
+        <div className={headerClasses}>
           {title && <h3 className="text-lg font-semibold text-gray-900">{title}</h3>}
           {subtitle && <p className="text-sm text-gray-600 mt-1">{subtitle}</p>}
         </div>
@@ -39,4 +44,6 @@ export const Card: React.FC<CardProps> = ({
       )}
     </div>
   );
-};
+});
+
+Card.displayName = 'Card';

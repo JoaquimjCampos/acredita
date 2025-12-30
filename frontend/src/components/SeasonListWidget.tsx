@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner, Button } from './common';
-import apiService from '../services/api.original';
+import apiService from '../services/api';
 
 import { Season } from '../types';
 
@@ -11,14 +11,14 @@ const SeasonListWidget: React.FC = () => {
 
   useEffect(() => {
     apiService.getSeasons()
-      .then(res => {
+      .then((res: any) => {
         if (Array.isArray(res.results)) {
           setSeasons(res.results.flat());
         } else {
           setSeasons([]);
         }
       })
-      .catch(err => setError(err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 

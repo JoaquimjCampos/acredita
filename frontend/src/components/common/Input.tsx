@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { cn } from '../../utils/index.original';
 
 interface BaseComponentProps {
@@ -19,7 +19,7 @@ interface InputProps extends BaseComponentProps {
   id?: string;
 }
 
-export const Input = React.forwardRef<HTMLInputElement, InputProps>(
+export const Input = React.memo(React.forwardRef<HTMLInputElement, InputProps>(
   ({
     label,
     type = 'text',
@@ -34,7 +34,19 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
     className,
     ...props
   }, ref) => {
-    const inputId = id || name || label?.toLowerCase().replace(/\s+/g, '-');
+    const inputId = useMemo(
+      () => id || name || label?.toLowerCase().replace(/\s+/g, '-'),
+      [id, name, label]
+    );
+
+    const inputClassName = useMemo(
+      () => cn(
+        'input-field',
+        error && 'border-red-500 focus:ring-red-500',
+        disabled && 'bg-gray-100 cursor-not-allowed'
+      ),
+      [error, disabled]
+    );
 
     return (
       <div className={className}>
@@ -57,11 +69,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
           onChange={onChange}
           disabled={disabled}
           required={required}
-          className={cn(
-            'input-field',
-            error && 'border-red-500 focus:ring-red-500',
-            disabled && 'bg-gray-100 cursor-not-allowed'
-          )}
+          className={inputClassName}
           {...props}
         />
         {error && (
@@ -70,4 +78,6 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
       </div>
     );
   }
-);
+));
+
+Input.displayName = 'Input';

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner } from './common';
-import apiService from '../services/api.original';
+import apiService from '../services/api';
 
 const CurrentSeasonBanner: React.FC = () => {
   const [season, setSeason] = useState<any>(null);
@@ -9,8 +9,8 @@ const CurrentSeasonBanner: React.FC = () => {
 
   useEffect(() => {
     apiService.getCurrentSeason()
-      .then(res => setSeason(res))
-      .catch(err => setError(err.message))
+      .then((res: any) => setSeason(res))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 

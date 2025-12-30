@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, Button, LoadingSpinner } from '../components/common';
 import { OptimizedImage } from '../components/common/OptimizedImage';
+import { analyticsService } from '../services/analytics';
+import { useRenderTime } from '../utils/performance';
 import { 
   Trophy, 
   Medal, 
@@ -20,8 +22,17 @@ import {
 import { useLeaderboard } from '../hooks';
 
 const RankingPage: React.FC = () => {
+    useRenderTime('RankingPage');
   const [timeFilter, setTimeFilter] = useState<'geral' | 'semana' | 'mes'>('geral');
   const { leaderboard, loading, error } = useLeaderboard();
+
+  const handleTimeFilterChange = (filter: 'geral' | 'semana' | 'mes') => {
+    setTimeFilter(filter);
+    analyticsService.trackEvent('ranking_filter_changed', {
+      filter_type: filter,
+      timestamp: new Date().toISOString()
+    });
+  };
 
   if (loading) {
     return (
@@ -139,19 +150,25 @@ const RankingPage: React.FC = () => {
             <div className="flex items-center gap-4">
               <Button
                 variant={timeFilter === 'geral' ? 'primary' : 'outline'}
-                onClick={() => setTimeFilter('geral')}
+                onClick={() => handleTimeFilterChange('geral')}
+                data-analytics="ranking-filter-click"
+                data-filter="geral"
               >
                 Geral
               </Button>
               <Button
                 variant={timeFilter === 'semana' ? 'primary' : 'outline'}
-                onClick={() => setTimeFilter('semana')}
+                onClick={() => handleTimeFilterChange('semana')}
+                data-analytics="ranking-filter-click"
+                data-filter="semana"
               >
                 Esta Semana
               </Button>
               <Button
                 variant={timeFilter === 'mes' ? 'primary' : 'outline'}
-                onClick={() => setTimeFilter('mes')}
+                onClick={() => handleTimeFilterChange('mes')}
+                data-analytics="ranking-filter-click"
+                data-filter="mes"
               >
                 Este Mês
               </Button>

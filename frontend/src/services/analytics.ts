@@ -32,6 +32,7 @@ interface AnalyticsEvent {
 class AnalyticsService {
   private debug = process.env.NODE_ENV === 'development';
   private enabled = true;
+  private listenerAttached = false;
 
   /**
    * Initialize analytics (called once in App startup)
@@ -49,6 +50,9 @@ class AnalyticsService {
     if (this.debug) {
       console.log('[Analytics] Service initialized');
     }
+
+    // Attach delegated click listener once
+    this.attachGlobalClickListener();
   }
 
   /**
@@ -194,6 +198,51 @@ class AnalyticsService {
         events.shift();
       }
       localStorage.setItem('_analytics_events', JSON.stringify(events));
+    }
+  }
+
+  /**
+   * Attach a single delegated click listener to capture elements
+   * with `data-analytics` and forward to trackEvent.
+   */
+  private attachGlobalClickListener() {
+    if (this.listenerAttached || typeof document === 'undefined') return;
+    const handler = (ev: MouseEvent) => {
+      const target = ev.target as Element | null;
+      if (!target) return;
+
+      // Find closest element with data-analytics
+      const el = (target.nodeType === 1 ? target : target.parentElement)?.closest?.('[data-analytics]') as HTMLElement | null;
+      if (!el) return;
+
+      const eventName = el.getAttribute('data-analytics');
+      if (!eventName) return;
+
+      // Build properties from dataset (excluding the event name itself)
+      const raw = el.dataset || ({} as DOMStringMap);
+      const props: Record<string, any> = {};
+      Object.keys(raw).forEach((key) => {
+        if (key.toLowerCase() === 'analytics') return;
+        props[key] = raw[key as keyof DOMStringMap];
+      });
+
+      // Add helpful context
+      props.tag = el.tagName;
+      if ((el as HTMLAnchorElement).href) {
+        props.href = (el as HTMLAnchorElement).href;
+      }
+      props.text = (el.textContent || '').trim();
+      props.path = window.location.pathname;
+
+      // Forward
+      this.trackEvent(eventName, props);
+    };
+
+    document.addEventListener('click', handler, true);
+    this.listenerAttached = true;
+
+    if (this.debug) {
+      console.log('[Analytics] Global click listener attached');
     }
   }
 }

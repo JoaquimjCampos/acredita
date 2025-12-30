@@ -15,7 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security settings
 SECRET_KEY = config('SECRET_KEY', default="django-insecure-n4$eo4@&-2w+@@-jc1w3g*7+2uuw$r#^gyu)^_q(v^7isdxrk!")
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1', cast=lambda v: [s.strip() for s in v.split(',')])
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,testserver', cast=lambda v: [s.strip() for s in v.split(',')])
 
 
 # Application definition
@@ -43,7 +43,7 @@ LOCAL_APPS = [
     'backend.seasons',
     'backend.voting',
     'backend.donations',
-    'backend.store',
+    # 'backend.store',  # DEPRECATED: Replaced by marketplace (handles products + services)
     'backend.blog',
     'backend.content',
     'backend.games',
@@ -53,6 +53,7 @@ LOCAL_APPS = [
     'backend.certifications',
     'backend.marketplace',
     'backend.kixikila',
+    'backend.analytics',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -65,6 +66,7 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "backend.core.rbac_middleware.RoleValidationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -88,6 +90,14 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.acredita_backend.wsgi.application"
+# Caches (for rate limiting and small in-memory counters)
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'acredita-cache',
+    }
+}
+
 
 
 # Database
@@ -196,6 +206,7 @@ CORS_ALLOW_CREDENTIALS = True
 # Allow custom frontend headers (e.g., x-mcp-context) used by the web app
 CORS_ALLOW_HEADERS = list(default_headers) + [
     'x-mcp-context',
+    'x-analytics-key',
 ]
 
 # CSRF Configuration  
@@ -233,26 +244,76 @@ X_FRAME_OPTIONS = 'DENY'
 FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB
 
-# Logging Configuration
+# Logging Configuration - Including RBAC
+# Create logs directory if it doesn't exist
+LOGS_DIR = BASE_DIR / 'logs'
+LOGS_DIR.mkdir(exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
     'handlers': {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': BASE_DIR / 'logs' / 'acredita.log',
+            'formatter': 'verbose',
+        },
+        'rbac_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'rbac.log',
+            'formatter': 'verbose',
+        },
+        'analytics_file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'analytics.log',
+            'formatter': 'verbose',
         },
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
+            'formatter': 'simple',
         },
     },
     'root': {
         'handlers': ['console', 'file'],
         'level': 'INFO',
     },
+    'loggers': {
+        'rbac': {
+            'handlers': ['rbac_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'analytics': {
+            'handlers': ['analytics_file', 'console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    }
 }
+
+# Analytics Settings
+ANALYTICS_RATE_LIMIT_PER_MINUTE = config('ANALYTICS_RATE_LIMIT_PER_MINUTE', default=120, cast=int)
+ANALYTICS_KEY = config('ANALYTICS_KEY', default='', cast=str)
 
 # Feature Flags Configuration
 # Controla ativação de novas funcionalidades em produção

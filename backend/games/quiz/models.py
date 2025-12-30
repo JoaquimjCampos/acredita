@@ -1,26 +1,52 @@
 from django.db import models
 from django.conf import settings
-# Quiz grouping model
+from django.utils import timezone
 
+# Quiz grouping model
 class Quiz(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(blank=True)
     category = models.CharField(max_length=100, blank=True)
     difficulty = models.CharField(max_length=50, blank=True)
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_quizzes')
     time_limit = models.PositiveIntegerField(default=0, help_text="Time limit in seconds (0 = no limit)")
-    is_public = models.BooleanField(default=True)
+    is_public = models.BooleanField(default=False, help_text="Se True, permite acesso público sem autenticação")
+    is_active = models.BooleanField(default=True, help_text="Se True, o quiz está disponível para acesso")
+    allow_anonymous_submission = models.BooleanField(default=True, help_text="Se True, usuários anônimos podem submeter respostas")
     start_date = models.DateTimeField(null=True, blank=True)
     end_date = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     season_number = models.PositiveIntegerField(default=1, help_text="Season number for harmonization")
+    
+    # Campos para rastreamento
+    public_access_count = models.PositiveIntegerField(default=0)
+    authenticated_access_count = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        verbose_name = 'Quiz'
+        verbose_name_plural = 'Quizzes'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['season_number', 'is_active']),
+            models.Index(fields=['is_public', 'is_active']),
+        ]
 
     def __str__(self):
         return self.title
-# Models for Quiz game
+    
+    def is_available(self):
+        """Verifica se o quiz está disponível no período especificado"""
+        if not self.is_active:
+            return False
+        now = timezone.now()
+        if self.start_date and now < self.start_date:
+            return False
+        if self.end_date and now > self.end_date:
+            return False
+        return True
 
-from django.db import models
-from django.conf import settings
+# Question, Answer, and Session models
 
 class Question(models.Model):
     quiz = models.ForeignKey('Quiz', related_name='questions', on_delete=models.CASCADE, null=True, blank=True)

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, LoadingSpinner } from './common';
-import apiService from '../services/api.original';
+import gamesService from '../services/gamesService';
 
 const SeasonLeaderboard: React.FC<{ quizId: number, seasonNumber: number }> = ({ quizId, seasonNumber }) => {
   const [leaderboard, setLeaderboard] = useState<any[]>([]);
@@ -8,8 +8,8 @@ const SeasonLeaderboard: React.FC<{ quizId: number, seasonNumber: number }> = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    apiService.getQuizLeaderboard(quizId, seasonNumber)
-      .then(res => {
+    gamesService.getQuizLeaderboard(quizId, seasonNumber)
+      .then((res: any) => {
         if (Array.isArray(res)) {
           setLeaderboard(res);
         } else if ('results' in res && Array.isArray(res.results)) {
@@ -20,7 +20,7 @@ const SeasonLeaderboard: React.FC<{ quizId: number, seasonNumber: number }> = ({
           setLeaderboard([]);
         }
       })
-      .catch(err => setError(err.message))
+      .catch((err: Error) => setError(err.message))
       .finally(() => setLoading(false));
   }, [quizId, seasonNumber]);
 

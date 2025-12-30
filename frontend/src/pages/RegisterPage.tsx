@@ -1,10 +1,9 @@
-
-
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../contexts/AuthContext';
+import { analyticsService } from '../services/analytics';
 import { Layout } from '../components/layout/Layout';
 import { Button, Input, Card } from '../components/common';
 
@@ -53,11 +52,27 @@ const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: UserRegistrationData) => {
     try {
+      analyticsService.trackEvent('signup_started', {
+        username: data.username,
+        user_type: data.user_type,
+        timestamp: new Date().toISOString()
+      });
+      
       const success = await registerUser(data);
       if (success) {
+        analyticsService.trackEvent('signup_completed', {
+          username: data.username,
+          user_type: data.user_type,
+          timestamp: new Date().toISOString()
+        });
         navigate('/login');
       }
     } catch (error: any) {
+      analyticsService.trackEvent('signup_failed', {
+        username: data.username,
+        error_message: error.message,
+        timestamp: new Date().toISOString()
+      });
       // AA log for backend error details
       console.log('AA registration error:', error);
       setError('root', {
@@ -233,6 +248,7 @@ const RegisterPage: React.FC = () => {
                 loading={isLoading}
                 disabled={isLoading}
                 className="w-full mt-6"
+                data-analytics="register-submit-click"
               >
                 <UserPlus className="w-4 h-4 mr-2" />
                 {isLoading ? 'A criar conta...' : 'Criar Conta'}

@@ -12,4 +12,5 @@ urlpatterns = [
     path('quiz/', include('backend.games.quiz.urls')),
     path('simulator/', include('backend.games.simulator.urls')),
     path('association/', include('backend.games.association.urls')),
+    path('crosswords/', include('backend.games.crosswords.urls')),
 ]

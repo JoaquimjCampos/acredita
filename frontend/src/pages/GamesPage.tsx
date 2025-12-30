@@ -1,14 +1,38 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/layout/Layout';
 import { Card, LoadingSpinner } from '../components/common';
 import { useGames } from '../hooks';
-import { Gamepad2, HelpCircle, Puzzle, Brain, Search, Filter } from 'lucide-react';
+import { Gamepad2, HelpCircle, Puzzle, Brain, Search, Filter, Trophy, Zap, BookOpen } from 'lucide-react';
+import gamesService from '../services/gamesService';
+import seasonConfig from '../config/season.json';
 import toast from 'react-hot-toast';
 
 const GamesPage: React.FC = () => {
+  const navigate = useNavigate();
   const { games, loading, error } = useGames();
   const [search, setSearch] = React.useState('');
   const [typeFilter, setTypeFilter] = React.useState('');
+  const [featuredQuiz, setFeaturedQuiz] = React.useState<any | null>(null);
+  const seasonNumber = seasonConfig.season_number;
+
+  React.useEffect(() => {
+    // Load top quiz for CTA
+    gamesService.getQuizzesBySeason(seasonNumber)
+      .then((list: any[]) => {
+        setFeaturedQuiz(list[0] || null);
+      })
+      .catch(() => {})
+  }, [seasonNumber]);
+
+  // Read type from URL query (?type=quiz)
+  React.useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const type = params.get('type') || '';
+      if (type) setTypeFilter(type);
+    } catch {}
+  }, []);
 
   if (loading) {
     return (
@@ -25,15 +49,17 @@ const GamesPage: React.FC = () => {
       case 'quiz': return <HelpCircle className="h-8 w-8 text-purple-600" />;
       case 'simulator': return <Brain className="h-8 w-8 text-purple-600" />;
       case 'association': return <Puzzle className="h-8 w-8 text-purple-600" />;
+      case 'crosswords': return <BookOpen className="h-8 w-8 text-purple-600" />;
       default: return <Gamepad2 className="h-8 w-8 text-purple-600" />;
     }
   };
 
   const getUrl = (type: string, id: number) => {
     switch (type) {
-      case 'quiz': return `/quiz/${id}`;
-      case 'simulator': return `/simuladores`;
-      case 'association': return `/associacao`;
+      case 'quiz': return `/jogos/quiz/${id}`;
+      case 'simulator': return `/jogos/simuladores`;
+      case 'association': return `/jogos/associacao`;
+      case 'crosswords': return `/jogos/palavras-cruzadas`;
       default: return '#';
     }
   };
@@ -43,6 +69,7 @@ const GamesPage: React.FC = () => {
       case 'quiz': return '+50 XP';
       case 'simulator': return '+100 XP';
       case 'association': return '+75 XP';
+      case 'crosswords': return '+60 XP';
       default: return '+50 XP';
     }
   };
@@ -70,6 +97,35 @@ const GamesPage: React.FC = () => {
 
       <div className="bg-gray-50 min-h-screen py-12">
         <div className="max-w-6xl mx-auto px-4">
+          {/* Quiz Challenge CTA */}
+          {featuredQuiz && (
+            <Card className="mb-8 p-6 border-l-4 border-cyan-600 bg-gradient-to-br from-cyan-50 to-blue-50">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Trophy className="h-5 w-5 text-yellow-500" />
+                    <span className="text-sm font-semibold text-cyan-700">Quiz Challenge</span>
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900">{featuredQuiz.title}</h3>
+                  <p className="text-gray-700 mt-1 line-clamp-2">{featuredQuiz.description}</p>
+                  <div className="mt-3 flex items-center gap-2">
+                    <span className="text-xs px-2 py-1 bg-cyan-100 text-cyan-700 rounded font-semibold">
+                      {featuredQuiz.category}
+                    </span>
+                    <span className="text-xs px-2 py-1 bg-green-100 text-green-700 rounded font-semibold">+50 XP</span>
+                  </div>
+                </div>
+                <div className="flex-shrink-0">
+                  <button
+                    onClick={() => { window.location.href = `/jogos/quiz/${featuredQuiz.id}`; }}
+                    className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold px-4 py-2 rounded-lg inline-flex items-center gap-2"
+                  >
+                    <Zap className="h-4 w-4" /> Jogar Agora
+                  </button>
+                </div>
+              </div>
+            </Card>
+          )}
           {error ? (
             <div className="text-center text-red-600 font-semibold py-12">{error}</div>
           ) : (
@@ -97,6 +153,7 @@ const GamesPage: React.FC = () => {
                     <option value="quiz">Quiz</option>
                     <option value="simulator">Simulador</option>
                     <option value="association">Associação</option>
+                    <option value="crosswords">Palavras Cruzadas</option>
                   </select>
                 </div>
               </div>
@@ -126,7 +183,7 @@ const GamesPage: React.FC = () => {
                       </div>
                       <button
                         onClick={() => {
-                          window.location.href = getUrl(game.type, game.id);
+                          navigate(getUrl(game.type, game.id));
                           toast.success(`Parabéns! Ganhou ${getXP(game.type)}!`);
                         }}
                         className="w-full bg-purple-600 hover:bg-purple-700 text-white font-medium py-2 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
