@@ -23,6 +23,7 @@ import HomepageNav from '../components/HomepageNav';
 import { useCoreDashboard } from '../hooks/useCoreDashboard';
 import { trackEvent } from '../utils/analytics';
 import { usePermissions } from '../hooks/usePermissions';
+import { useUserEngagement } from '../hooks/useUserEngagement';
 
 // Minimal homepage: only essentials for quick orientation
 

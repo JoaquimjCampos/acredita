@@ -18,6 +18,10 @@ class Game(models.Model):
     ranking_enabled = models.BooleanField(default=False)
     feedback_enabled = models.BooleanField(default=False)
     max_score = models.PositiveIntegerField(default=100)
+    is_active = models.BooleanField(default=True)
+    category = models.CharField(max_length=100, blank=True, default="")
+    difficulty = models.CharField(max_length=50, blank=True, default="")
+    asset_url = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

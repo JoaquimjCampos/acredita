@@ -467189,3 +467189,206 @@ INFO 2025-12-30 14:08:20 basehttp 7812 19720 "OPTIONS /api/v2/kixikila/groups/9/
 INFO 2025-12-30 14:08:20 views 7812 19720 User Joaquim (Administrador) joined group 9. Created: True
 INFO 2025-12-30 14:08:20 views 7812 19720 Group 9 now has 1 members
 INFO 2025-12-30 14:08:20 basehttp 7812 19720 "POST /api/v2/kixikila/groups/9/join/ HTTP/1.1" 201 262
+INFO 2026-01-01 10:18:08 basehttp 7812 27344 "OPTIONS /api/accounts/profile/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:08 basehttp 7812 11180 "OPTIONS /api/accounts/profile/ HTTP/1.1" 200 0
+WARNING 2026-01-01 10:18:08 log 7812 11180 Unauthorized: /api/accounts/profile/
+WARNING 2026-01-01 10:18:08 basehttp 7812 11180 "GET /api/accounts/profile/ HTTP/1.1" 401 209
+WARNING 2026-01-01 10:18:08 log 7812 11180 Unauthorized: /api/accounts/profile/
+INFO 2026-01-01 10:18:08 basehttp 7812 27344 "OPTIONS /api/auth/refresh/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:08 basehttp 7812 27344 "POST /api/auth/refresh/ HTTP/1.1" 200 483
+WARNING 2026-01-01 10:18:08 basehttp 7812 11180 "GET /api/accounts/profile/ HTTP/1.1" 401 209
+INFO 2026-01-01 10:18:08 basehttp 7812 11180 "POST /api/auth/refresh/ HTTP/1.1" 200 483
+INFO 2026-01-01 10:18:20 views 7812 11180 LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+INFO 2026-01-01 10:18:20 views 7812 11180 [DEBUG] Login attempt for: Joaquim
+INFO 2026-01-01 10:18:20 views 7812 11180 [DEBUG] User found: Joaquim
+INFO 2026-01-01 10:18:21 views 7812 11180 [DEBUG] Password correct for user: Joaquim
+INFO 2026-01-01 10:18:23 views 7812 11180 [DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2Nzg2MzkwMywiaWF0IjoxNzY3MjU5MTAzLCJqdGkiOiJjNGEyZjAyMWZkNWI0ODEzOGQyNDRmNWQzYmMyNmE5ZCIsInVzZXJfaWQiOjR9.mQyKcltDUKyFeDR8L7-XPncESKOUMPLUJ_v8T67TNEM', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjYyNzAzLCJpYXQiOjE3NjcyNTkxMDMsImp0aSI6ImRjMWFkZGRmYTc2NTRlMTBhNTZjNDEwNTUxMWVkNDBiIiwidXNlcl9pZCI6NH0.z0wpC8O8qKzdHjaaoKWW5NbJ5BAS86cCIABvhXx3HT0'}
+INFO 2026-01-01 10:18:23 views 7812 11180 LoginView RESPONSE: 200
+INFO 2026-01-01 10:18:23 basehttp 7812 11180 "POST /api/auth/login/ HTTP/1.1" 200 483
+INFO 2026-01-01 10:18:23 basehttp 7812 11180 "GET /api/accounts/profile/ HTTP/1.1" 200 191
+INFO 2026-01-01 10:18:23 basehttp 7812 11180 "OPTIONS /api/donations/donations/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 27344 "OPTIONS /api/donations/donations/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:23 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:23 basehttp 7812 28568 "OPTIONS /api/v2/core/me/activity/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 28568 "OPTIONS /api/v2/core/me/dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 28532 "OPTIONS /api/v2/core/me/activity/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 27480 "OPTIONS /api/v2/core/me/activity/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 24560 "OPTIONS /api/v2/core/me/dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 29904 "OPTIONS /api/v2/core/me/activity/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:23 basehttp 7812 2224 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 2224 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:23 basehttp 7812 2224 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 2224 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:23 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:23 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:23 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:27 basehttp 7812 11180 "OPTIONS /api/seasons/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:27 basehttp 7812 27344 "OPTIONS /api/seasons/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:27 basehttp 7812 27344 "GET /api/seasons/ HTTP/1.1" 200 1518
+INFO 2026-01-01 10:18:27 basehttp 7812 27344 "GET /api/seasons/ HTTP/1.1" 200 1518
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:27 basehttp 7812 28532 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:36 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 2224 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:36 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 2224 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 28532 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:18:36 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:36 basehttp 7812 27344 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:18:40 basehttp 7812 11180 "OPTIONS /api/v2/marketplace/listings/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:40 basehttp 7812 27344 "OPTIONS /api/v2/marketplace/listings/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:40 basehttp 7812 11180 "GET /api/v2/marketplace/listings/ HTTP/1.1" 200 260138
+INFO 2026-01-01 10:18:40 basehttp 7812 27344 "GET /api/v2/marketplace/listings/ HTTP/1.1" 200 260138
+INFO 2026-01-01 10:18:42 basehttp 7812 27344 "OPTIONS /api/participants/dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:42 basehttp 7812 11180 "OPTIONS /api/participants/dashboard/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:42 basehttp 7812 11180 "GET /api/participants/dashboard/ HTTP/1.1" 200 324
+INFO 2026-01-01 10:18:42 basehttp 7812 11180 "GET /api/participants/dashboard/ HTTP/1.1" 200 324
+INFO 2026-01-01 10:18:43 basehttp 7812 11180 "OPTIONS /api/games/games/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:43 basehttp 7812 27344 "OPTIONS /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:43 basehttp 7812 15448 "OPTIONS /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:43 basehttp 7812 28100 "OPTIONS /api/games/games/ HTTP/1.1" 200 0
+INFO 2026-01-01 10:18:43 basehttp 7812 11180 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+INFO 2026-01-01 10:18:43 basehttp 7812 11180 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+ERROR 2026-01-01 10:18:44 log 7812 27344 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: assets, created_at, description, feedback_enabled, id, instructions, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:18:44 basehttp 7812 27344 "GET /api/games/games/ HTTP/1.1" 500 155803
+ERROR 2026-01-01 10:18:44 log 7812 11180 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: assets, created_at, description, feedback_enabled, id, instructions, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:18:44 basehttp 7812 11180 "GET /api/games/games/ HTTP/1.1" 500 155803
+INFO 2026-01-01 10:20:08 autoreload 7812 7892 C:\apps\Acredita\backend\games\models.py changed, reloading.
+INFO 2026-01-01 10:20:19 autoreload 7824 27960 Watching for file changes with StatReloader
+INFO 2026-01-01 10:21:13 autoreload 7824 27960 C:\apps\Acredita\backend\games\models.py changed, reloading.
+INFO 2026-01-01 10:21:16 autoreload 7500 30688 Watching for file changes with StatReloader
