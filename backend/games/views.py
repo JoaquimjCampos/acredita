@@ -66,7 +66,7 @@ class GameViewSet(viewsets.ModelViewSet):
             return Game.objects.all()
         
         # Outros veem apenas públicas
-        return Game.objects.filter(is_published=True)
+        return Game.objects.filter(is_active=True)
     
     def perform_create(self, serializer):
         """Ao criar, registrar na auditoria"""
