@@ -56,7 +56,10 @@ const HeroVariant: React.FC<HeroVariantProps> = ({ variant = 'A', onCTAClick }) 
       cta_type: 'primary',
       label: 'dashboard',
       variant: selectedVariant,
-      primary_engagement: primary_engagement,
+      primary_engagement,
+      personalized: false,
+      engagement_percentage: primary_percentage,
+      timestamp: Date.now(),
     });
     navigate('/dashboard');
     onCTAClick?.('dashboard');
@@ -69,9 +72,10 @@ const HeroVariant: React.FC<HeroVariantProps> = ({ variant = 'A', onCTAClick }) 
       cta_type: 'secondary',
       label: personalized.label,
       variant: selectedVariant,
-      primary_engagement: primary_engagement,
+      primary_engagement,
       personalized: true,
       engagement_percentage: primary_percentage,
+      timestamp: Date.now(),
     });
     navigate(personalized.path);
     onCTAClick?.(personalized.label);

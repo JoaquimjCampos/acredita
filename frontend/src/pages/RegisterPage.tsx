@@ -53,25 +53,33 @@ const RegisterPage: React.FC = () => {
   const onSubmit = async (data: UserRegistrationData) => {
     try {
       analyticsService.trackEvent('signup_started', {
+        name: 'signup_started',
+        page: 'register',
+        cta_type: 'register',
         username: data.username,
         user_type: data.user_type,
-        timestamp: new Date().toISOString()
+        timestamp: Date.now(),
       });
-      
       const success = await registerUser(data);
       if (success) {
         analyticsService.trackEvent('signup_completed', {
+          name: 'signup_completed',
+          page: 'register',
+          cta_type: 'register',
           username: data.username,
           user_type: data.user_type,
-          timestamp: new Date().toISOString()
+          timestamp: Date.now(),
         });
         navigate('/login');
       }
     } catch (error: any) {
       analyticsService.trackEvent('signup_failed', {
+        name: 'signup_failed',
+        page: 'register',
+        cta_type: 'register',
         username: data.username,
         error_message: error.message,
-        timestamp: new Date().toISOString()
+        timestamp: Date.now(),
       });
       // AA log for backend error details
       console.log('AA registration error:', error);

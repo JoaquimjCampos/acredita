@@ -29,8 +29,11 @@ const RankingPage: React.FC = () => {
   const handleTimeFilterChange = (filter: 'geral' | 'semana' | 'mes') => {
     setTimeFilter(filter);
     analyticsService.trackEvent('ranking_filter_changed', {
+      name: 'ranking_filter_changed',
+      page: 'ranking',
+      cta_type: 'filter',
       filter_type: filter,
-      timestamp: new Date().toISOString()
+      timestamp: Date.now(),
     });
   };
 

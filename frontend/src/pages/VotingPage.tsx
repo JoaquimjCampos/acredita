@@ -25,11 +25,13 @@ const VotingPage: React.FC = () => {
     try {
       // Track vote submission
       analyticsService.trackEvent('vote_submitted', {
+        name: 'vote_submitted',
+        page: 'voting',
+        cta_type: 'vote',
         participant_id: participantId,
         participant_name: participantName,
-        timestamp: new Date().toISOString()
+        timestamp: Date.now(),
       });
-      
       await apiService.vote({ participante: participantId });
       setVoted(participantId);
     } catch (err: any) {

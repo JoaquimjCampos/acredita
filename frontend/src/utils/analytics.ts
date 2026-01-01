@@ -7,13 +7,20 @@ export interface AnalyticsEvent {
   value?: number | string;
   meta?: Record<string, unknown>;
   variant?: 'A' | 'B';
-  cta_type?: 'primary' | 'secondary';
+  cta_type?: 'primary' | 'secondary' | 'module' | 'season' | 'upgrade' | 'login' | 'register' | 'vote' | 'filter' | 'unlock';
   primary_engagement?: string;
   personalized?: boolean;
   engagement_percentage?: number;
   // PLG funnel fields
   required_role?: 'participant' | 'mentor' | 'admin' | 'voter' | string;
   target_role?: 'participant' | 'mentor' | 'admin' | 'voter' | string;
+  timestamp?: number;
+  username?: string;
+  participant_id?: string;
+  participant_name?: string;
+  filter_type?: string;
+  error_message?: string;
+  user_type?: string;
 }
 
 // Determine API base from environment (CRA)

@@ -9,7 +9,14 @@ const UpgradePage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleUpgrade = (role: 'participant' | 'mentor') => {
-    trackEvent({ name: 'upgrade-request', page: 'upgrade', target_role: role });
+    trackEvent({
+      name: 'upgrade-request',
+      page: 'upgrade',
+      cta_type: 'upgrade',
+      target_role: role,
+      variant: 'A',
+      timestamp: Date.now(),
+    });
     navigate('/perfil');
   };
 

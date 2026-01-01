@@ -83,6 +83,7 @@ const HomePage: React.FC = () => {
   const navigate = useNavigate();
   const { user, isAuthenticated } = useAuth();
   const perms = usePermissions();
+  const { primary_engagement, primary_percentage } = useUserEngagement();
   
   // Memoize context to avoid unnecessary re-renders
   const context = useMemo(
@@ -118,18 +119,39 @@ const HomePage: React.FC = () => {
   const handleNavigate = useCallback((path: string) => navigate(path), [navigate]);
   const handleRegister = useCallback(() => handleNavigate('/registo'), [handleNavigate]);
   const handleDashboard = useCallback(() => {
-    trackEvent({ name: 'hero-cta-click', page: 'home', label: isAuthenticated ? 'dashboard' : 'start' });
+    trackEvent({
+      name: 'hero-cta-click',
+      page: 'home',
+      cta_type: 'primary',
+      label: isAuthenticated ? 'dashboard' : 'start',
+      variant: 'A',
+      primary_engagement,
+      personalized: false,
+      engagement_percentage: primary_percentage,
+      timestamp: Date.now(),
+    });
     handleNavigate(isAuthenticated ? '/dashboard' : '/registo');
-  }, [handleNavigate, isAuthenticated]);
+  }, [handleNavigate, isAuthenticated, primary_engagement, primary_percentage]);
 
   const handleLockedFeatureClick = useCallback((feature: string, requiredRole: string) => {
-    trackEvent({ name: 'plg-unlock-click', page: 'home', label: feature, required_role: requiredRole });
+    trackEvent({
+      name: 'plg-unlock-click',
+      page: 'home',
+      cta_type: 'unlock',
+      label: feature,
+      required_role: requiredRole,
+      variant: 'A',
+      primary_engagement,
+      personalized: false,
+      engagement_percentage: primary_percentage,
+      timestamp: Date.now(),
+    });
     if (!isAuthenticated) {
       handleNavigate('/registo');
     } else {
       handleNavigate('/upgrade');
     }
-  }, [isAuthenticated, handleNavigate]);
+  }, [isAuthenticated, handleNavigate, primary_engagement, primary_percentage]);
 
   return (
     <Layout>
@@ -237,7 +259,17 @@ const HomePage: React.FC = () => {
                     ) : (
                       <Button
                         onClick={() => {
-                          trackEvent({ name: 'module-card-clicked', page: 'home', label: module.id });
+                          trackEvent({
+                            name: 'module-card-clicked',
+                            page: 'home',
+                            cta_type: 'module',
+                            label: module.id,
+                            variant: 'A',
+                            primary_engagement,
+                            personalized: false,
+                            engagement_percentage: primary_percentage,
+                            timestamp: Date.now(),
+                          });
                           handleNavigate(module.path);
                         }}
                         className={`w-full bg-gradient-to-r ${module.color} text-white hover:shadow-lg`}
@@ -288,7 +320,18 @@ const HomePage: React.FC = () => {
                   <div className="flex flex-wrap gap-3">
                     <Button
                       onClick={() => {
-                        trackEvent({ name: 'featured-season-cta', page: 'home', label: 'explorar', value: seasons[0].id });
+                        trackEvent({
+                          name: 'featured-season-cta',
+                          page: 'home',
+                          cta_type: 'season',
+                          label: 'explorar',
+                          value: seasons[0].id,
+                          variant: 'A',
+                          primary_engagement,
+                          personalized: false,
+                          engagement_percentage: primary_percentage,
+                          timestamp: Date.now(),
+                        });
                         handleNavigate(`/temporadas/${seasons[0].id}`);
                       }}
                       size="lg"
@@ -300,7 +343,17 @@ const HomePage: React.FC = () => {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        trackEvent({ name: 'featured-season-cta', page: 'home', label: 'participantes' });
+                        trackEvent({
+                          name: 'featured-season-cta',
+                          page: 'home',
+                          cta_type: 'season',
+                          label: 'participantes',
+                          variant: 'A',
+                          primary_engagement,
+                          personalized: false,
+                          engagement_percentage: primary_percentage,
+                          timestamp: Date.now(),
+                        });
                         handleNavigate('/participantes');
                       }}
                       className="flex-1 sm:flex-initial"

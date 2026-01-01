@@ -76,33 +76,20 @@ const LoginPage: React.FC = () => {
           {/* Logo e título */}
           <div className="flex justify-center">
             <div className="flex items-center space-x-3">
-              <picture>
-                <source srcSet="/logo.svg" type="image/svg+xml" />
-                <source srcSet="/logo512.png" type="image/png" />
-                <img
-                  src="/logo512.jpg"
-                  alt="Logotipo Acredita"
-                  className="h-12 w-auto drop-shadow-sm"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              </picture>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">Acredita</h1>
-                <p className="text-sm text-gray-600 -mt-1">em Ti, em Angola</p>
-              </div>
+              <Heart className="h-6 w-6 text-acredita-primary" />
+              <span className="text-2xl font-bold text-acredita-primary">Acredita</span>
             </div>
           </div>
-          
-          <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
-            Iniciar Sessão
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Entrar na sua conta
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">
-            Bem-vindo de volta! Entre na sua conta para continuar a sua jornada empreendedora.
+            Não tem uma conta?{' '}
+            <Link to="/registo" className="font-medium text-acredita-primary hover:text-orange-500">
+              Registe-se
+            </Link>
           </p>
         </div>
-
-        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
           <Card>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* Erro geral */}
