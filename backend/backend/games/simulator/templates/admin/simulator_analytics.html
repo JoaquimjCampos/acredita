@@ -1,0 +1,30 @@
+
+{% extends 'admin/base_site.html' %}
+{% block content %}
+<h1>Simulator Analytics: {{ simulator.title }}</h1>
+<canvas id='sessionsChart' width='600' height='300'></canvas>
+<script src='https://cdn.jsdelivr.net/npm/chart.js'></script>
+<script>
+const ctx = document.getElementById('sessionsChart').getContext('2d');
+const chart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: {{ chart_labels|safe }},
+        datasets: [{
+            label: 'Sessions per Day',
+            data: {{ chart_values|safe }},
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderColor: 'rgba(54, 162, 235, 1)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: { beginAtZero: true }
+        }
+    }
+});
+</script>
+<h2>Session Details</h2>
+<pre>{{ session_data }}</pre>
+{% endblock %}

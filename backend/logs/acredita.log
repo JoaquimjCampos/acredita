@@ -467392,3 +467392,305 @@ INFO 2026-01-01 10:20:08 autoreload 7812 7892 C:\apps\Acredita\backend\games\mod
 INFO 2026-01-01 10:20:19 autoreload 7824 27960 Watching for file changes with StatReloader
 INFO 2026-01-01 10:21:13 autoreload 7824 27960 C:\apps\Acredita\backend\games\models.py changed, reloading.
 INFO 2026-01-01 10:21:16 autoreload 7500 30688 Watching for file changes with StatReloader
+INFO 2026-01-01 10:22:42 autoreload 25912 31696 Watching for file changes with StatReloader
+INFO 2026-01-01 10:25:03 autoreload 24504 12328 Watching for file changes with StatReloader
+INFO 2026-01-01 10:25:21 basehttp 24504 11928 "GET /api/accounts/profile/ HTTP/1.1" 200 191
+INFO 2026-01-01 10:25:21 basehttp 24504 11928 - Broken pipe from ('127.0.0.1', 52871)
+INFO 2026-01-01 10:25:33 views 24504 28204 LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+INFO 2026-01-01 10:25:33 views 24504 28204 [DEBUG] Login attempt for: Joaquim
+INFO 2026-01-01 10:25:33 views 24504 28204 [DEBUG] User found: Joaquim
+INFO 2026-01-01 10:25:33 views 24504 28204 [DEBUG] Password correct for user: Joaquim
+INFO 2026-01-01 10:25:34 views 24504 28204 [DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2Nzg2NDMzNCwiaWF0IjoxNzY3MjU5NTM0LCJqdGkiOiJkYzIxZTlhN2RlODE0ZGNmODIyYzQzN2IyZTFmNWM4MyIsInVzZXJfaWQiOjR9.dVP7KzxbnumglRPTE9OK3thrQseXObvCUYaZ1SGc6A4', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjYzMTM0LCJpYXQiOjE3NjcyNTk1MzQsImp0aSI6ImFiOTJkMzk4MjY0YzRiNTk5ODBlOTg2NTRjYTRkZDg3IiwidXNlcl9pZCI6NH0.nbgAw7-Y2P6dsiNoLuz9WN1YLzEMZN7pHoL1pSqHkHQ'}
+INFO 2026-01-01 10:25:34 views 24504 28204 LoginView RESPONSE: 200
+INFO 2026-01-01 10:25:34 basehttp 24504 28204 "POST /api/auth/login/ HTTP/1.1" 200 483
+INFO 2026-01-01 10:25:34 basehttp 24504 28204 "GET /api/accounts/profile/ HTTP/1.1" 200 191
+INFO 2026-01-01 10:25:34 basehttp 24504 28204 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:25:34 basehttp 24504 28204 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:35 basehttp 24504 30952 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:35 basehttp 24504 30952 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:35 basehttp 24504 28204 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:25:35 basehttp 24504 28204 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:25:35 basehttp 24504 20404 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:25:38 basehttp 24504 28204 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+INFO 2026-01-01 10:25:38 basehttp 24504 28204 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+ERROR 2026-01-01 10:25:38 log 24504 12968 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: asset_url, assets, category, created_at, description, difficulty, feedback_enabled, id, instructions, is_active, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:25:38 basehttp 24504 12968 "GET /api/games/games/ HTTP/1.1" 500 156283
+ERROR 2026-01-01 10:25:38 log 24504 28204 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: asset_url, assets, category, created_at, description, difficulty, feedback_enabled, id, instructions, is_active, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:25:38 basehttp 24504 28204 "GET /api/games/games/ HTTP/1.1" 500 156283
+INFO 2026-01-01 10:26:57 basehttp 24504 9180 "GET /api/accounts/profile/ HTTP/1.1" 200 191
+INFO 2026-01-01 10:26:57 basehttp 24504 9180 - Broken pipe from ('127.0.0.1', 54519)
+INFO 2026-01-01 10:27:04 views 24504 19760 LoginView POST data: <QueryDict: {'username': ['Joaquim'], 'password': ['136912xyZ']}>
+INFO 2026-01-01 10:27:04 views 24504 19760 [DEBUG] Login attempt for: Joaquim
+INFO 2026-01-01 10:27:04 views 24504 19760 [DEBUG] User found: Joaquim
+INFO 2026-01-01 10:27:08 views 24504 19760 [DEBUG] Password correct for user: Joaquim
+INFO 2026-01-01 10:27:11 views 24504 19760 [DEBUG] super().validate returned: {'refresh': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTc2Nzg2NDQzMSwiaWF0IjoxNzY3MjU5NjMxLCJqdGkiOiIxODM2OTM0M2EyOWE0MDFhOTBmNDcwMDc2M2ViZGUyNCIsInVzZXJfaWQiOjR9.rmpICkf_FHyTpa_ISSc9IY9FX62NIV8I0rzuKyBIZ_g', 'access': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzY3MjYzMjMxLCJpYXQiOjE3NjcyNTk2MzEsImp0aSI6IjRjNDg3OTk0MmUzMTQxNThiZjY5NGRkOTNiMWIxYjE4IiwidXNlcl9pZCI6NH0.06OwscOFXGs9a2MPlxqtoYxT0BLh8qGT-iU6xB8N8BY'}
+INFO 2026-01-01 10:27:11 views 24504 19760 LoginView RESPONSE: 200
+INFO 2026-01-01 10:27:11 basehttp 24504 19760 "POST /api/auth/login/ HTTP/1.1" 200 483
+INFO 2026-01-01 10:27:11 basehttp 24504 19760 "GET /api/accounts/profile/ HTTP/1.1" 200 191
+INFO 2026-01-01 10:27:11 basehttp 24504 19760 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:27:11 basehttp 24504 19760 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:27:11 basehttp 24504 29756 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:11 basehttp 24504 27864 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:27:11 basehttp 24504 29756 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:12 basehttp 24504 29756 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:12 basehttp 24504 27864 "GET /api/v2/core/me/dashboard/ HTTP/1.1" 200 363
+INFO 2026-01-01 10:27:12 basehttp 24504 29756 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:12 basehttp 24504 19760 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:27:12 basehttp 24504 29756 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:12 basehttp 24504 27864 "GET /api/v2/core/me/activity/ HTTP/1.1" 200 37
+INFO 2026-01-01 10:27:12 basehttp 24504 19760 "GET /api/donations/donations/ HTTP/1.1" 200 1410
+INFO 2026-01-01 10:27:18 basehttp 24504 26996 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+INFO 2026-01-01 10:27:18 basehttp 24504 26996 "GET /api/games/quiz/quizzes/?season_number=2 HTTP/1.1" 200 1269
+ERROR 2026-01-01 10:27:18 log 24504 19760 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: asset_url, assets, category, created_at, description, difficulty, feedback_enabled, id, instructions, is_active, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:27:18 basehttp 24504 19760 "GET /api/games/games/ HTTP/1.1" 500 156283
+ERROR 2026-01-01 10:27:18 log 24504 26996 Internal Server Error: /api/games/games/
+Traceback (most recent call last):
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\viewsets.py", line 124, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "C:\apps\Acredita\.venv\Lib\site-packages\rest_framework\mixins.py", line 38, in list
+    queryset = self.filter_queryset(self.get_queryset())
+                                    ~~~~~~~~~~~~~~~~~^^
+  File "C:\apps\Acredita\backend\games\views.py", line 69, in get_queryset
+    return Game.objects.filter(is_published=True)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1476, in filter
+    return self._filter_or_exclude(False, args, kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1494, in _filter_or_exclude
+    clone._filter_or_exclude_inplace(negate, args, kwargs)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\query.py", line 1501, in _filter_or_exclude_inplace
+    self._query.add_q(Q(*args, **kwargs))
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1613, in add_q
+    clause, _ = self._add_q(q_object, self.used_aliases)
+                ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1645, in _add_q
+    child_clause, needed_inner = self.build_filter(
+                                 ~~~~~~~~~~~~~~~~~^
+        child,
+        ^^^^^^
+    ...<7 lines>...
+        update_join_types=update_join_types,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1495, in build_filter
+    lookups, parts, reffed_expression = self.solve_lookup_type(arg, summarize)
+                                        ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1307, in solve_lookup_type
+    _, field, _, lookup_parts = self.names_to_path(lookup_splitted, self.get_meta())
+                                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\apps\Acredita\.venv\Lib\site-packages\django\db\models\sql\query.py", line 1772, in names_to_path
+    raise FieldError(
+    ...<2 lines>...
+    )
+django.core.exceptions.FieldError: Cannot resolve keyword 'is_published' into field. Choices are: asset_url, assets, category, created_at, description, difficulty, feedback_enabled, id, instructions, is_active, max_score, ranking_enabled, title, type
+ERROR 2026-01-01 10:27:18 basehttp 24504 26996 "GET /api/games/games/ HTTP/1.1" 500 156283

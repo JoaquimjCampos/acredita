@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import path
 from django.template.response import TemplateResponse
 import json
-from .models import Simulator, SimulatorSession
+from backend.games.models import Simulator, SimulatorSession
 from .scenario import Scenario
 
 class ScenarioInline(admin.TabularInline):
